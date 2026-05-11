@@ -1,0 +1,25 @@
+[
+  {
+    "id": "b-1",
+    "name": "City Hall",
+    "location": "Zone A - Main St",
+    "consumptionValue": 50,
+    "consumptionUnit": "kW",
+    "devices": [
+      {
+        "id": "d-1",
+        "type": "SOLAR",
+        "ratedCapacityValue": 100,
+        "ratedCapacityUnit": "kW"
+      }
+    ]
+  },
+  {
+    "id": "b-2",
+    "name": "Library",
+    "location": "Zone B - Oak Ave",
+    "consumptionValue": 0,
+    "consumptionUnit": "kW",
+    "devices": []
+  }
+]
