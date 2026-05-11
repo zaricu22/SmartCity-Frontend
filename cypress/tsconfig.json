@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["cypress"],
+    "lib": ["ES2015", "DOM"],
+    "isolatedModules": false
+  },
+  "include": ["**/*.ts"]
+}

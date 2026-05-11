@@ -1,0 +1,8 @@
+<a class="building-card" [routerLink]="['/assets', building().id]">
+  <h3 class="building-card__name">{{ building().name }}</h3>
+  <p class="building-card__location">{{ building().location }}</p>
+  <p class="building-card__consumption">
+    Consumption: <app-energy-display [value]="building().consumptionValue" [unit]="building().consumptionUnit" />
+  </p>
+  <p class="building-card__devices">{{ deviceSummary() }}</p>
+</a>

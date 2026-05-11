@@ -1,9 +1,22 @@
+# IDE and editor
+/.vscode/
+/.idea/
+
+# Claude Code
+/.claude/
+
+# OS
+Thumbs.db
+desktop.ini
+
 # Angular specific
 /dist/
 /out-tsc/
 /tmp/
 /coverage/
 /e2e/test-output/
+/cypress/videos/
+/cypress/screenshots/
 /.angular/
 .angular/
 

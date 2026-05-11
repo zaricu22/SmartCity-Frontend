@@ -1,0 +1,26 @@
+<div class="dialog-backdrop" style="background-color: #894e8d;">
+  <div class="dialog" [formGroup]="form">
+    <h2>Create Building</h2>
+
+    <label>
+      Name
+      <input formControlName="name" placeholder="Building name" />
+      @if (form.controls.name.invalid && form.controls.name.touched) {
+        <span class="dialog__error">Name is required (2–100 characters).</span>
+      }
+    </label>
+
+    <label>
+      Location
+      <input formControlName="location" placeholder="Address / zone" />
+      @if (form.controls.location.invalid && form.controls.location.touched) {
+        <span class="dialog__error">Location is required (2–200 characters).</span>
+      }
+    </label>
+
+    <div class="dialog__actions">
+      <button type="button" (click)="cancel.emit()">Cancel</button>
+      <button type="button" [disabled]="form.invalid" (click)="submit()">Create</button>
+    </div>
+  </div>
+</div>

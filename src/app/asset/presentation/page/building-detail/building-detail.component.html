@@ -1,0 +1,46 @@
+@if (errorMessage()) {
+  <p class="building-detail-page__error">{{ errorMessage() }}</p>
+}
+
+@if (building(); as b) {
+  <div class="building-detail-page" style="background-color: #AACDDC; width: fit-content;">
+    <h1>{{ b.name }}</h1>
+    <p>{{ b.location }}</p>
+
+    <section class="building-detail-page__consumption">
+      <h2>
+        Consumption
+        <button (click)="showChangeConsumptionDialog = true">Change</button>
+      </h2>
+      <app-energy-display [value]="b.consumptionValue" [unit]="b.consumptionUnit" />
+    </section>
+
+    <section class="building-detail-page__devices">
+      <h2>
+        Devices
+        <button (click)="showAddDeviceDialog = true">+ Add Device</button>
+      </h2>
+      @if (hasDevices()) {
+        <app-device-list [devices]="b.devices" />
+      } @else {
+        <p class="building-detail-page__no-devices">No devices yet.</p>
+      }
+    </section>
+
+    @if (showAddDeviceDialog) {
+      <app-add-device-dialog
+        (confirm)="onAddDevice($event)"
+        (cancel)="showAddDeviceDialog = false"
+      />
+    }
+
+    @if (showChangeConsumptionDialog) {
+      <app-change-consumption-dialog
+        (confirm)="onChangeConsumption($event)"
+        (cancel)="showChangeConsumptionDialog = false"
+      />
+    }
+  </div>
+} @else if (isLoading()) {
+  <p class="building-detail-page__loading">Loading...</p>
+}
