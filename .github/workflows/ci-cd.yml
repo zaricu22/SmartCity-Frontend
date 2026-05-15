@@ -1,0 +1,156 @@
+# 1. The name of your workflow
+name: Frontend CI/CD Pipeline
+
+# 2. The TRIGGER: When should this run?
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+# 3. The JOBS: What should it do?
+jobs:
+  # -------------------------------------------------------------------------
+  # JOB 1: SECURITY - The "Shield"
+  # -------------------------------------------------------------------------
+  security:
+
+    name: Security Scan
+
+    # The RUNNER: The machine that executes the code
+    runs-on: ubuntu-latest
+
+    # 4. The STEPS: The individual commands
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Gitleaks: Scans for secrets in JS/TS files and environment variables
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Speeds up future runs by caching node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Speeds up future runs by caching node_modules
+
+      # "Clean Install" - ensures reproducible builds
+      - name: Install dependencies
+        run: npm ci # "Clean Install" - ensures reproducible builds
+
+      # Snyk: Scans node_modules for vulnerable dependencies (the biggest risk in JS)
+      - name: Snyk dependency vulnerability scan
+        run: npx snyk test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  # -------------------------------------------------------------------------
+  # JOB 2: TESTING - The "Validator"
+  # -------------------------------------------------------------------------
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: security
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' 
+
+      - name: Install dependencies
+        run: npm ci 
+
+      # Unit/Integration Tests: Runs Vitest or Jest
+      - name: Run Angular tests
+        run: npx ng test --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: coverage/
+
+  # -------------------------------------------------------------------------
+  # JOB 3: CODE QUALITY - The "Linter"
+  # -------------------------------------------------------------------------
+  code-quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    needs: security
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ESLint: The frontend equivalent of PMD/Checkstyle (logic and style)
+      - name: Run Lint
+        run: npm run lint
+
+      # SonarCloud: Analyzes TS/JS quality and CSS complexity
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # -------------------------------------------------------------------------
+  # JOB 4: RELEASE & DEPLOY TO GH-PAGES
+  # Conditional: This job ONLY runs when code hits 'main'
+  # -------------------------------------------------------------------------
+  release-and-deploy:
+    name: Semantic Release & GH-Pages Deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [test, code-quality]
+    permissions:
+      contents: write # Crucial for pushing to gh-pages branch
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 1. Build the project (This creates the 'dist' or 'build' folder)
+      - name: Build Project
+        run: npm run build
+
+      # 2. Semantic Release (Updates versions/tags)
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # 3. Deploy to GitHub Pages: Moves the 'dist' folder to 'gh-pages' branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
