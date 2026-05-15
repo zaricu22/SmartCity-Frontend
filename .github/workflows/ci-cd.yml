@@ -44,7 +44,7 @@ jobs:
 
       # Snyk: Scans node_modules for vulnerable dependencies (the biggest risk in JS)
       - name: Snyk dependency vulnerability scan
-        run: npx snyk test
+        run: npx snyk test --file=package.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
