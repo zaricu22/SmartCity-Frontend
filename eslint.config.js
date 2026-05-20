@@ -15,6 +15,12 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      "@angular-eslint/prefer-inject": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-empty-function": "off",
+      "@angular-eslint/no-output-native": "error",
+      "@typescript-eslint/no-unused-vars": "error",
+      "@angular-eslint/template/label-has-associated-control": "warn"
       "@angular-eslint/directive-selector": [
         "error",
         {
