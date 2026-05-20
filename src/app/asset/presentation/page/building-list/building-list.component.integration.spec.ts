@@ -37,7 +37,7 @@ describe('BuildingListComponent (integration)', () => {
       consumptionValue: 50,
       consumptionUnit: EnergyUnit.kW,
       devices: [
-        { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW },
+        { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
       ],
     },
     {
