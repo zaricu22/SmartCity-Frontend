@@ -13,8 +13,7 @@ jobs:
   # -------------------------------------------------------------------------
   # JOB 1: SECURITY - The "Shield"
   # -------------------------------------------------------------------------
-  security:
-
+  security-static:
     name: Security Scan - Static
 
     # The RUNNER: The machine that executes the code
@@ -102,7 +101,7 @@ jobs:
   test:
     name: Build and Test
     runs-on: ubuntu-latest
-    needs: security
+    needs: [security-static, security-snyk-dependencies, security-owasp-dependencies]
     steps:
       - uses: actions/checkout@v4
 
@@ -136,7 +135,7 @@ jobs:
   code-quality:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
-    needs: security
+    needs: [security-static, security-snyk-dependencies, security-owasp-dependencies]
     steps:
       - uses: actions/checkout@v4
         with:
