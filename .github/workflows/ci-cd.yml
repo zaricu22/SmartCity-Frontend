@@ -41,6 +41,13 @@ jobs:
       # "Clean Install" - ensures reproducible builds
       - name: Install dependencies
         run: npm ci # "Clean Install" - ensures reproducible builds
+
+      # Cache SonarCloud packages
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: sonar-${{ runner.os }}
         
   security-snyk-dependencies:
       name: SNYK Dependency Check
@@ -56,13 +63,6 @@ jobs:
           with:
             node-version: '20'
             cache: 'npm'
-
-        # Cache SonarCloud packages
-        - name: Cache SonarCloud packages
-          uses: actions/cache@v4
-          with:
-            path: ~/.sonar/cache
-            key: sonar-${{ runner.os }}
   
         - name: Install dependencies
           run: npm ci
@@ -96,6 +96,11 @@ jobs:
         with:
           path: ~/.cache/dependency-check
           key: owasp-node-${{ runner.os }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: owasp-frontend-report
+          path: reports
             
   # -------------------------------------------------------------------------
   # JOB 2: TESTING - The "Validator"
