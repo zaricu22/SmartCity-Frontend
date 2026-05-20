@@ -43,10 +43,10 @@ jobs:
         run: npm ci # "Clean Install" - ensures reproducible builds
 
       # Snyk: Scans node_modules for vulnerable dependencies (the biggest risk in JS)
-      # - name: Snyk dependency vulnerability scan
-        # run: npx snyk test --file=package.json
-        # env:
-          # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk dependency vulnerability scan
+        run: npx snyk test --file=package.json
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   # -------------------------------------------------------------------------
   # JOB 2: TESTING - The "Validator"
