@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "setup:env": "node -e \"const fs=require('fs'),p='src/environments/environment.ts';if(!fs.existsSync(p)){fs.mkdirSync('src/environments',{recursive:true});fs.writeFileSync(p,'export const environment = { production: false, apiBaseUrl: \\'http://localhost:8080\\' };\\n');}\"",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
