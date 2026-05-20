@@ -6,7 +6,6 @@ import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
 
 describe('DeviceListComponent', () => {
   let fixture: ComponentFixture<DeviceListComponent>;
-  let component: DeviceListComponent;
 
   const stubDevices: EnergyDeviceDto[] = [
     { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },

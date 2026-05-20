@@ -20,7 +20,7 @@ describe('AddDeviceDialogComponent', () => {
 
     confirmSpy = jasmine.createSpy('confirm');
     cancelSpy  = jasmine.createSpy('cancel');
-    component.confirm.subscribe(confirmSpy);
+    component.confirmed.subscribe(confirmSpy);
     component.cancel.subscribe(cancelSpy);
   });
 

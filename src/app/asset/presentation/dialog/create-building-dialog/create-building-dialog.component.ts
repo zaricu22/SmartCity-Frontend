@@ -13,7 +13,7 @@ export interface CreateBuildingDialogResult {
   templateUrl: './create-building-dialog.component.html',
 })
 export class CreateBuildingDialogComponent {
-  readonly confirm = output<CreateBuildingDialogResult>();
+  readonly confirmed = output<CreateBuildingDialogResult>();
   readonly cancel = output<void>();
 
   form = inject(FormBuilder).nonNullable.group({
@@ -24,6 +24,6 @@ export class CreateBuildingDialogComponent {
   submit(): void {
     if (this.form.invalid) return;
     const { name, location } = this.form.getRawValue();
-    this.confirm.emit({ name: name.trim(), location: location.trim() });
+    this.confirmed.emit({ name: name.trim(), location: location.trim() });
   }
 }
