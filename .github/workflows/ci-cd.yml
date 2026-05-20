@@ -43,7 +43,7 @@ jobs:
         run: npm ci # "Clean Install" - ensures reproducible builds
         
   security-snyk-dependencies:
-      name: Snyk Scan
+      name: SNYK Dependency Check
       runs-on: ubuntu-latest
   
       permissions:
@@ -71,6 +71,7 @@ jobs:
               --severity-threshold=critical
             
   security-owasp-dependencies:
+    name: OWASP Dependency Check
     runs-on: ubuntu-latest
   
     steps:
