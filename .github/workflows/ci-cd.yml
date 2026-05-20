@@ -122,6 +122,7 @@ jobs:
       - name: Run Angular tests
         run: npx ng test --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
 
+      # Codecov: Uploads test coverage reports to a visual dashboard
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
