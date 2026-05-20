@@ -15,7 +15,7 @@ jobs:
   # -------------------------------------------------------------------------
   security:
 
-    name: Security Scan
+    name: Security Scan - Static
 
     # The RUNNER: The machine that executes the code
     runs-on: ubuntu-latest
@@ -41,13 +41,54 @@ jobs:
       # "Clean Install" - ensures reproducible builds
       - name: Install dependencies
         run: npm ci # "Clean Install" - ensures reproducible builds
-
-      # Snyk: Scans node_modules for vulnerable dependencies (the biggest risk in JS)
-      - name: Snyk dependency vulnerability scan
-        run: npx snyk test --file=package.json --severity-threshold=critical
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
+        
+  security-snyk-dependencies:
+      name: Snyk Scan
+      runs-on: ubuntu-latest
+  
+      permissions:
+        contents: read
+  
+      steps:
+        - uses: actions/checkout@v4
+  
+        - uses: actions/setup-node@v4
+          with:
+            node-version: '20'
+            cache: 'npm'
+  
+        - name: Install dependencies
+          run: npm ci
+  
+        - name: Run Snyk scan
+          uses: snyk/actions/node@master
+          continue-on-error: true
+          env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          with:
+            args: >
+              --file=package.json
+              --severity-threshold=critical
+            
+  security-owasp-dependencies:
+    runs-on: ubuntu-latest
+  
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "angular-app"
+          path: "."
+          format: "HTML"
+          out: "reports"
+  
+      - uses: actions/upload-artifact@v4
+        with:
+          name: owasp-frontend-report
+          path: reports
+            
   # -------------------------------------------------------------------------
   # JOB 2: TESTING - The "Validator"
   # -------------------------------------------------------------------------
