@@ -15,7 +15,7 @@ export interface ChangeConsumptionDialogResult {
 })
 export class ChangeConsumptionDialogComponent {
   readonly confirmed = output<ChangeConsumptionDialogResult>();
-  readonly cancel = output<void>();
+  readonly cancelled = output<void>();
 
   readonly energyUnits = Object.values(EnergyUnit);
 

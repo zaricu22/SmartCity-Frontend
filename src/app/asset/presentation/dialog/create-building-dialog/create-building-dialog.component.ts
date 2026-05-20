@@ -14,7 +14,7 @@ export interface CreateBuildingDialogResult {
 })
 export class CreateBuildingDialogComponent {
   readonly confirmed = output<CreateBuildingDialogResult>();
-  readonly cancel = output<void>();
+  readonly cancelled = output<void>();
 
   form = inject(FormBuilder).nonNullable.group({
     name:     ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],

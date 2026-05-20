@@ -21,7 +21,7 @@ describe('ChangeConsumptionDialogComponent', () => {
     confirmSpy = jasmine.createSpy('confirm');
     cancelSpy  = jasmine.createSpy('cancel');
     component.confirmed.subscribe(confirmSpy);
-    component.cancel.subscribe(cancelSpy);
+    component.cancelled.subscribe(cancelSpy);
   });
 
   it('should emit confirm with current form values on submit', () => {

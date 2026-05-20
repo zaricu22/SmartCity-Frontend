@@ -15,7 +15,7 @@ export type AddDeviceDialogResult = Omit<AddDeviceCommand, 'buildingId'>;
 })
 export class AddDeviceDialogComponent {
   readonly confirmed = output<AddDeviceDialogResult>();
-  readonly cancel = output<void>();
+  readonly cancelled = output<void>();
 
   readonly deviceTypes = Object.values(DeviceType);
   readonly energyUnits = Object.values(EnergyUnit);

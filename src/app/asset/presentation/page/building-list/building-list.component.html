@@ -23,7 +23,7 @@
   @if (showCreateDialog) {
     <app-create-building-dialog
       (confirmed)="onCreate($event)"
-      (cancel)="showCreateDialog = false"
+      (cancelled)="showCreateDialog = false"
     />
   }
 </div>

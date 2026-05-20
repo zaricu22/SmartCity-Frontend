@@ -30,14 +30,14 @@
     @if (showAddDeviceDialog) {
       <app-add-device-dialog
         (confirmed)="onAddDevice($event)"
-        (cancel)="showAddDeviceDialog = false"
+        (cancelled)="showAddDeviceDialog = false"
       />
     }
 
     @if (showChangeConsumptionDialog) {
       <app-change-consumption-dialog
         (confirmed)="onChangeConsumption($event)"
-        (cancel)="showChangeConsumptionDialog = false"
+        (cancelled)="showChangeConsumptionDialog = false"
       />
     }
   </div>

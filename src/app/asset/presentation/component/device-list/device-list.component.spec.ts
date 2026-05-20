@@ -18,7 +18,6 @@ describe('DeviceListComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(DeviceListComponent);
-    component = fixture.componentInstance;
   });
 
   it('should render a list item for each device', () => {
