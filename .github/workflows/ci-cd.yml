@@ -107,14 +107,15 @@ jobs:
         run: npm run lint
 
       # SonarCloud: Analyzes TS/JS quality and CSS complexity
-      - name: SonarCloud Analysis
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn verify sonar:sonar
-          -Dsonar.projectKey=zaricu22_SmartCity-Frontend
-          -Dsonar.organization=zaricu22
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=zaricu22_SmartCity-Frontend
+            -Dsonar.organization=zaricu22
+            -Dsonar.sources=src
 
   # -------------------------------------------------------------------------
   # JOB 4: RELEASE & DEPLOY TO GH-PAGES
