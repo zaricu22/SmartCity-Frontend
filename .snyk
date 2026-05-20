@@ -1,0 +1,7 @@
+
+version: v1.25.0
+ignore:
+  SNYK-JS-ANGULARSSR-15357314:
+    - '*':
+        reason: Angular 18 LTS - upgrading to v19 requires full migration
+        expires: 2026-08-20
