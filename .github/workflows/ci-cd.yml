@@ -41,13 +41,6 @@ jobs:
       # "Clean Install" - ensures reproducible builds
       - name: Install dependencies
         run: npm ci # "Clean Install" - ensures reproducible builds
-
-      # Cache SonarCloud packages
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: sonar-${{ runner.os }}
         
   security-snyk-dependencies:
       name: SNYK Dependency Check
@@ -83,7 +76,13 @@ jobs:
   
     steps:
       - uses: actions/checkout@v4
-  
+
+      - name: Cache OWASP dependency-check data
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/dependency-check
+          key: owasp-node-${{ runner.os }}
+
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
@@ -91,11 +90,6 @@ jobs:
           path: "."
           format: "HTML"
           out: "reports"
-  
-      - uses: actions/upload-artifact@v4
-        with:
-          path: ~/.cache/dependency-check
-          key: owasp-node-${{ runner.os }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -155,6 +149,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: sonar-${{ runner.os }}
 
       # ESLint: The frontend equivalent of PMD/Checkstyle (logic and style)
       - name: Run Lint
