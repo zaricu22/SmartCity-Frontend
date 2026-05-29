@@ -1,0 +1,2 @@
+import './polyfills.server.mjs';
+import{a}from"./chunk-4FYVGVAC.mjs";import{vb as n,w as t}from"./chunk-ND5RTJGO.mjs";var p=(r,e)=>{let o=t(a),u=t(n);return o.isAuthenticated()?!0:u.createUrlTree(["/login"],{queryParams:{returnUrl:e.url}})},A=()=>{let r=t(a),e=t(n);return r.isAuthenticated()?e.createUrlTree(["/"]):!0},m=r=>()=>{let e=t(a),o=t(n);return e.isAuthenticated()?e.hasRole(r)?!0:o.createUrlTree(["/forbidden"]):o.createUrlTree(["/login"])};export{p as a,A as b,m as c};
