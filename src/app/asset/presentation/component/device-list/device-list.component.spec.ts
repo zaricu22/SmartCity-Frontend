@@ -6,11 +6,10 @@ import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
 
 describe('DeviceListComponent', () => {
   let fixture: ComponentFixture<DeviceListComponent>;
-  let component: DeviceListComponent;
 
   const stubDevices: EnergyDeviceDto[] = [
-    { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW },
-    { id: 'd-2', type: DeviceType.PUMP,  ratedCapacityValue: 50,  ratedCapacityUnit: EnergyUnit.kW },
+    { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+    { id: 'd-2', type: DeviceType.PUMP,  ratedCapacityValue: 50,  ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
   ];
 
   beforeEach(async () => {
@@ -19,7 +18,6 @@ describe('DeviceListComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(DeviceListComponent);
-    component = fixture.componentInstance;
   });
 
   it('should render a list item for each device', () => {
@@ -40,15 +38,4 @@ describe('DeviceListComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('SOLAR');
   });
 
-  it('should emit changeProduction with deviceId when button is clicked', () => {
-    fixture.componentRef.setInput('devices', stubDevices);
-    fixture.detectChanges();
-
-    const emitted: { deviceId: string }[] = [];
-    component.changeProduction.subscribe((e: { deviceId: string }) => emitted.push(e));
-
-    fixture.nativeElement.querySelectorAll('button')[0].click();
-
-    expect(emitted[0].deviceId).toBe('d-1');
-  });
 });

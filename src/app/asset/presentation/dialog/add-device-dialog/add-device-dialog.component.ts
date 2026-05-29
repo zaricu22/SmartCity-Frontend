@@ -14,8 +14,8 @@ export type AddDeviceDialogResult = Omit<AddDeviceCommand, 'buildingId'>;
   templateUrl: './add-device-dialog.component.html',
 })
 export class AddDeviceDialogComponent {
-  readonly confirm = output<AddDeviceDialogResult>();
-  readonly cancel = output<void>();
+  readonly confirmed = output<AddDeviceDialogResult>();
+  readonly cancelled = output<void>();
 
   readonly deviceTypes = Object.values(DeviceType);
   readonly energyUnits = Object.values(EnergyUnit);
@@ -28,6 +28,6 @@ export class AddDeviceDialogComponent {
 
   submit(): void {
     if (this.form.invalid) return;
-    this.confirm.emit(this.form.getRawValue());
+    this.confirmed.emit(this.form.getRawValue());
   }
 }

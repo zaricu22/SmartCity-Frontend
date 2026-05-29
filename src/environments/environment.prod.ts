@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api',  // relative — served behind a reverse proxy in production
+  apiBaseUrl: 'https://smartcity-backend-9g09.onrender.com',
 };

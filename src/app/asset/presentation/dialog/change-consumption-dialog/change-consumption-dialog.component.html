@@ -20,7 +20,7 @@
     </div>
 
     <div class="dialog__actions">
-      <button type="button" (click)="cancel.emit()">Cancel</button>
+      <button type="button" (click)="cancelled.emit()">Cancel</button>
       <button type="button" [disabled]="form.invalid" (click)="submit()">Update</button>
     </div>
   </div>

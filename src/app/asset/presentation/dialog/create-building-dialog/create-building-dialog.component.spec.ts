@@ -19,8 +19,8 @@ describe('CreateBuildingDialogComponent', () => {
 
     confirmSpy = jasmine.createSpy('confirm');
     cancelSpy  = jasmine.createSpy('cancel');
-    component.confirm.subscribe(confirmSpy);
-    component.cancel.subscribe(cancelSpy);
+    component.confirmed.subscribe(confirmSpy);
+    component.cancelled.subscribe(cancelSpy);
   });
 
   it('should disable the submit button when inputs are empty', () => {

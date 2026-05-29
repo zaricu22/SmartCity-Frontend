@@ -16,6 +16,7 @@ describe('BuildingDetailComponent', () => {
 
   const stubDevice: EnergyDeviceDto = {
     id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW,
+    productionRateValue: 0, productionRateUnit: EnergyUnit.kW,
   };
   const stubBuilding: PublicBuildingDto = {
     id: 'b-1', name: 'City Hall', location: 'Zone A',

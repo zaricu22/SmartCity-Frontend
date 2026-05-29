@@ -14,8 +14,8 @@ export interface ChangeConsumptionDialogResult {
   templateUrl: './change-consumption-dialog.component.html',
 })
 export class ChangeConsumptionDialogComponent {
-  readonly confirm = output<ChangeConsumptionDialogResult>();
-  readonly cancel = output<void>();
+  readonly confirmed = output<ChangeConsumptionDialogResult>();
+  readonly cancelled = output<void>();
 
   readonly energyUnits = Object.values(EnergyUnit);
 
@@ -26,6 +26,6 @@ export class ChangeConsumptionDialogComponent {
 
   submit(): void {
     if (this.form.invalid) return;
-    this.confirm.emit(this.form.getRawValue());
+    this.confirmed.emit(this.form.getRawValue());
   }
 }

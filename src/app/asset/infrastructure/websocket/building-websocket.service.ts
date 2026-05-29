@@ -62,7 +62,7 @@ export class BuildingWebSocketService implements OnDestroy {
     });
   }
 
-  connect(buildingId: string): void {
+  connect(): void {
     // TODO: wire real STOMP client
     // this.client = new Client({ brokerURL: `${API_BASE_URL}/ws` });
     // this.client.onConnect = () => {

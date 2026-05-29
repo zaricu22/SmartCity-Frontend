@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 
 import { BuildingListComponent } from './building-list.component';
 import { ASSET_PROVIDERS } from '../../../asset.providers';
@@ -25,7 +25,6 @@ import { DeviceType } from '../../../application/shared/enums/device-type.enum';
 describe('BuildingListComponent (integration)', () => {
   let fixture: ComponentFixture<BuildingListComponent>;
   let http: HttpTestingController;
-  let router: Router;
 
   const BASE = `${DEFAULT_API_BASE_URL}/v1/buildings`;
 
@@ -37,7 +36,7 @@ describe('BuildingListComponent (integration)', () => {
       consumptionValue: 50,
       consumptionUnit: EnergyUnit.kW,
       devices: [
-        { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW },
+        { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
       ],
     },
     {
@@ -63,7 +62,6 @@ describe('BuildingListComponent (integration)', () => {
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
-    router = TestBed.inject(Router);
     fixture = TestBed.createComponent(BuildingListComponent);
   });
 

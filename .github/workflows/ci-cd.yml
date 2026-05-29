@@ -1,0 +1,238 @@
+# 1. The name of your workflow
+name: Frontend CI/CD Pipeline
+
+# 2. The TRIGGER: When should this run?
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+# 3. The JOBS: What should it do?
+jobs:
+  # -------------------------------------------------------------------------
+  # JOB 1: SECURITY - The "Shield"
+  # -------------------------------------------------------------------------
+  security-static:
+    name: Security Scan - Static
+    # [OFFICIAL] GitHub-hosted runner, maintained by GitHub
+    runs-on: ubuntu-latest 
+
+    # 4. The STEPS: The individual commands
+    steps:
+      # [OFFICIAL] actions/checkout — clones the repo into the runner
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Gitleaks: Scans for secrets in JS/TS files and environment variables
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # [OFFICIAL] actions/setup-node — installs Node.js; 'cache: npm' caches node_modules between runs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # "Clean Install" - ensures reproducible builds
+      - name: Install dependencies
+        run: npm ci
+
+  security-snyk-dependencies:
+    name: SNYK Dependency Check
+    runs-on: ubuntu-latest # [OFFICIAL] GitHub-hosted runner, maintained by GitHub
+    permissions:
+      contents: read
+    steps:
+      # [OFFICIAL] actions/checkout — clones the repo into the runner
+      - uses: actions/checkout@v4
+
+      # [OFFICIAL] actions/setup-node — installs Node.js; 'cache: npm' caches node_modules between runs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Snyk scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: >
+            --file=package.json
+            --severity-threshold=critical
+
+  security-owasp-dependencies:
+    name: OWASP Dependency Check
+    runs-on: ubuntu-latest 
+    steps:
+      # [OFFICIAL] actions/checkout — clones the repo into the runner
+      - uses: actions/checkout@v4
+
+      # [OFFICIAL] actions/cache — persists the NVD database between runs to avoid re-downloading it
+      - name: Cache OWASP dependency-check data
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/dependency-check
+          key: owasp-node-${{ runner.os }}
+
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "angular-app"
+          path: "."
+          format: "HTML"
+          out: "reports"
+
+      # [OFFICIAL] actions/upload-artifact — saves the HTML report as a downloadable artifact
+      - name: Upload OWASP report
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-frontend-report
+          path: reports
+
+  # -------------------------------------------------------------------------
+  # JOB 2: TESTING - The "Validator"
+  # -------------------------------------------------------------------------
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest 
+    needs: [ security-static, security-snyk-dependencies, security-owasp-dependencies ]
+    steps:
+      # [OFFICIAL] actions/checkout — clones the repo into the runner
+      - uses: actions/checkout@v4
+
+      # [OFFICIAL] actions/setup-node — installs Node.js; 'cache: npm' caches node_modules between runs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Unit/Integration Tests: Runs Vitest or Jest
+      - name: Run Angular tests
+        run: npx ng test --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
+
+      # Codecov: Uploads test coverage reports to a visual dashboard
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      # [OFFICIAL] actions/upload-artifact — saves raw coverage results for debugging failures
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: coverage/
+
+  # -------------------------------------------------------------------------
+  # JOB 3: CODE QUALITY - The "Linter"
+  # -------------------------------------------------------------------------
+  code-quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest 
+    needs: [ security-static, security-snyk-dependencies, security-owasp-dependencies ]
+    steps:
+      # [OFFICIAL] actions/checkout — fetch-depth: 0 required for SonarCloud blame data
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # [OFFICIAL] actions/setup-node — installs Node.js; 'cache: npm' caches node_modules between runs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # [OFFICIAL] actions/cache — persists the SonarCloud scanner cache between runs
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: sonar-${{ runner.os }}
+
+      # ESLint: The frontend equivalent of PMD/Checkstyle (logic and style)
+      - name: Run Lint
+        run: npm run lint
+
+      # SonarCloud: Analyzes TS/JS quality and CSS complexity
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=zaricu22_SmartCity-Frontend
+            -Dsonar.organization=zaricu22
+            -Dsonar.sources=src
+
+  # -------------------------------------------------------------------------
+  # JOB 4: RELEASE & DEPLOY TO GH-PAGES
+  # Conditional: This job ONLY runs when code hits 'main'
+  # -------------------------------------------------------------------------
+  release-and-deploy:
+    name: Semantic Release & GH-Pages Deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest 
+    needs: [test, code-quality]
+    permissions:
+      contents: write # Required for pushing to the gh-pages branch
+    steps:
+      # [OFFICIAL] actions/checkout — GH_TOKEN used instead of GITHUB_TOKEN to allow tag pushing
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      # [OFFICIAL] actions/setup-node — installs Node.js; 'cache: npm' caches node_modules between runs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 1. Build the project (This creates the 'dist' or 'build' folder)
+      - name: Build Project
+        run: npm run build
+
+      # 2. Semantic Release (Updates versions/tags)
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          npx \
+            -p semantic-release \
+            -p @semantic-release/changelog \
+            -p @semantic-release/commit-analyzer \
+            -p @semantic-release/release-notes-generator \
+            -p @semantic-release/github \
+            -p @semantic-release/git \
+            semantic-release \
+            --plugins @semantic-release/commit-analyzer \
+            --plugins @semantic-release/release-notes-generator \
+            --plugins @semantic-release/changelog \
+            --plugins @semantic-release/github \
+            --plugins @semantic-release/git
+
+      # 3. Deploy to GitHub Pages: Moves the 'dist' folder to 'gh-pages' branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
