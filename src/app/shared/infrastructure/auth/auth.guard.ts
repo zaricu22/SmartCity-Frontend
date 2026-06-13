@@ -6,6 +6,7 @@ import { AuthService, UserRole } from './auth.service';
 export const authGuard: CanActivateFn = (_route, state: RouterStateSnapshot) => {
   const auth = inject(AuthService);
   const router = inject(Router);
+  // createUrlTree — synchronous; preferred over router.navigate() in guards as it participates in the router lifecycle
   return auth.isAuthenticated()
     ? true
     : router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });

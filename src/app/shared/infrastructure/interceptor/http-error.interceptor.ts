@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, retry, throwError, timer } from 'rxjs';
 import { AppHttpError } from '../error/app-http-error';
 
+// Predefined map keeps status-code handling declarative — avoids a switch scattered across catchError.
 const STATUS_MAP: Record<number, { code: string; userMessage: string }> = {
   400: { code: 'BAD_REQUEST',     userMessage: 'Invalid request data.' },
   401: { code: 'UNAUTHORIZED',    userMessage: 'You are not authenticated.' },

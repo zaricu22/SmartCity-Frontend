@@ -29,6 +29,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly eventBus = inject(EventBusService);
 
+  // TODO: plain booleans with OnPush — Angular does not detect these changes automatically; migrate to signal<boolean>(false)
   showAddDeviceDialog = false;
   showChangeConsumptionDialog = false;
   isLoading = signal(false);
@@ -58,7 +59,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   ) {}
 
   get buildingId(): string {
-    return this.route.snapshot.paramMap.get('id')!;
+    return this.route.snapshot.paramMap.get('id')!; // safe — authGuard and route definition guarantee this segment is always present
   }
 
   ngOnInit(): void {

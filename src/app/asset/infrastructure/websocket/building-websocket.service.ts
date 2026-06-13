@@ -39,6 +39,7 @@ export class BuildingWebSocketService implements OnDestroy {
   private client: any; // replace with Client from @stomp/stompjs
 
   constructor(private readonly eventBus: EventBusService) {
+    // Wired in the constructor — service is eager; the bridge must be active the moment the service is injected.
     // Bridge incoming WebSocket messages into the event bus so any component
     // can react without knowing about the WebSocket transport.
     this.consumptionUpdates$.subscribe(msg => {

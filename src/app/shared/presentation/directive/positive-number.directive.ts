@@ -8,6 +8,6 @@ export class PositiveNumberDirective {
   @HostListener('input')
   onInput(): void {
     const invalid = Number(this.el.nativeElement.value) <= 0;
-    this.el.nativeElement.style.borderColor = invalid ? 'red' : '';
+    this.el.nativeElement.style.borderColor = invalid ? 'red' : ''; // direct DOM — browser-only; use Renderer2 if SSR is ever needed
   }
 }

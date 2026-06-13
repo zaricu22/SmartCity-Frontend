@@ -14,6 +14,8 @@ export class ConfirmDialogService {
   readonly requests$ = this.request$.asObservable();
 
   confirm(message: string): Observable<boolean> {
+    // Cold Observable — emits exactly once when the user responds, then completes.
+    // resolve() is the bridge between the dialog button click and this Observable's subscriber.
     return new Observable<boolean>(observer => {
       this.request$.next({
         message,

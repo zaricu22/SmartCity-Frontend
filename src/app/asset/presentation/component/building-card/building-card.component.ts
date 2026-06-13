@@ -13,6 +13,7 @@ import { EnergyDisplayComponent } from '../energy-display/energy-display.compone
 export class BuildingCardComponent {
   building = input.required<PublicBuildingDto>();
 
+  // computed() — memoized; recalculates only when the building signal changes, not on every render
   deviceSummary = computed(() => {
     const count = this.building().devices.length;
     return count === 1 ? '1 device' : `${count} devices`;

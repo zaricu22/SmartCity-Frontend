@@ -4,6 +4,6 @@ import { EnergyUnit } from '../../../asset/application/shared/enums/energy-unit.
 @Pipe({ name: 'energy', standalone: true })
 export class EnergyPipe implements PipeTransform {
   transform(value: number, unit: EnergyUnit): string {
-    return `${value} ${unit}`;
+    return `${value} ${unit}`; // no locale formatting or rounding by design — add DecimalPipe here if display precision matters
   }
 }

@@ -27,6 +27,9 @@ export class PublicBuildingAppService {
   }
 
   addDevice(cmd: AddDeviceCommand): Observable<void> {
+    // findById loads the aggregate for domain validation only — never saved whole.
+    // Granular repository method handles persistence; pullEvents() fires only after that write succeeds.
+    // switchMap cancels any in-flight inner Observable on a new call — prevents duplicate-write race conditions.
     const device = new EnergyDevice(
       crypto.randomUUID(),
       cmd.type,
@@ -43,6 +46,7 @@ export class PublicBuildingAppService {
   }
 
   changeConsumption(buildingId: string, cmd: ChangeConsumptionCommand): Observable<void> {
+    // Same pattern as addDevice: load for domain validation, persist via granular endpoint, emit events after.
     const consumption = new Energy(cmd.consumptionValue, cmd.consumptionUnit);
     return this.repository.findById(buildingId).pipe(
       tap(building => building.changeConsumption(consumption)),
@@ -55,6 +59,7 @@ export class PublicBuildingAppService {
   }
 
   changeProduction(buildingId: string, deviceId: string, cmd: ChangeProductionCommand): Observable<void> {
+    // Same pattern as addDevice: load for domain validation, persist via granular endpoint, emit events after.
     const production = new Energy(cmd.productionValue, cmd.productionUnit);
     return this.repository.findById(buildingId).pipe(
       tap(building => building.changeDeviceProduction(deviceId, production)),
