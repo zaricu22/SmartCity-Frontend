@@ -34,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     ),
     { provide: API_BASE_URL, useValue: DEFAULT_API_BASE_URL },
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    // useFactory receives deps[] as arguments and must return the initialiser function Angular calls before routing starts.
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,

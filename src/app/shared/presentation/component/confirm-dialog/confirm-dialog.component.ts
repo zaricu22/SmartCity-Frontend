@@ -15,6 +15,7 @@ export class ConfirmDialogComponent {
   readonly pending = signal<ConfirmDialogRequest | null>(null);
 
   constructor() {
+    // Subscribe in constructor rather than ngOnInit — takeUntilDestroyed works without a lifecycle hook.
     this.service.requests$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(req => this.pending.set(req));

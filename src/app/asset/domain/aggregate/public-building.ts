@@ -37,11 +37,12 @@ export class PublicBuilding {
   get name(): string { return this._name; }
   get location(): string { return this._location; }
   get consumption(): Energy { return this._consumption; }
+  // Defensive copy — callers cannot mutate the aggregate's internal device list.
   get devices(): readonly EnergyDevice[] { return [...this._devices]; }
 
   pullEvents(): (DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] {
     const events = [...this._domainEvents];
-    this._domainEvents.length = 0;
+    this._domainEvents.length = 0; // mutates in place — preserves the readonly array reference
     return events;
   }
 

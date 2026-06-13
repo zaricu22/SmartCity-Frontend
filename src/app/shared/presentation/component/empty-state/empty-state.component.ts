@@ -10,6 +10,7 @@ export class EmptyStateComponent implements AfterContentInit {
   // <app-empty-state><ng-template #emptyTpl>...</ng-template></app-empty-state>
   @ContentChild('emptyTpl') customTpl?: TemplateRef<unknown>;
 
+  // static: true — refs must be available in ngAfterContentInit, before change detection runs
   @ViewChild('defaultTpl', { static: true }) defaultTpl!: TemplateRef<unknown>;
   @ViewChild('outlet', { read: ViewContainerRef, static: true }) outlet!: ViewContainerRef;
 

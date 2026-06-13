@@ -10,8 +10,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = auth.getToken();
   const outgoing = token
-    ? next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }))
-    : next(req);
+    ? next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })) // HttpRequest is immutable — clone() is the only way to add headers
+    : next(req); // no token — forward unmodified (public route)
 
   // INCOMING 
   return outgoing.pipe(

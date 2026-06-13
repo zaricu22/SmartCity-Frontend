@@ -21,10 +21,12 @@ export class BuildingListComponent implements OnInit, HasUnsavedChanges {
   private readonly eventBus = inject(EventBusService);
   private readonly destroyRef = inject(DestroyRef);
 
+  // TODO: plain boolean with OnPush — Angular does not detect this change automatically; migrate to signal<boolean>(false)
   showCreateDialog = false;
   isLoading = signal(true);
   isSaving = signal(false);
 
+  // Subject enables merging manual reload triggers with EventBus streams — a plain method call could not participate in merge().
   private readonly reload$ = new Subject<void>();
 
   // Merge manual reload triggers with external event bus pushes (WebSocket-sourced).

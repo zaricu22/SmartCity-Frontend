@@ -10,6 +10,8 @@ export class GlobalErrorHandler implements ErrorHandler {
   handleError(error: unknown): void {
     console.error('[GlobalErrorHandler]', error);
 
+    // Most-specific type first — ApplicationException and AppHttpError carry structured messages;
+    // falling through to Error and unknown uses progressively more generic fallbacks.
     if (error instanceof ApplicationException) {
       this.toastService.show(error.message, 'error');
     } else if (error instanceof AppHttpError) {

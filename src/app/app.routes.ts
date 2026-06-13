@@ -23,6 +23,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'assets', pathMatch: 'full' },
       {
         path: 'assets',
+        // Scoped to this route — providers are created on activation and destroyed on deactivation, not kept alive at root level.
         providers: ASSET_PROVIDERS,
         loadChildren: () =>
           import('./asset/presentation/route/asset.routes').then(m => m.ASSET_ROUTES),
