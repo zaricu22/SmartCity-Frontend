@@ -23,7 +23,7 @@ describe('SubsidyEligibilitySpecification', () => {
   };
 
   it('should be satisfied for an eligible building', () => {
-    expect(spec.isSatisfiedBy(eligibleBuilding())).toBeTrue();
+    expect(spec.isSatisfiedBy(eligibleBuilding())).toBe(true);
   });
 
   it('should not be satisfied with fewer than 2 devices', () => {
@@ -32,7 +32,7 @@ describe('SubsidyEligibilitySpecification', () => {
     b.pullEvents();
     b.changeConsumption(new Energy(51, EnergyUnit.kW));
     b.pullEvents();
-    expect(spec.isSatisfiedBy(b)).toBeFalse();
+    expect(spec.isSatisfiedBy(b)).toBe(false);
   });
 
   it('should not be satisfied when consumption does not exceed 50 kW', () => {
@@ -42,7 +42,7 @@ describe('SubsidyEligibilitySpecification', () => {
     b.pullEvents();
     b.changeConsumption(new Energy(50, EnergyUnit.kW)); // exactly 50 — not strictly greater
     b.pullEvents();
-    expect(spec.isSatisfiedBy(b)).toBeFalse();
+    expect(spec.isSatisfiedBy(b)).toBe(false);
   });
 
   it('should not be satisfied when location is not Zone A', () => {
@@ -52,6 +52,6 @@ describe('SubsidyEligibilitySpecification', () => {
     b.pullEvents();
     b.changeConsumption(new Energy(51, EnergyUnit.kW));
     b.pullEvents();
-    expect(spec.isSatisfiedBy(b)).toBeFalse();
+    expect(spec.isSatisfiedBy(b)).toBe(false);
   });
 });
