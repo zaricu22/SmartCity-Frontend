@@ -16,7 +16,11 @@ jobs:
   security-static:
     name: Security Scan - Static
     # [OFFICIAL] GitHub-hosted runner, maintained by GitHub
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # Required to upload CodeQL SARIF results
+      actions: read
+      contents: read
 
     # 4. The STEPS: The individual commands
     steps:
@@ -31,6 +35,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # CodeQL: GitHub's SAST — detects security vulnerabilities in TypeScript/JavaScript source code.
+      # init must run before npm ci so CodeQL can instrument the dependency installation.
+      # analyze must run last; for interpreted languages (JS/TS) no autobuild step is needed.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
       # [OFFICIAL] actions/setup-node — installs Node.js; 'cache: npm' caches node_modules between runs
       - uses: actions/setup-node@v4
         with:
@@ -40,6 +52,11 @@ jobs:
       # "Clean Install" - ensures reproducible builds
       - name: Install dependencies
         run: npm ci
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
 
   security-snyk-dependencies:
     name: SNYK Dependency Check
@@ -92,7 +109,9 @@ jobs:
           out: "reports"
 
       # [OFFICIAL] actions/upload-artifact — saves the HTML report as a downloadable artifact
+      # if: always() ensures the report is available even when the scan finds vulnerabilities and exits non-zero
       - name: Upload OWASP report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: owasp-frontend-report
@@ -124,10 +143,12 @@ jobs:
         run: npx ng test --watch=false --no-progress --browsers=ChromeHeadless --code-coverage
 
       # Codecov: Uploads test coverage reports to a visual dashboard
+      # files: explicit path prevents auto-detection from picking up the wrong report
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
 
       # [OFFICIAL] actions/upload-artifact — saves raw coverage results for debugging failures
       - name: Upload test results
@@ -193,7 +214,16 @@ jobs:
       - name: Run Lint
         run: npm run lint
 
+      # Download coverage artifact produced by the test job so SonarCloud can display coverage data.
+      # Mirrors the backend pattern: jacoco-report downloaded before sonar:sonar.
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: coverage/
+
       # SonarCloud: Analyzes TS/JS quality and CSS complexity
+      # sonar.javascript.lcov.reportPaths — tells SonarCloud where Istanbul/Karma wrote the lcov file
       - name: SonarCloud analysis
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -203,6 +233,7 @@ jobs:
             -Dsonar.projectKey=zaricu22_SmartCity-Frontend
             -Dsonar.organization=zaricu22
             -Dsonar.sources=src
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
   # -------------------------------------------------------------------------
   # JOB 5: RELEASE & DEPLOY TO GH-PAGES
