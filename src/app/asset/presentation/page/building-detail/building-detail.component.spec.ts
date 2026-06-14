@@ -12,7 +12,7 @@ import { EventBusService } from '../../../../shared/infrastructure/messaging/eve
 describe('BuildingDetailComponent', () => {
   let fixture: ComponentFixture<BuildingDetailComponent>;
   let component: BuildingDetailComponent;
-  let facade: jasmine.SpyObj<PublicBuildingFacade>;
+  let facade: jest.Mocked<PublicBuildingFacade>;
 
   const stubDevice: EnergyDeviceDto = {
     id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW,
@@ -24,10 +24,15 @@ describe('BuildingDetailComponent', () => {
   };
 
   beforeEach(async () => {
-    facade = jasmine.createSpyObj<PublicBuildingFacade>('PublicBuildingFacade', [
-      'getById', 'addDevice', 'changeConsumption',
-    ]);
-    facade.getById.and.returnValue(of(stubBuilding));
+    facade = {
+      getById: jest.fn(),
+      addDevice: jest.fn(),
+      changeConsumption: jest.fn(),
+      getAll: jest.fn(),
+      create: jest.fn(),
+      changeProduction: jest.fn(),
+    } as unknown as jest.Mocked<PublicBuildingFacade>;
+    facade.getById.mockReturnValue(of(stubBuilding));
 
     await TestBed.configureTestingModule({
       imports: [BuildingDetailComponent],
@@ -50,7 +55,7 @@ describe('BuildingDetailComponent', () => {
   });
 
   it('should reflect hasDevices computed signal', () => {
-    expect(component.hasDevices()).toBeTrue();
+    expect(component.hasDevices()).toBe(true);
   });
 
   it('should show add device dialog when button is clicked', () => {
@@ -61,7 +66,7 @@ describe('BuildingDetailComponent', () => {
   });
 
   it('should call facade.addDevice and reload when DEVICE_ADDED event arrives', () => {
-    facade.addDevice.and.returnValue(of(void 0));
+    facade.addDevice.mockReturnValue(of(void 0));
     const eventBus = TestBed.inject(EventBusService);
     component.showAddDeviceDialog = true;
     fixture.detectChanges();
@@ -71,12 +76,12 @@ describe('BuildingDetailComponent', () => {
     eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-test', deviceType: DeviceType.BATTERY } as any);
 
     expect(facade.addDevice).toHaveBeenCalledWith({ ...result, buildingId: 'b-1' });
-    expect(component.showAddDeviceDialog).toBeFalse();
+    expect(component.showAddDeviceDialog).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
   });
 
   it('should call facade.changeConsumption and reload when CONSUMPTION_CHANGED event arrives', () => {
-    facade.changeConsumption.and.returnValue(of(void 0));
+    facade.changeConsumption.mockReturnValue(of(void 0));
     const eventBus = TestBed.inject(EventBusService);
     component.showChangeConsumptionDialog = true;
     fixture.detectChanges();
@@ -88,13 +93,13 @@ describe('BuildingDetailComponent', () => {
       consumptionValue: 80,
       consumptionUnit: EnergyUnit.kW,
     });
-    expect(component.showChangeConsumptionDialog).toBeFalse();
+    expect(component.showChangeConsumptionDialog).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
   });
 
   it('should report unsaved changes when a dialog is open', () => {
-    expect(component.hasUnsavedChanges()).toBeFalse();
+    expect(component.hasUnsavedChanges()).toBe(false);
     component.showAddDeviceDialog = true;
-    expect(component.hasUnsavedChanges()).toBeTrue();
+    expect(component.hasUnsavedChanges()).toBe(true);
   });
 });

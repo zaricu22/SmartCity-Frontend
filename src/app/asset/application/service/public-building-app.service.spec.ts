@@ -10,14 +10,20 @@ import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 
 describe('PublicBuildingAppService', () => {
   let service: PublicBuildingAppService;
-  let repository: jasmine.SpyObj<PublicBuildingRepository>;
+  let repository: jest.Mocked<PublicBuildingRepository>;
 
   const makeBuilding = () => new PublicBuilding('b-1', 'City Hall', 'Zone A');
 
   beforeEach(() => {
-    repository = jasmine.createSpyObj<PublicBuildingRepository>('PublicBuildingRepository', [
-      'findById', 'findAll', 'save', 'delete', 'addDevice', 'changeConsumption', 'changeProduction',
-    ]);
+    repository = {
+      findById: jest.fn(),
+      findAll: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+      addDevice: jest.fn(),
+      changeConsumption: jest.fn(),
+      changeProduction: jest.fn(),
+    } as unknown as jest.Mocked<PublicBuildingRepository>;
 
     TestBed.configureTestingModule({
       providers: [
@@ -31,7 +37,7 @@ describe('PublicBuildingAppService', () => {
 
   describe('create()', () => {
     it('should save a new building and return its id', (done) => {
-      repository.save.and.returnValue(of(void 0));
+      repository.save.mockReturnValue(of(void 0));
 
       service.create({ name: 'Library', location: 'Zone B' }).subscribe(id => {
         expect(typeof id).toBe('string');
@@ -45,8 +51,8 @@ describe('PublicBuildingAppService', () => {
   describe('addDevice()', () => {
     it('should fetch building, add device, and persist via repository', (done) => {
       const building = makeBuilding();
-      repository.findById.and.returnValue(of(building));
-      repository.addDevice.and.returnValue(of(void 0));
+      repository.findById.mockReturnValue(of(building));
+      repository.addDevice.mockReturnValue(of(void 0));
 
       service.addDevice({
         buildingId: 'b-1',
@@ -56,7 +62,7 @@ describe('PublicBuildingAppService', () => {
       }).subscribe(() => {
         expect(repository.findById).toHaveBeenCalledWith('b-1');
         expect(building.devices.length).toBe(1);
-        expect(repository.addDevice).toHaveBeenCalledWith('b-1', jasmine.any(EnergyDevice));
+        expect(repository.addDevice).toHaveBeenCalledWith('b-1', expect.any(EnergyDevice));
         done();
       });
     });
@@ -68,12 +74,12 @@ describe('PublicBuildingAppService', () => {
       building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
       building.pullEvents();
 
-      repository.findById.and.returnValue(of(building));
-      repository.changeConsumption.and.returnValue(of(void 0));
+      repository.findById.mockReturnValue(of(building));
+      repository.changeConsumption.mockReturnValue(of(void 0));
 
       service.changeConsumption('b-1', { consumptionValue: 80, consumptionUnit: EnergyUnit.kW }).subscribe(() => {
         expect(building.consumption.value).toBe(80);
-        expect(repository.changeConsumption).toHaveBeenCalledWith('b-1', jasmine.any(Energy));
+        expect(repository.changeConsumption).toHaveBeenCalledWith('b-1', expect.any(Energy));
         done();
       });
     });
@@ -85,12 +91,12 @@ describe('PublicBuildingAppService', () => {
       building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
       building.pullEvents();
 
-      repository.findById.and.returnValue(of(building));
-      repository.changeProduction.and.returnValue(of(void 0));
+      repository.findById.mockReturnValue(of(building));
+      repository.changeProduction.mockReturnValue(of(void 0));
 
       service.changeProduction('b-1', 'd-1', { productionValue: 60, productionUnit: EnergyUnit.kW }).subscribe(() => {
         expect(building.devices[0].productionRate.value).toBe(60);
-        expect(repository.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', jasmine.any(Energy));
+        expect(repository.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', expect.any(Energy));
         done();
       });
     });

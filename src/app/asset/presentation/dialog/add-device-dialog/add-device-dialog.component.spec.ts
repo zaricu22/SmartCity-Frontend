@@ -6,8 +6,8 @@ import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
 describe('AddDeviceDialogComponent', () => {
   let fixture: ComponentFixture<AddDeviceDialogComponent>;
   let component: AddDeviceDialogComponent;
-  let confirmSpy: jasmine.Spy;
-  let cancelSpy: jasmine.Spy;
+  let confirmSpy: jest.Mock;
+  let cancelSpy: jest.Mock;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,8 +18,8 @@ describe('AddDeviceDialogComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    confirmSpy = jasmine.createSpy('confirm');
-    cancelSpy  = jasmine.createSpy('cancel');
+    confirmSpy = jest.fn();
+    cancelSpy  = jest.fn();
     component.confirmed.subscribe(confirmSpy);
     component.cancelled.subscribe(cancelSpy);
   });
@@ -27,24 +27,25 @@ describe('AddDeviceDialogComponent', () => {
   it('should disable submit button when capacity is 0', () => {
     // default ratedCapacityValue is 0, which fails Validators.min(0.01)
     const submitBtn = fixture.nativeElement.querySelector('button:last-of-type');
-    expect(submitBtn.disabled).toBeTrue();
+    expect(submitBtn.disabled).toBe(true);
   });
 
   it('should enable submit button when capacity is positive', () => {
     component.form.patchValue({ ratedCapacityValue: 100 });
     fixture.detectChanges();
     const submitBtn = fixture.nativeElement.querySelector('button:last-of-type');
-    expect(submitBtn.disabled).toBeFalse();
+    expect(submitBtn.disabled).toBe(false);
   });
 
   it('should emit confirm without buildingId on submit', () => {
     component.form.patchValue({ type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW });
     component.submit();
 
-    expect(confirmSpy).toHaveBeenCalledOnceWith(
-      jasmine.objectContaining({ type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW }),
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW }),
     );
-    const emitted: AddDeviceDialogResult = confirmSpy.calls.mostRecent().args[0];
+    const emitted: AddDeviceDialogResult = confirmSpy.mock.lastCall[0];
     expect((emitted as any).buildingId).toBeUndefined();
   });
 

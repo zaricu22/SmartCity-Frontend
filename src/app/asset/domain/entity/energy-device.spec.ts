@@ -19,13 +19,17 @@ describe('EnergyDevice', () => {
     });
 
     it('should throw when type is null', () => {
-      expect(() => new EnergyDevice('id-1', null as any, capacity))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.DEVICE_TYPE_REQUIRED);
+      let error: unknown;
+      try { new EnergyDevice('id-1', null as any, capacity); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.DEVICE_TYPE_REQUIRED);
     });
 
     it('should throw when capacity is null', () => {
-      expect(() => new EnergyDevice('id-1', DeviceType.SOLAR, null as any))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.DEVICE_CAPACITY_REQUIRED);
+      let error: unknown;
+      try { new EnergyDevice('id-1', DeviceType.SOLAR, null as any); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.DEVICE_CAPACITY_REQUIRED);
     });
 
     it('should initialise production rate to 0 kW', () => {
@@ -50,13 +54,13 @@ describe('EnergyDevice', () => {
     it('should throw DeviceCapacityLimitException when production exceeds capacity', () => {
       const device = new EnergyDevice('id-1', DeviceType.SOLAR, capacity);
       expect(() => device.changeProduction(new Energy(101, EnergyUnit.kW)))
-        .toThrowMatching(e => e instanceof DeviceCapacityLimitException);
+        .toThrow(DeviceCapacityLimitException);
     });
 
     it('should throw when production in larger unit exceeds capacity', () => {
       const device = new EnergyDevice('id-1', DeviceType.SOLAR, capacity); // 100 kW
       expect(() => device.changeProduction(new Energy(1, EnergyUnit.MW))) // 1000 kW
-        .toThrowMatching(e => e instanceof DeviceCapacityLimitException);
+        .toThrow(DeviceCapacityLimitException);
     });
   });
 
@@ -64,13 +68,13 @@ describe('EnergyDevice', () => {
     it('should be equal when ids match', () => {
       const a = new EnergyDevice('same-id', DeviceType.SOLAR, capacity);
       const b = new EnergyDevice('same-id', DeviceType.PUMP, new Energy(200, EnergyUnit.kW));
-      expect(a.equals(b)).toBeTrue();
+      expect(a.equals(b)).toBe(true);
     });
 
     it('should not be equal when ids differ', () => {
       const a = new EnergyDevice('id-1', DeviceType.SOLAR, capacity);
       const b = new EnergyDevice('id-2', DeviceType.SOLAR, capacity);
-      expect(a.equals(b)).toBeFalse();
+      expect(a.equals(b)).toBe(false);
     });
   });
 });

@@ -16,18 +16,24 @@ describe('Energy', () => {
     });
 
     it('should throw ValidationException for null value', () => {
-      expect(() => new Energy(null as any, EnergyUnit.kW))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.ENERGY_VALUE_REQUIRED);
+      let error: unknown;
+      try { new Energy(null as any, EnergyUnit.kW); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.ENERGY_VALUE_REQUIRED);
     });
 
     it('should throw ValidationException for null unit', () => {
-      expect(() => new Energy(10, null as any))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.ENERGY_UNIT_REQUIRED);
+      let error: unknown;
+      try { new Energy(10, null as any); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.ENERGY_UNIT_REQUIRED);
     });
 
     it('should throw ValidationException for negative value', () => {
-      expect(() => new Energy(-1, EnergyUnit.kW))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.ENERGY_NEGATIVE);
+      let error: unknown;
+      try { new Energy(-1, EnergyUnit.kW); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.ENERGY_NEGATIVE);
     });
   });
 
@@ -75,44 +81,44 @@ describe('Energy', () => {
 
   describe('greaterThan()', () => {
     it('should return true when greater', () => {
-      expect(new Energy(20, EnergyUnit.kW).greaterThan(new Energy(10, EnergyUnit.kW))).toBeTrue();
+      expect(new Energy(20, EnergyUnit.kW).greaterThan(new Energy(10, EnergyUnit.kW))).toBe(true);
     });
 
     it('should return false when equal', () => {
-      expect(new Energy(10, EnergyUnit.kW).greaterThan(new Energy(10, EnergyUnit.kW))).toBeFalse();
+      expect(new Energy(10, EnergyUnit.kW).greaterThan(new Energy(10, EnergyUnit.kW))).toBe(false);
     });
 
     it('should return false when less', () => {
-      expect(new Energy(5, EnergyUnit.kW).greaterThan(new Energy(10, EnergyUnit.kW))).toBeFalse();
+      expect(new Energy(5, EnergyUnit.kW).greaterThan(new Energy(10, EnergyUnit.kW))).toBe(false);
     });
 
     it('should compare across units correctly', () => {
       // 1 MW > 999 kW
-      expect(new Energy(1, EnergyUnit.MW).greaterThan(new Energy(999, EnergyUnit.kW))).toBeTrue();
+      expect(new Energy(1, EnergyUnit.MW).greaterThan(new Energy(999, EnergyUnit.kW))).toBe(true);
     });
   });
 
   describe('lessThan()', () => {
     it('should return true when less', () => {
-      expect(new Energy(5, EnergyUnit.kW).lessThan(new Energy(10, EnergyUnit.kW))).toBeTrue();
+      expect(new Energy(5, EnergyUnit.kW).lessThan(new Energy(10, EnergyUnit.kW))).toBe(true);
     });
 
     it('should return false when equal', () => {
-      expect(new Energy(10, EnergyUnit.kW).lessThan(new Energy(10, EnergyUnit.kW))).toBeFalse();
+      expect(new Energy(10, EnergyUnit.kW).lessThan(new Energy(10, EnergyUnit.kW))).toBe(false);
     });
   });
 
   describe('equals()', () => {
     it('should return true for same value and unit', () => {
-      expect(new Energy(10, EnergyUnit.kW).equals(new Energy(10, EnergyUnit.kW))).toBeTrue();
+      expect(new Energy(10, EnergyUnit.kW).equals(new Energy(10, EnergyUnit.kW))).toBe(true);
     });
 
     it('should return true for equivalent values in different units', () => {
-      expect(new Energy(1, EnergyUnit.MW).equals(new Energy(1000, EnergyUnit.kW))).toBeTrue();
+      expect(new Energy(1, EnergyUnit.MW).equals(new Energy(1000, EnergyUnit.kW))).toBe(true);
     });
 
     it('should return false for different values', () => {
-      expect(new Energy(10, EnergyUnit.kW).equals(new Energy(20, EnergyUnit.kW))).toBeFalse();
+      expect(new Energy(10, EnergyUnit.kW).equals(new Energy(20, EnergyUnit.kW))).toBe(false);
     });
   });
 });

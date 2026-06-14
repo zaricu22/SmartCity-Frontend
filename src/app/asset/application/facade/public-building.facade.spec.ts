@@ -10,8 +10,8 @@ import { PublicBuildingDto } from '../dto/public-building.dto';
 
 describe('PublicBuildingFacade', () => {
   let facade: PublicBuildingFacade;
-  let appService: jasmine.SpyObj<PublicBuildingAppService>;
-  let queryService: jasmine.SpyObj<PublicBuildingQueryService>;
+  let appService: jest.Mocked<PublicBuildingAppService>;
+  let queryService: jest.Mocked<PublicBuildingQueryService>;
 
   const stubDto: PublicBuildingDto = {
     id: 'b-1', name: 'Hall', location: 'Zone A',
@@ -19,12 +19,17 @@ describe('PublicBuildingFacade', () => {
   };
 
   beforeEach(() => {
-    appService = jasmine.createSpyObj<PublicBuildingAppService>('PublicBuildingAppService', [
-      'create', 'addDevice', 'changeConsumption', 'changeProduction',
-    ]);
-    queryService = jasmine.createSpyObj<PublicBuildingQueryService>('PublicBuildingQueryService', [
-      'getAll', 'getById',
-    ]);
+    appService = {
+      create: jest.fn(),
+      addDevice: jest.fn(),
+      changeConsumption: jest.fn(),
+      changeProduction: jest.fn(),
+    } as unknown as jest.Mocked<PublicBuildingAppService>;
+
+    queryService = {
+      getAll: jest.fn(),
+      getById: jest.fn(),
+    } as unknown as jest.Mocked<PublicBuildingQueryService>;
 
     TestBed.configureTestingModule({
       providers: [
@@ -39,7 +44,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   it('getAll() delegates to queryService', (done) => {
-    queryService.getAll.and.returnValue(of([stubDto]));
+    queryService.getAll.mockReturnValue(of([stubDto]));
     facade.getAll().subscribe(dtos => {
       expect(queryService.getAll).toHaveBeenCalled();
       expect(dtos[0].id).toBe('b-1');
@@ -48,7 +53,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   it('getById() delegates to queryService', (done) => {
-    queryService.getById.and.returnValue(of(stubDto));
+    queryService.getById.mockReturnValue(of(stubDto));
     facade.getById('b-1').subscribe(dto => {
       expect(queryService.getById).toHaveBeenCalledWith('b-1');
       expect(dto.id).toBe('b-1');
@@ -57,7 +62,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   it('create() delegates to appService', (done) => {
-    appService.create.and.returnValue(of('new-id'));
+    appService.create.mockReturnValue(of('new-id'));
     facade.create({ name: 'Hall', location: 'Zone A' }).subscribe(id => {
       expect(appService.create).toHaveBeenCalled();
       expect(id).toBe('new-id');
@@ -66,7 +71,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   it('addDevice() delegates to appService', (done) => {
-    appService.addDevice.and.returnValue(of(void 0));
+    appService.addDevice.mockReturnValue(of(void 0));
     const cmd = { buildingId: 'b-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW };
     facade.addDevice(cmd).subscribe(() => {
       expect(appService.addDevice).toHaveBeenCalledWith(cmd);
@@ -75,7 +80,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   it('changeConsumption() delegates to appService', (done) => {
-    appService.changeConsumption.and.returnValue(of(void 0));
+    appService.changeConsumption.mockReturnValue(of(void 0));
     const cmd = { consumptionValue: 50, consumptionUnit: EnergyUnit.kW };
     facade.changeConsumption('b-1', cmd).subscribe(() => {
       expect(appService.changeConsumption).toHaveBeenCalledWith('b-1', cmd);
@@ -84,7 +89,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   it('changeProduction() delegates to appService', (done) => {
-    appService.changeProduction.and.returnValue(of(void 0));
+    appService.changeProduction.mockReturnValue(of(void 0));
     const cmd = { productionValue: 30, productionUnit: EnergyUnit.kW };
     facade.changeProduction('b-1', 'd-1', cmd).subscribe(() => {
       expect(appService.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', cmd);

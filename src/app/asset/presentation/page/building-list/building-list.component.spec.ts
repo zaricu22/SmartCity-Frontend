@@ -9,7 +9,7 @@ import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
 describe('BuildingListComponent', () => {
   let fixture: ComponentFixture<BuildingListComponent>;
   let component: BuildingListComponent;
-  let facade: jasmine.SpyObj<PublicBuildingFacade>;
+  let facade: jest.Mocked<PublicBuildingFacade>;
 
   const stubBuildings: PublicBuildingDto[] = [
     { id: 'b-1', name: 'City Hall', location: 'Zone A', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [] },
@@ -17,8 +17,15 @@ describe('BuildingListComponent', () => {
   ];
 
   beforeEach(async () => {
-    facade = jasmine.createSpyObj<PublicBuildingFacade>('PublicBuildingFacade', ['getAll', 'create']);
-    facade.getAll.and.returnValue(of(stubBuildings));
+    facade = {
+      getAll: jest.fn(),
+      create: jest.fn(),
+      getById: jest.fn(),
+      addDevice: jest.fn(),
+      changeConsumption: jest.fn(),
+      changeProduction: jest.fn(),
+    } as unknown as jest.Mocked<PublicBuildingFacade>;
+    facade.getAll.mockReturnValue(of(stubBuildings));
 
     await TestBed.configureTestingModule({
       imports: [BuildingListComponent],
@@ -46,14 +53,14 @@ describe('BuildingListComponent', () => {
   });
 
   it('should call facade.create and trigger reload when dialog confirms', () => {
-    facade.create.and.returnValue(of('new-id'));
+    facade.create.mockReturnValue(of('new-id'));
     component.showCreateDialog = true;
     fixture.detectChanges();
 
     component.onCreate({ name: 'School', location: 'Zone C' });
 
     expect(facade.create).toHaveBeenCalledWith({ name: 'School', location: 'Zone C' });
-    expect(component.showCreateDialog).toBeFalse();
+    expect(component.showCreateDialog).toBe(false);
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial trigger + reload trigger
   });
 });
