@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.0.0...v1.1.0) (2026-06-14)
+
+
+### Features
+
+* **arch:** add DDD architecture tests with dedicated CI job ([#24](https://github.com/zaricu22/SmartCity-Frontend/issues/24)) ([3c9ac86](https://github.com/zaricu22/SmartCity-Frontend/commit/3c9ac863ab9d8708f43ae0039768289cf29c01cf))
+
 # 1.0.0 (2026-05-29)
 
 
