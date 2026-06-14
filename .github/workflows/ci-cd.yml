@@ -102,6 +102,7 @@ jobs:
   # JOB 2: TESTING - The "Validator"
   # -------------------------------------------------------------------------
   test:
+
     name: Build and Test
     runs-on: ubuntu-latest 
     needs: [ security-static, security-snyk-dependencies, security-owasp-dependencies ]
@@ -137,12 +138,35 @@ jobs:
           path: coverage/
 
   # -------------------------------------------------------------------------
-  # JOB 3: CODE QUALITY - The "Linter"
+  # JOB 3: ARCHITECTURE - The "Guardian"
+  # Runs in parallel with test — pure import-graph analysis, no browser needed.
+  # Fails fast if any DDD layer rule, placement, or naming convention is violated.
+  # -------------------------------------------------------------------------
+  architecture:
+    name: DDD Architecture Check
+    runs-on: ubuntu-latest
+    needs: [ security-static, security-snyk-dependencies, security-owasp-dependencies ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run architecture tests
+        run: npm run test:arch
+
+  # -------------------------------------------------------------------------
+  # JOB 4: CODE QUALITY - The "Linter"
   # -------------------------------------------------------------------------
   code-quality:
     name: Code Quality & Linting
-    runs-on: ubuntu-latest 
-    needs: [ security-static, security-snyk-dependencies, security-owasp-dependencies ]
+    runs-on: ubuntu-latest
+    needs: [ security-static, security-snyk-dependencies, security-owasp-dependencies, test, architecture ]
     steps:
       # [OFFICIAL] actions/checkout — fetch-depth: 0 required for SonarCloud blame data
       - uses: actions/checkout@v4
@@ -181,7 +205,7 @@ jobs:
             -Dsonar.sources=src
 
   # -------------------------------------------------------------------------
-  # JOB 4: RELEASE & DEPLOY TO GH-PAGES
+  # JOB 5: RELEASE & DEPLOY TO GH-PAGES
   # Conditional: This job ONLY runs when code hits 'main'
   # -------------------------------------------------------------------------
   release-and-deploy:

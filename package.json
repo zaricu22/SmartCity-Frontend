@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:arch": "ts-node --project tsconfig.arch.json src/test/architecture/ddd-architecture.ts",
     "lint": "ng lint",
     "serve:ssr:smartcityfront": "node dist/smartcityfront/server/server.mjs",
     "cypress:open": "cypress open",
@@ -47,6 +48,7 @@
     "typescript": "~5.5.2",
     "angular-eslint": "^21.0.1",
     "eslint": "^9.39.1",
+    "ts-node": "^10.9.2",
     "typescript-eslint": "^8.46.4"
   }
 }
