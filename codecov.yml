@@ -1,0 +1,35 @@
+coverage:
+  status:
+    # project = total coverage across the entire codebase after the PR is merged.
+    # Guards against cumulative regression — a PR that deletes tests or adds large
+    # untested files will fail this gate even if the changed lines look fine.
+    project:
+      default:
+        # 70%: matches the Karma/Istanbul global threshold so both gates enforce
+        # the same floor. Codecov adds a second check in case the CI test job
+        # threshold is ever loosened locally without updating this file.
+        target: 70%
+        # 2%: absorbs natural run-to-run variance and small coverage dips caused
+        # by adding a new file that is only partially tested. Prevents false
+        # failures on legitimate incremental work.
+        threshold: 2%
+
+    # patch = coverage of only the lines added or changed in this PR.
+    # More actionable than project coverage — it pins responsibility for new code
+    # to the author of the PR rather than the historical state of the codebase.
+    patch:
+      default:
+        # 60%: lower than the project target because a feature branch often touches
+        # wiring, config, and integration points (e.g., providers, routes, mappers)
+        # that are difficult to unit-test in isolation. 60% ensures the core logic
+        # is tested without requiring full coverage of every new line.
+        target: 60%
+        # 5%: wider tolerance than project because small PRs (1-3 files) can swing
+        # patch coverage significantly with a single untested function. A 5% buffer
+        # prevents noisy failures on otherwise well-tested changes.
+        threshold: 5%
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
