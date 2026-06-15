@@ -25,18 +25,24 @@ describe('PublicBuilding', () => {
     });
 
     it('should throw ValidationException when name is empty', () => {
-      expect(() => new PublicBuilding('id', '', 'Zone A'))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.BUILDING_NAME_EMPTY);
+      let error: unknown;
+      try { new PublicBuilding('id', '', 'Zone A'); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_NAME_EMPTY);
     });
 
     it('should throw ValidationException when name is whitespace', () => {
-      expect(() => new PublicBuilding('id', '   ', 'Zone A'))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.BUILDING_NAME_EMPTY);
+      let error: unknown;
+      try { new PublicBuilding('id', '   ', 'Zone A'); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_NAME_EMPTY);
     });
 
     it('should throw ValidationException when location is empty', () => {
-      expect(() => new PublicBuilding('id', 'Hall', ''))
-        .toThrowMatching(e => e instanceof ValidationException && e.errorCode === ErrorCode.BUILDING_ADDRESS_EMPTY);
+      let error: unknown;
+      try { new PublicBuilding('id', 'Hall', ''); } catch(e) { error = e; }
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_ADDRESS_EMPTY);
     });
   });
 
@@ -59,8 +65,7 @@ describe('PublicBuilding', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
-      expect(() => b.addDevice(makeDevice('d-1', 50)))
-        .toThrowMatching(e => e instanceof DeviceAlreadyExistsException);
+      expect(() => b.addDevice(makeDevice('d-1', 50))).toThrow(DeviceAlreadyExistsException);
     });
 
     it('should return immutable devices array', () => {
@@ -93,8 +98,7 @@ describe('PublicBuilding', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
-      expect(() => b.changeConsumption(new Energy(101, EnergyUnit.kW)))
-        .toThrowMatching(e => e instanceof BuildingTotalCapacityExceededException);
+      expect(() => b.changeConsumption(new Energy(101, EnergyUnit.kW))).toThrow(BuildingTotalCapacityExceededException);
     });
 
     it('should aggregate capacity across multiple devices', () => {
@@ -134,8 +138,7 @@ describe('PublicBuilding', () => {
 
     it('should throw DeviceNotFoundException for unknown deviceId', () => {
       const b = makeBuilding();
-      expect(() => b.changeDeviceProduction('unknown', new Energy(10, EnergyUnit.kW)))
-        .toThrowMatching(e => e instanceof DeviceNotFoundException);
+      expect(() => b.changeDeviceProduction('unknown', new Energy(10, EnergyUnit.kW))).toThrow(DeviceNotFoundException);
     });
   });
 
