@@ -1,0 +1,41 @@
+name: Mutation Testing
+
+on:
+  # Manual trigger — run before a release or after a major domain refactor
+  workflow_dispatch:
+  # Weekly schedule: Monday 02:00 UTC — same cadence as backend mutation-testing.yml.
+  # Not in the main pipeline because Stryker re-runs tests per mutant and is too
+  # slow for every push (same rationale as backend ADR-0011 / PIT).
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  stryker:
+    name: Stryker Mutation Testing
+    runs-on: ubuntu-latest
+    # Hard ceiling — prevents a runaway mutant timeout from blocking the runner indefinitely
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Stryker mutation testing
+        run: npm run test:mutation
+
+      # if: always() — report must be available even when mutation thresholds fail.
+      # The HTML report shows exactly which mutants survived and which tests killed them,
+      # which is the primary diagnostic tool when the score is below the break threshold.
+      - name: Upload Stryker report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-report
+          path: reports/mutation

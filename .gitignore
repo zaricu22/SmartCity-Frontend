@@ -30,6 +30,10 @@ desktop.ini
 /.angular-cli.json
 /.ng/
 
+# Stryker mutation testing
+/reports/
+sandbox*
+
 # TypeScript cache
 *.tsbuildinfo
 
