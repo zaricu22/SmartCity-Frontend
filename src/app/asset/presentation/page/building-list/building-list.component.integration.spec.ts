@@ -128,7 +128,7 @@ describe('BuildingListComponent (integration)', () => {
     tick();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.showCreateDialog).toBeFalse();
+    expect(fixture.componentInstance.showCreateDialog).toBe(false);
 
     // throttleTime(2000) leaves a timer in the fakeAsync queue — discard it
     discardPeriodicTasks();

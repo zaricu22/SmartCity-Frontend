@@ -130,7 +130,7 @@ describe('BuildingDetailComponent (integration)', () => {
     tick();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.showAddDeviceDialog).toBeFalse();
+    expect(fixture.componentInstance.showAddDeviceDialog).toBe(false);
   }));
 
   it('should PUT to /v1/buildings/:id/consumption on changeConsumption', fakeAsync(() => {

@@ -6,8 +6,8 @@ import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
 describe('ChangeConsumptionDialogComponent', () => {
   let fixture: ComponentFixture<ChangeConsumptionDialogComponent>;
   let component: ChangeConsumptionDialogComponent;
-  let confirmSpy: jasmine.Spy;
-  let cancelSpy: jasmine.Spy;
+  let confirmSpy: jest.Mock;
+  let cancelSpy: jest.Mock;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,8 +18,8 @@ describe('ChangeConsumptionDialogComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    confirmSpy = jasmine.createSpy('confirm');
-    cancelSpy  = jasmine.createSpy('cancel');
+    confirmSpy = jest.fn();
+    cancelSpy  = jest.fn();
     component.confirmed.subscribe(confirmSpy);
     component.cancelled.subscribe(cancelSpy);
   });
@@ -28,8 +28,9 @@ describe('ChangeConsumptionDialogComponent', () => {
     component.form.patchValue({ consumptionValue: 120, consumptionUnit: EnergyUnit.MW });
     component.submit();
 
-    expect(confirmSpy).toHaveBeenCalledOnceWith(
-      jasmine.objectContaining<ChangeConsumptionDialogResult>({ consumptionValue: 120, consumptionUnit: EnergyUnit.MW }),
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.objectContaining<ChangeConsumptionDialogResult>({ consumptionValue: 120, consumptionUnit: EnergyUnit.MW }),
     );
   });
 

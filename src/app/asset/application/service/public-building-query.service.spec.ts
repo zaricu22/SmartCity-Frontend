@@ -6,14 +6,20 @@ import { PublicBuilding } from '../../domain/aggregate/public-building';
 
 describe('PublicBuildingQueryService', () => {
   let service: PublicBuildingQueryService;
-  let repository: jasmine.SpyObj<PublicBuildingRepository>;
+  let repository: jest.Mocked<PublicBuildingRepository>;
 
   const makeBuilding = (id: string, name: string) => new PublicBuilding(id, name, 'Zone A');
 
   beforeEach(() => {
-    repository = jasmine.createSpyObj<PublicBuildingRepository>('PublicBuildingRepository', [
-      'findById', 'findAll', 'save', 'delete',
-    ]);
+    repository = {
+      findById: jest.fn(),
+      findAll: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+      addDevice: jest.fn(),
+      changeConsumption: jest.fn(),
+      changeProduction: jest.fn(),
+    } as unknown as jest.Mocked<PublicBuildingRepository>;
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,7 +34,7 @@ describe('PublicBuildingQueryService', () => {
   describe('getById()', () => {
     it('should return a DTO mapped from the domain aggregate', (done) => {
       const building = makeBuilding('b-1', 'City Hall');
-      repository.findById.and.returnValue(of(building));
+      repository.findById.mockReturnValue(of(building));
 
       service.getById('b-1').subscribe(dto => {
         expect(dto.id).toBe('b-1');
@@ -42,7 +48,7 @@ describe('PublicBuildingQueryService', () => {
   describe('getAll()', () => {
     it('should return a list of DTOs', (done) => {
       const buildings = [makeBuilding('b-1', 'City Hall'), makeBuilding('b-2', 'Library')];
-      repository.findAll.and.returnValue(of(buildings));
+      repository.findAll.mockReturnValue(of(buildings));
 
       service.getAll().subscribe(dtos => {
         expect(dtos.length).toBe(2);
@@ -53,7 +59,7 @@ describe('PublicBuildingQueryService', () => {
     });
 
     it('should return empty list when there are no buildings', (done) => {
-      repository.findAll.and.returnValue(of([]));
+      repository.findAll.mockReturnValue(of([]));
 
       service.getAll().subscribe(dtos => {
         expect(dtos).toEqual([]);

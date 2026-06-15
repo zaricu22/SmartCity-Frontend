@@ -5,8 +5,8 @@ import type { CreateBuildingDialogResult } from './create-building-dialog.compon
 describe('CreateBuildingDialogComponent', () => {
   let fixture: ComponentFixture<CreateBuildingDialogComponent>;
   let component: CreateBuildingDialogComponent;
-  let confirmSpy: jasmine.Spy;
-  let cancelSpy: jasmine.Spy;
+  let confirmSpy: jest.Mock;
+  let cancelSpy: jest.Mock;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,30 +17,31 @@ describe('CreateBuildingDialogComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    confirmSpy = jasmine.createSpy('confirm');
-    cancelSpy  = jasmine.createSpy('cancel');
+    confirmSpy = jest.fn();
+    cancelSpy  = jest.fn();
     component.confirmed.subscribe(confirmSpy);
     component.cancelled.subscribe(cancelSpy);
   });
 
   it('should disable the submit button when inputs are empty', () => {
     const button = fixture.nativeElement.querySelector('button:last-of-type');
-    expect(button.disabled).toBeTrue();
+    expect(button.disabled).toBe(true);
   });
 
   it('should enable the submit button when both inputs are filled', () => {
     component.form.patchValue({ name: 'Library', location: 'Zone B' });
     fixture.detectChanges();
     const button = fixture.nativeElement.querySelector('button:last-of-type');
-    expect(button.disabled).toBeFalse();
+    expect(button.disabled).toBe(false);
   });
 
   it('should emit confirm with trimmed values on submit', () => {
     component.form.patchValue({ name: '  Library  ', location: '  Zone B  ' });
     component.submit();
 
-    expect(confirmSpy).toHaveBeenCalledOnceWith(
-      jasmine.objectContaining<CreateBuildingDialogResult>({ name: 'Library', location: 'Zone B' }),
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.objectContaining<CreateBuildingDialogResult>({ name: 'Library', location: 'Zone B' }),
     );
   });
 
