@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.1.0...v1.2.0) (2026-06-15)
+
+
+### Features
+
+* **mutation:** add Stryker mutation testing with Jest runner ([#31](https://github.com/zaricu22/SmartCity-Frontend/issues/31)) ([2e96a33](https://github.com/zaricu22/SmartCity-Frontend/commit/2e96a33d979e14971cce19c6ef0f4be1187bb75e))
+
 # [1.1.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.0.0...v1.1.0) (2026-06-14)
 
 
