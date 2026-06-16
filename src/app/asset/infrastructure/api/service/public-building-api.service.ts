@@ -34,7 +34,7 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
 
   findAll(): Observable<PublicBuilding[]> {
     return this.http
-      .get<PublicBuildingResponse[]>(`${this.base}/all`)
+      .get<PublicBuildingResponse[]>(this.base)
       .pipe(map(BuildingResponseMapper.toDomainList));
   }
 
@@ -61,7 +61,7 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
       consumptionValue: consumption.value,
       consumptionUnit: consumption.unit,
     };
-    return this.http.put<void>(`${this.base}/${buildingId}/consumption`, request);
+    return this.http.patch<void>(`${this.base}/${buildingId}/consumption`, request);
   }
 
   changeProduction(buildingId: string, deviceId: string, production: Energy): Observable<void> {

@@ -229,8 +229,7 @@ jobs:
       # sonar.exclusions — src/test/** contains ts-arch infrastructure (runs via ts-node, not Jest);
       #   excluded from all analysis — no coverage requirement, no code quality rules
       # sonar.javascript.lcov.reportPaths — path to the Istanbul lcov report
-      # sonar.javascript.tsconfigPaths — pins the scanner to these two tsconfigs; prevents
-      #   auto-discovery of cypress/tsconfig.json which causes a parse error in the JS sensor
+      # sonar.javascript.tsconfigPaths — pins the scanner to these two tsconfigs
       # sonar.coverage.exclusions — bootstrap entry points and route/config files have no testable
       #   logic; environments/** and main*.ts are already excluded from Jest collectCoverageFrom
       - name: SonarCloud analysis
@@ -301,9 +300,29 @@ jobs:
             --plugins @semantic-release/github \
             --plugins @semantic-release/git
 
-      # 3. Deploy to GitHub Pages: Moves the 'dist' folder to 'gh-pages' branch
+      # 3. Deploy to GitHub Pages: publishes the client bundle to the 'gh-pages' branch.
+      # publish_dir points at dist/smartcityfront/browser, not dist/ — the application
+      # builder splits SSR output into browser/ (static site) and server/ (Node SSR
+      # bundle) because ssr.entry + prerender are set in angular.json; only browser/
+      # is servable as static files by GitHub Pages.
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./dist/smartcityfront/browser
+
+      # Smoke Test: Pings the live URL every 15s to confirm the deploy actually
+      # took effect, mirrors the backend's Render health-check job.
+      - name: Smoke Test - GitHub Pages
+        run: |
+          echo "Waiting for GitHub Pages to publish (checking every 15s)..."
+          for i in {1..10}; do
+            if curl --fail --silent https://zaricu22.github.io/SmartCity-Frontend/ > /dev/null; then
+              echo "Site is LIVE!"
+              exit 0
+            fi
+            echo "Not ready yet, retrying in 15 seconds..."
+            sleep 15
+          done
+          echo "Timeout: Site did not return 200 in 150 seconds."
+          exit 1

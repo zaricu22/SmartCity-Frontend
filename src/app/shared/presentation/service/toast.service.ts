@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Subscription, timer } from 'rxjs';
 
-export type ToastType = 'error' | 'success' | 'info';
+export type ToastType = 'error' | 'success' | 'info' | 'warning';
 
 export interface Toast {
   readonly id: string;

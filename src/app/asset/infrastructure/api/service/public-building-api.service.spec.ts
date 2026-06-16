@@ -61,14 +61,14 @@ describe('PublicBuildingApiService', () => {
   });
 
   describe('findAll()', () => {
-    it('should GET /v1/buildings/all and return list of aggregates', (done) => {
+    it('should GET /v1/buildings and return list of aggregates', (done) => {
       service.findAll().subscribe(buildings => {
         expect(buildings.length).toBe(1);
         expect(buildings[0].id).toBe('b-1');
         done();
       });
 
-      const req = http.expectOne(`${BASE}/all`);
+      const req = http.expectOne(BASE);
       expect(req.request.method).toBe('GET');
       req.flush([buildingResponse]);
     });
@@ -112,13 +112,13 @@ describe('PublicBuildingApiService', () => {
   });
 
   describe('changeConsumption()', () => {
-    it('should PUT /v1/buildings/:id/consumption', (done) => {
+    it('should PATCH /v1/buildings/:id/consumption', (done) => {
       const consumption = new Energy(80, EnergyUnit.kW);
 
       service.changeConsumption('b-1', consumption).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1/consumption`);
-      expect(req.request.method).toBe('PUT');
+      expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
       req.flush(null);
     });

@@ -67,10 +67,10 @@ describe('BuildingListComponent (integration)', () => {
 
   afterEach(() => http.verify());
 
-  it('should fetch /v1/buildings/all on init and render one card per building', fakeAsync(() => {
+  it('should fetch /v1/buildings on init and render one card per building', fakeAsync(() => {
     fixture.detectChanges(); // triggers ngOnInit → facade.getAll() → HTTP GET
 
-    const req = http.expectOne(`${BASE}/all`);
+    const req = http.expectOne(BASE);
     expect(req.request.method).toBe('GET');
     req.flush(buildingResponses);
 
@@ -83,7 +83,7 @@ describe('BuildingListComponent (integration)', () => {
 
   it('should render building names from the HTTP response', fakeAsync(() => {
     fixture.detectChanges();
-    http.expectOne(`${BASE}/all`).flush(buildingResponses);
+    http.expectOne(BASE).flush(buildingResponses);
     tick();
     fixture.detectChanges();
 
@@ -94,7 +94,7 @@ describe('BuildingListComponent (integration)', () => {
 
   it('should show empty state when the API returns no buildings', fakeAsync(() => {
     fixture.detectChanges();
-    http.expectOne(`${BASE}/all`).flush([]);
+    http.expectOne(BASE).flush([]);
     tick();
     fixture.detectChanges();
 
@@ -104,7 +104,7 @@ describe('BuildingListComponent (integration)', () => {
 
   it('should show create dialog and POST to /v1/buildings on confirm', fakeAsync(() => {
     fixture.detectChanges();
-    http.expectOne(`${BASE}/all`).flush(buildingResponses);
+    http.expectOne(BASE).flush(buildingResponses);
     tick();
     fixture.detectChanges();
 
@@ -124,7 +124,7 @@ describe('BuildingListComponent (integration)', () => {
     createReq.flush(null);
 
     // Should reload the list
-    http.expectOne(`${BASE}/all`).flush([...buildingResponses]);
+    http.expectOne(BASE).flush([...buildingResponses]);
     tick();
     fixture.detectChanges();
 

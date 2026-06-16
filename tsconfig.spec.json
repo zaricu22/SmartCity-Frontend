@@ -10,7 +10,6 @@
     "src/**/*.d.ts"
   ],
   "exclude": [
-    "cypress",
     "node_modules",
     "src/test/architecture"
   ]

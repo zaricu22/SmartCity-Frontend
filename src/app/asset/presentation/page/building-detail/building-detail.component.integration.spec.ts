@@ -133,7 +133,7 @@ describe('BuildingDetailComponent (integration)', () => {
     expect(fixture.componentInstance.showAddDeviceDialog).toBe(false);
   }));
 
-  it('should PUT to /v1/buildings/:id/consumption on changeConsumption', fakeAsync(() => {
+  it('should PATCH to /v1/buildings/:id/consumption on changeConsumption', fakeAsync(() => {
     fixture.detectChanges();
     flushGetBuilding();
     tick();
@@ -141,11 +141,11 @@ describe('BuildingDetailComponent (integration)', () => {
 
     fixture.componentInstance.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
 
-    // changeConsumption first fetches the building (findById), then PUTs
+    // changeConsumption first fetches the building (findById), then PATCHes
     flushGetBuilding();
     tick();
     const putReq = http.expectOne(`${BASE}/${BUILDING_ID}/consumption`);
-    expect(putReq.request.method).toBe('PUT');
+    expect(putReq.request.method).toBe('PATCH');
     expect(putReq.request.body.consumptionValue).toBe(80);
     putReq.flush(null);
 
