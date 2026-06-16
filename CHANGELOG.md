@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.2.0...v1.2.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* GitHub Pages deploy path, API contract bugs, and backend health check ([9e4a2fa](https://github.com/zaricu22/SmartCity-Frontend/commit/9e4a2fae7057585336095c55ff3ef588c99ce030))
+
 # [1.2.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.1.0...v1.2.0) (2026-06-15)
 
 
