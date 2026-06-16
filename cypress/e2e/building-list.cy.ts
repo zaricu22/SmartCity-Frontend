@@ -11,7 +11,7 @@
 describe('Building List page', () => {
   beforeEach(() => {
     cy.interceptBuildings();
-    cy.visit('/assets');
+    cy.loginAs('VIEWER', '/assets');
     cy.wait('@getBuildings');
   });
 
@@ -31,7 +31,7 @@ describe('Building List page', () => {
 
   it('should show the "No buildings found." message when the API returns an empty list', () => {
     cy.intercept('GET', '**/v1/buildings/all', []).as('emptyBuildings');
-    cy.visit('/assets');
+    cy.loginAs('VIEWER', '/assets');
     cy.wait('@emptyBuildings');
     cy.contains('No buildings found.').should('be.visible');
     cy.get('app-building-card').should('not.exist');

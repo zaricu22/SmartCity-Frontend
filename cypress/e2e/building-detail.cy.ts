@@ -9,7 +9,7 @@ describe('Building Detail page', () => {
 
   beforeEach(() => {
     cy.interceptBuilding(BUILDING_ID);
-    cy.visit(`/assets/${BUILDING_ID}`);
+    cy.loginAs('ADMIN', `/assets/${BUILDING_ID}`);
     cy.wait('@getBuilding');
   });
 
