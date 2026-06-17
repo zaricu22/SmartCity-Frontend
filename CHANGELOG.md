@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.2.1...v1.3.0) (2026-06-17)
+
+
+### Features
+
+* **ui:** redesign presentation layer with design tokens and Lucide icons ([#37](https://github.com/zaricu22/SmartCity-Frontend/issues/37)) ([618cfbf](https://github.com/zaricu22/SmartCity-Frontend/commit/618cfbfd64f11959704c45ff14db08a93b90ab18))
+
 ## [1.2.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.2.0...v1.2.1) (2026-06-16)
 
 
