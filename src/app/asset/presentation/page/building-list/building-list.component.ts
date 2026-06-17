@@ -7,6 +7,7 @@ import { BuildingCardComponent } from '../../component/building-card/building-ca
 import { CreateBuildingDialogComponent } from '../../dialog/create-building-dialog/create-building-dialog.component';
 import { EmptyStateComponent } from '../../../../shared/presentation/component/empty-state/empty-state.component';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
+import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
 import type { CreateBuildingDialogResult } from '../../dialog/create-building-dialog/create-building-dialog.component';
 import type { HasUnsavedChanges } from '../../../../shared/infrastructure/auth/unsaved-changes.guard';
 
@@ -22,6 +23,7 @@ export class BuildingListComponent implements OnInit, HasUnsavedChanges {
   private readonly facade = inject(PublicBuildingFacade);
   private readonly eventBus = inject(EventBusService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly auth = inject(AuthService);
 
   // TODO: plain boolean with OnPush — Angular does not detect this change automatically; migrate to signal<boolean>(false)
   showCreateDialog = false;

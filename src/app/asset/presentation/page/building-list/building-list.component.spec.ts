@@ -1,8 +1,10 @@
+import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { BuildingListComponent } from './building-list.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
+import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
 
@@ -16,7 +18,11 @@ describe('BuildingListComponent', () => {
     { id: 'b-2', name: 'Library',   location: 'Zone B', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [] },
   ];
 
+  let adminAuth: { hasRole: jest.Mock };
+
   beforeEach(async () => {
+    adminAuth = { hasRole: jest.fn().mockReturnValue(true) };
+
     facade = {
       getAll: jest.fn(),
       create: jest.fn(),
@@ -31,6 +37,7 @@ describe('BuildingListComponent', () => {
       imports: [BuildingListComponent],
       providers: [
         { provide: PublicBuildingFacade, useValue: facade },
+        { provide: AuthService, useValue: adminAuth },
         provideRouter([]),
       ],
     }).compileComponents();
@@ -50,6 +57,13 @@ describe('BuildingListComponent', () => {
     fixture.nativeElement.querySelector('button').click();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-create-building-dialog')).not.toBeNull();
+  });
+
+  it('should hide the New Building button for non-ADMIN users', () => {
+    adminAuth.hasRole.mockReturnValue(false);
+    // OnPush: detectChanges() on the component's own CDR forces a re-check of this subtree
+    fixture.debugElement.injector.get(ChangeDetectorRef).detectChanges();
+    expect(fixture.nativeElement.querySelector('button')).toBeNull();
   });
 
   it('should call facade.create and trigger reload when dialog confirms', () => {

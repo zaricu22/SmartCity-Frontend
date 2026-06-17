@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { finalize } from 'rxjs';
 import { LucideZap, LucideLogOut } from '@lucide/angular';
 import { AuthService } from '../../../infrastructure/auth/auth.service';
+import { AuthApiService } from '../../../infrastructure/auth/auth-api.service';
 
 @Component({
   selector: 'app-header',
@@ -13,10 +15,25 @@ import { AuthService } from '../../../infrastructure/auth/auth.service';
 })
 export class HeaderComponent {
   private readonly auth = inject(AuthService);
+  private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
 
   logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+    const refreshToken = this.auth.getRefreshToken();
+    const clearAndRedirect = () => {
+      this.auth.logout();
+      this.router.navigate(['/login']);
+    };
+
+    if (!refreshToken) {
+      clearAndRedirect();
+      return;
+    }
+
+    // Best-effort: revoke both tokens server-side, then clear local state regardless of outcome.
+    // finalize() runs on both complete and error so a network failure still logs the user out.
+    this.authApi.logout(refreshToken)
+      .pipe(finalize(clearAndRedirect))
+      .subscribe();
   }
 }
