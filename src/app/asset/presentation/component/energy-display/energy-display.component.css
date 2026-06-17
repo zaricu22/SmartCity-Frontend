@@ -1,0 +1,22 @@
+/*
+ * Sizing/ring styling is driven entirely by CSS custom properties so parent
+ * pages can re-skin this component (e.g. building-detail turns it into a
+ * circular badge) without reaching into its template — custom properties
+ * inherit through the DOM regardless of Angular's view encapsulation.
+ */
+:host {
+  display: var(--energy-display-host-display, inline-flex);
+  align-items: center;
+  justify-content: center;
+  width: var(--energy-display-diameter, auto);
+  height: var(--energy-display-diameter, auto);
+  border-radius: var(--energy-display-radius, 0);
+  border: var(--energy-display-border, none);
+  background-color: var(--energy-display-bg, transparent);
+}
+
+.energy-display {
+  font-size: var(--energy-display-font-size, inherit);
+  font-weight: var(--energy-display-font-weight, inherit);
+  color: var(--energy-display-color, var(--color-text));
+}

@@ -1,0 +1,6 @@
+/* Reuses the shared .dialog-backdrop / .dialog / .dialog__actions chrome
+   from src/styles.css. Only the message text is specific to this dialog. */
+.confirm-dialog p {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}

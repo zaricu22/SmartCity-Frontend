@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { Subject, merge, switchMap, tap, throttleTime } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { LucidePlus, LucideBuilding2 } from '@lucide/angular';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { BuildingCardComponent } from '../../component/building-card/building-card.component';
 import { CreateBuildingDialogComponent } from '../../dialog/create-building-dialog/create-building-dialog.component';
@@ -13,8 +14,9 @@ import type { HasUnsavedChanges } from '../../../../shared/infrastructure/auth/u
   selector: 'app-building-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BuildingCardComponent, CreateBuildingDialogComponent, EmptyStateComponent],
+  imports: [BuildingCardComponent, CreateBuildingDialogComponent, EmptyStateComponent, LucidePlus, LucideBuilding2],
   templateUrl: './building-list.component.html',
+  styleUrl: './building-list.component.css',
 })
 export class BuildingListComponent implements OnInit, HasUnsavedChanges {
   private readonly facade = inject(PublicBuildingFacade);

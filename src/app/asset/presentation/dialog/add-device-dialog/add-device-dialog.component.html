@@ -1,4 +1,4 @@
-<div class="dialog-backdrop" style="background-color: #894e8d;">
+<div class="dialog-backdrop">
   <div class="dialog" [formGroup]="form">
     <h2>Add Device</h2>
 
@@ -11,26 +11,28 @@
       </select>
     </label>
 
-    <label>
-      Rated Capacity
-      <input type="number" formControlName="ratedCapacityValue" appPositiveNumber min="0.01" step="0.1" />
-      @if (form.controls.ratedCapacityValue.invalid && form.controls.ratedCapacityValue.touched) {
-        <span class="dialog__error">Capacity must be greater than 0.</span>
-      }
-    </label>
-
-    <label>
-      Unit
-      <select formControlName="ratedCapacityUnit">
-        @for (u of energyUnits; track u) {
-          <option [value]="u">{{ u }}</option>
+    <div class="dialog__row">
+      <label>
+        Rated Capacity
+        <input type="number" formControlName="ratedCapacityValue" appPositiveNumber min="0.01" step="0.1" />
+        @if (form.controls.ratedCapacityValue.invalid && form.controls.ratedCapacityValue.touched) {
+          <span class="dialog__error">Capacity must be greater than 0.</span>
         }
-      </select>
-    </label>
+      </label>
+
+      <label>
+        Unit
+        <select formControlName="ratedCapacityUnit">
+          @for (u of energyUnits; track u) {
+            <option [value]="u">{{ u }}</option>
+          }
+        </select>
+      </label>
+    </div>
 
     <div class="dialog__actions">
-      <button type="button" (click)="cancelled.emit()">Cancel</button>
-      <button type="button" [disabled]="form.invalid" (click)="submit()">Add</button>
+      <button type="button" class="btn btn--secondary" (click)="cancelled.emit()">Cancel</button>
+      <button type="button" class="btn btn--primary" [disabled]="form.invalid" (click)="submit()">Add</button>
     </div>
   </div>
 </div>

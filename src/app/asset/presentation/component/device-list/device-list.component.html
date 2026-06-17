@@ -1,9 +1,17 @@
 <ul class="device-list">
   @for (device of devices(); track device.id) {
     <li class="device-list__item">
+      <span class="device-list__icon">
+        @switch (device.type) {
+          @case ('SOLAR') { <svg lucideSun></svg> }
+          @case ('BATTERY') { <svg lucideBatteryCharging></svg> }
+          @case ('PUMP') { <svg lucideWaves></svg> }
+          @default { <svg lucideCpu></svg> }
+        }
+      </span>
       <span class="device-list__type">{{ device.type }}</span>
-       | <span class="device-list__capacity">Capacity: {{ device.ratedCapacityValue | energy: device.ratedCapacityUnit }}</span>
-       | <span class="device-list__production">Production: {{ device.productionRateValue | energy: device.productionRateUnit }}</span>
+      <span class="device-list__capacity">Capacity: {{ device.ratedCapacityValue | energy: device.ratedCapacityUnit }}</span>
+      <span class="device-list__production">Production: {{ device.productionRateValue | energy: device.productionRateUnit }}</span>
     </li>
   } @empty {
     <li class="device-list__empty">No devices added yet.</li>

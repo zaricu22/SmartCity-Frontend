@@ -1,0 +1,3 @@
+/* Shared .dialog-backdrop / .dialog / .dialog__row / .dialog__field /
+   .dialog__actions chrome lives in src/styles.css (reused identically by
+   every dialog). Nothing change-consumption-specific to add on top of it. */

@@ -1,11 +1,17 @@
-<div class="building-list-page" style="background-color: #81A6C6; width: fit-content;">
+<div class="building-list-page">
   <header class="building-list-page__header">
     <h1>Public Buildings</h1>
-    <button [disabled]="isSaving()" (click)="showCreateDialog = true">+ New Building</button>
+    <button class="btn btn--primary" [disabled]="isSaving()" (click)="showCreateDialog = true">
+      <svg lucidePlus class="btn__icon"></svg>
+      New Building
+    </button>
   </header>
 
   @if (isLoading()) {
-    <p class="building-list-page__loading">Loading...</p>
+    <p class="building-list-page__loading">
+      <span class="building-list-page__spinner"></span>
+      Loading...
+    </p>
   } @else if (buildings().length > 0) {
     <div class="building-list-page__grid">
       @for (building of buildings(); track building.id) {
@@ -15,7 +21,11 @@
   } @else {
     <app-empty-state>
       <ng-template #emptyTpl>
-        <p>No buildings found. Click "+ New Building" to create one.</p>
+        <div class="building-list-page__empty">
+          <svg lucideBuilding2 class="building-list-page__empty-icon"></svg>
+          <p>No buildings found.</p>
+          <p class="building-list-page__empty-hint">Click "New Building" to create one.</p>
+        </div>
       </ng-template>
     </app-empty-state>
   }

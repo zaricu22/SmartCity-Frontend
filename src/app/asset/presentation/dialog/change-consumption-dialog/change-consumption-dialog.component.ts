@@ -12,6 +12,7 @@ export interface ChangeConsumptionDialogResult {
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './change-consumption-dialog.component.html',
+  styleUrl: './change-consumption-dialog.component.css',
 })
 export class ChangeConsumptionDialogComponent {
   readonly confirmed = output<ChangeConsumptionDialogResult>();

@@ -12,6 +12,7 @@ export type AddDeviceDialogResult = Omit<AddDeviceCommand, 'buildingId'>;
   standalone: true,
   imports: [ReactiveFormsModule, PositiveNumberDirective],
   templateUrl: './add-device-dialog.component.html',
+  styleUrl: './add-device-dialog.component.css',
 })
 export class AddDeviceDialogComponent {
   readonly confirmed = output<AddDeviceDialogResult>();
