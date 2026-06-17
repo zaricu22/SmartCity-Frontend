@@ -1,6 +1,15 @@
-<header class="app-header" style="background-color: #89986D;">
+<header class="app-header">
+  <a class="app-header__brand" routerLink="/assets">
+    <svg lucideZap class="app-header__brand-icon"></svg>
+    <span class="app-header__brand-text">SmartCity<strong>Energy</strong></span>
+  </a>
+
   <nav class="app-header__nav">
     <a routerLink="/assets" routerLinkActive="active">Assets</a>
   </nav>
-  <button class="app-header__logout" (click)="logout()">Logout</button>
+
+  <button class="app-header__logout" (click)="logout()">
+    <svg lucideLogOut class="app-header__logout-icon"></svg>
+    Logout
+  </button>
 </header>

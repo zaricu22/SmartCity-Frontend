@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, EMPTY, switchMap, tap, catchError, filter } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { LucideTriangleAlert, LucidePencil, LucidePlus } from '@lucide/angular';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { ApplicationException } from '../../../application/exception/application.exception';
 import { DeviceListComponent } from '../../component/device-list/device-list.component';
@@ -22,8 +23,18 @@ import type { ProductionChangedEvent } from '../../../domain/event/production-ch
   selector: 'app-building-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DeviceListComponent, EnergyDisplayComponent, AddDeviceDialogComponent, ChangeConsumptionDialogComponent],
+  imports: [
+    CommonModule,
+    DeviceListComponent,
+    EnergyDisplayComponent,
+    AddDeviceDialogComponent,
+    ChangeConsumptionDialogComponent,
+    LucideTriangleAlert,
+    LucidePencil,
+    LucidePlus,
+  ],
   templateUrl: './building-detail.component.html',
+  styleUrl: './building-detail.component.css',
 })
 export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   private readonly destroyRef = inject(DestroyRef);

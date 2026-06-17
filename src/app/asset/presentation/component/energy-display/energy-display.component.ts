@@ -8,6 +8,7 @@ import { EnergyPipe } from '../../../../shared/presentation/pipe/energy.pipe';
   imports: [EnergyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './energy-display.component.html',
+  styleUrl: './energy-display.component.css',
 })
 export class EnergyDisplayComponent {
   value = input.required<number>();

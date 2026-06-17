@@ -4,6 +4,7 @@ import { AfterContentInit, Component, ContentChild, TemplateRef, ViewChild, View
   selector: 'app-empty-state',
   standalone: true,
   templateUrl: './empty-state.component.html',
+  styleUrl: './empty-state.component.css',
 })
 export class EmptyStateComponent implements AfterContentInit {
   // Parent can pass a custom empty template as content:

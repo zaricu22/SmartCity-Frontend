@@ -1,0 +1,9 @@
+/* Default fallback content when no caller supplies a custom #emptyTpl.
+   Currently every caller (e.g. building-list) provides its own template
+   styled in its own .css file — this only covers the bare default. */
+.empty-state {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

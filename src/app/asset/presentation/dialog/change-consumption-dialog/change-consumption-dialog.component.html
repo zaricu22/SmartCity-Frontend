@@ -1,27 +1,29 @@
-<div class="dialog-overlay" style="background-color: #894e8d;">
+<div class="dialog-backdrop">
   <div class="dialog" [formGroup]="form">
     <h2>Change Consumption</h2>
 
-    <div class="dialog__field">
-      <label>Value</label>
-      <input type="number" formControlName="consumptionValue" min="0" />
-      @if (form.controls.consumptionValue.invalid && form.controls.consumptionValue.touched) {
-        <span class="dialog__error">Value must be 0 or greater.</span>
-      }
-    </div>
-
-    <div class="dialog__field">
-      <label>Unit</label>
-      <select formControlName="consumptionUnit">
-        @for (u of energyUnits; track u) {
-          <option [value]="u">{{ u }}</option>
+    <div class="dialog__row">
+      <div class="dialog__field">
+        <label>Value</label>
+        <input type="number" formControlName="consumptionValue" min="0" />
+        @if (form.controls.consumptionValue.invalid && form.controls.consumptionValue.touched) {
+          <span class="dialog__error">Value must be 0 or greater.</span>
         }
-      </select>
+      </div>
+
+      <div class="dialog__field">
+        <label>Unit</label>
+        <select formControlName="consumptionUnit">
+          @for (u of energyUnits; track u) {
+            <option [value]="u">{{ u }}</option>
+          }
+        </select>
+      </div>
     </div>
 
     <div class="dialog__actions">
-      <button type="button" (click)="cancelled.emit()">Cancel</button>
-      <button type="button" [disabled]="form.invalid" (click)="submit()">Update</button>
+      <button type="button" class="btn btn--secondary" (click)="cancelled.emit()">Cancel</button>
+      <button type="button" class="btn btn--primary" [disabled]="form.invalid" (click)="submit()">Update</button>
     </div>
   </div>
 </div>

@@ -1,31 +1,44 @@
 @if (errorMessage()) {
-  <p class="building-detail-page__error">{{ errorMessage() }}</p>
+  <div class="building-detail-page__error">
+    <svg lucideTriangleAlert class="building-detail-page__error-icon"></svg>
+    <span>{{ errorMessage() }}</span>
+  </div>
 }
 
 @if (building(); as b) {
-  <div class="building-detail-page" style="background-color: #AACDDC; width: fit-content;">
-    <h1>{{ b.name }}</h1>
-    <p>{{ b.location }}</p>
+  <div class="building-detail-page">
+    <header class="building-detail-page__header">
+      <h1>{{ b.name }}</h1>
+      <p class="building-detail-page__location">{{ b.location }}</p>
+    </header>
 
-    <section class="building-detail-page__consumption">
-      <h2>
-        Consumption
-        <button (click)="showChangeConsumptionDialog = true">Change</button>
-      </h2>
-      <app-energy-display [value]="b.consumptionValue" [unit]="b.consumptionUnit" />
-    </section>
+    <div class="building-detail-page__grid">
+      <section class="building-detail-page__card building-detail-page__consumption">
+        <div class="building-detail-page__section-header">
+          <h2>Consumption</h2>
+          <button class="btn btn--secondary" (click)="showChangeConsumptionDialog = true">
+            <svg lucidePencil class="btn__icon"></svg>
+            Change
+          </button>
+        </div>
+        <app-energy-display [value]="b.consumptionValue" [unit]="b.consumptionUnit" />
+      </section>
 
-    <section class="building-detail-page__devices">
-      <h2>
-        Devices
-        <button (click)="showAddDeviceDialog = true">+ Add Device</button>
-      </h2>
-      @if (hasDevices()) {
-        <app-device-list [devices]="b.devices" />
-      } @else {
-        <p class="building-detail-page__no-devices">No devices yet.</p>
-      }
-    </section>
+      <section class="building-detail-page__card building-detail-page__devices">
+        <div class="building-detail-page__section-header">
+          <h2>Devices</h2>
+          <button class="btn btn--primary" (click)="showAddDeviceDialog = true">
+            <svg lucidePlus class="btn__icon"></svg>
+            Add Device
+          </button>
+        </div>
+        @if (hasDevices()) {
+          <app-device-list [devices]="b.devices" />
+        } @else {
+          <p class="building-detail-page__no-devices">No devices yet.</p>
+        }
+      </section>
+    </div>
 
     @if (showAddDeviceDialog) {
       <app-add-device-dialog
@@ -42,5 +55,8 @@
     }
   </div>
 } @else if (isLoading()) {
-  <p class="building-detail-page__loading">Loading...</p>
+  <p class="building-detail-page__loading">
+    <span class="building-detail-page__spinner"></span>
+    Loading...
+  </p>
 }

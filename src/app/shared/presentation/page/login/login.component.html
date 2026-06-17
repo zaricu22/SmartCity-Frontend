@@ -1,5 +1,21 @@
-<div class="login-page" style="background-color: #5A9CB5;">
-  <h1>Sign in</h1>
-  <button (click)="loginAsAdmin()">Login as Admin</button>
-  <button (click)="loginAsViewer()">Login as Viewer</button>
+<div class="login-page">
+  <div class="login-page__brand">
+    <div class="login-page__brand-mark">
+      <svg lucideZap class="login-page__brand-icon"></svg>
+      <h1 class="login-page__brand-text">SmartCity<strong>Energy</strong></h1>
+    </div>
+    <p class="login-page__tagline">Monitor and manage public building energy consumption.</p>
+    <div class="login-page__skyline" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="login-page__panel">
+    <div class="login-page__card">
+      <h2>Sign in</h2>
+      <p class="login-page__hint">Choose a role to continue.</p>
+      <button class="login-page__btn login-page__btn--primary" (click)="loginAsAdmin()">Log in as Admin</button>
+      <button class="login-page__btn login-page__btn--secondary" (click)="loginAsViewer()">Log in as Viewer</button>
+    </div>
+  </div>
 </div>

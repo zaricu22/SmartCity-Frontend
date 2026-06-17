@@ -11,6 +11,7 @@ export interface CreateBuildingDialogResult {
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './create-building-dialog.component.html',
+  styleUrl: './create-building-dialog.component.css',
 })
 export class CreateBuildingDialogComponent {
   readonly confirmed = output<CreateBuildingDialogResult>();

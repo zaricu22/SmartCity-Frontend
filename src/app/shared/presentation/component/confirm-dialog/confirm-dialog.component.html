@@ -1,10 +1,10 @@
 @if (pending()) {
-  <div class="confirm-overlay" role="dialog" aria-modal="true">
-    <div class="confirm-box">
+  <div class="dialog-backdrop" role="dialog" aria-modal="true">
+    <div class="dialog confirm-dialog">
       <p>{{ pending()!.message }}</p>
-      <div class="confirm-actions">
-        <button (click)="respond(false)">Cancel</button>
-        <button (click)="respond(true)">Leave</button>
+      <div class="dialog__actions">
+        <button class="btn btn--secondary" (click)="respond(false)">Cancel</button>
+        <button class="btn btn--primary" (click)="respond(true)">Leave</button>
       </div>
     </div>
   </div>

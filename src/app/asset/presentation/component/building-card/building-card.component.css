@@ -1,0 +1,72 @@
+:host {
+  display: block;
+}
+
+.building-card {
+  display: block;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.building-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.building-card__band {
+  height: 8px;
+  background-color: var(--card-accent-1);
+}
+
+/* Cycle the decorative band color by card position — purely visual, not data-driven */
+:host:nth-of-type(4n + 2) .building-card__band {
+  background-color: var(--card-accent-2);
+}
+
+:host:nth-of-type(4n + 3) .building-card__band {
+  background-color: var(--card-accent-3);
+}
+
+:host:nth-of-type(4n + 4) .building-card__band {
+  background-color: var(--card-accent-4);
+}
+
+.building-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.building-card__name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.building-card__location {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.building-card__consumption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}
+
+.building-card__consumption-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-accent);
+}
+
+.building-card__devices {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}

@@ -1,0 +1,116 @@
+.building-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.building-detail-page__header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+}
+
+.building-detail-page__location {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.building-detail-page__grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2fr;
+  gap: var(--space-5);
+}
+
+.building-detail-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.building-detail-page__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.building-detail-page__section-header h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.building-detail-page__consumption {
+  align-items: center;
+  text-align: center;
+}
+
+/* Turn the plain energy value into a circular badge — only in this context,
+   building-card keeps the compact inline look (see its own .css file). */
+.building-detail-page__consumption app-energy-display {
+  --energy-display-diameter: 140px;
+  --energy-display-radius: 50%;
+  --energy-display-border: 8px solid var(--color-accent-soft);
+  --energy-display-bg: var(--color-surface);
+  --energy-display-font-size: var(--font-size-2xl);
+  --energy-display-font-weight: 700;
+  --energy-display-color: var(--color-accent-hover);
+}
+
+.building-detail-page__no-devices {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-4) 0;
+}
+
+.building-detail-page__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 1200px;
+  margin: 0 auto var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.building-detail-page__error-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.building-detail-page__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.building-detail-page__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: building-detail-page-spin 0.7s linear infinite;
+}
+
+@keyframes building-detail-page-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 800px) {
+  .building-detail-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

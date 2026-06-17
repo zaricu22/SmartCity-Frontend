@@ -25,6 +25,8 @@
     "@angular/platform-server": "^18.2.0",
     "@angular/router": "^18.2.0",
     "@angular/ssr": "^18.2.21",
+    "@fontsource/inter": "^5.2.8",
+    "@lucide/angular": "^1.20.0",
     "express": "^4.18.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

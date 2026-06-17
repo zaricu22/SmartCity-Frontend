@@ -1,4 +1,4 @@
-<div class="dialog-backdrop" style="background-color: #894e8d;">
+<div class="dialog-backdrop">
   <div class="dialog" [formGroup]="form">
     <h2>Create Building</h2>
 
@@ -19,8 +19,8 @@
     </label>
 
     <div class="dialog__actions">
-      <button type="button" (click)="cancelled.emit()">Cancel</button>
-      <button type="button" [disabled]="form.invalid" (click)="submit()">Create</button>
+      <button type="button" class="btn btn--secondary" (click)="cancelled.emit()">Cancel</button>
+      <button type="button" class="btn btn--primary" [disabled]="form.invalid" (click)="submit()">Create</button>
     </div>
   </div>
 </div>

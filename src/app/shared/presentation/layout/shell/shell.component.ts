@@ -10,5 +10,6 @@ import { ConfirmDialogComponent } from '../../component/confirm-dialog/confirm-d
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastComponent, ConfirmDialogComponent],
   templateUrl: './shell.component.html',
+  styleUrl: './shell.component.css',
 })
 export class ShellComponent {}
