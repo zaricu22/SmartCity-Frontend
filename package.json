@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.21",
-    "@angular/cli": "^18.2.21",
+    "@angular/cli": "^22.0.1",
     "@angular/compiler-cli": "^18.2.0",
     "@stryker-mutator/core": "^8.7.1",
     "@stryker-mutator/jest-runner": "^8.7.1",
