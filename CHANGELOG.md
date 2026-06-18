@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.3.0...v1.4.0) (2026-06-18)
+
+
+### Features
+
+* **security:** complete auth flow — login form, JWT refresh, timeout, logout, role gating ([#39](https://github.com/zaricu22/SmartCity-Frontend/issues/39)) ([00a66ca](https://github.com/zaricu22/SmartCity-Frontend/commit/00a66cabc01e496e0368dd08eab19e1bc157d5c1))
+
 # [1.3.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.2.1...v1.3.0) (2026-06-17)
 
 
