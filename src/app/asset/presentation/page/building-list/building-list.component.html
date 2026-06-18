@@ -1,10 +1,12 @@
 <div class="building-list-page">
   <header class="building-list-page__header">
     <h1>Public Buildings</h1>
-    <button class="btn btn--primary" [disabled]="isSaving()" (click)="showCreateDialog = true">
-      <svg lucidePlus class="btn__icon"></svg>
-      New Building
-    </button>
+    @if (auth.hasRole('ADMIN')) {
+      <button class="btn btn--primary" [disabled]="isSaving()" (click)="showCreateDialog = true">
+        <svg lucidePlus class="btn__icon"></svg>
+        New Building
+      </button>
+    }
   </header>
 
   @if (isLoading()) {

@@ -13,17 +13,21 @@ export class AuthService {
   private token: string | null = null;
   private role: UserRole | null = null;
   private expiresAt: number | null = null;
+  private refreshToken: string | null = null;
 
-  setToken(token: string, role: UserRole, expiryMs: number = DEFAULT_EXPIRY_MS): void {
+  setToken(token: string, role: UserRole, expiryMs: number = DEFAULT_EXPIRY_MS, refreshToken?: string): void {
     this.token = token;
     this.role = role;
     this.expiresAt = Date.now() + expiryMs;
+    // undefined = arg omitted — keep the existing refresh token; an explicit value overwrites it
+    if (refreshToken !== undefined) this.refreshToken = refreshToken;
   }
 
   logout(): void {
     this.token = null;
     this.role = null;
     this.expiresAt = null;
+    this.refreshToken = null;
   }
 
   /** @deprecated use logout() */
@@ -31,6 +35,7 @@ export class AuthService {
 
   getToken(): string | null { return this.token; }
   getRole(): UserRole | null { return this.role; }
+  getRefreshToken(): string | null { return this.refreshToken; }
   isExpired(): boolean { return this.expiresAt !== null && Date.now() > this.expiresAt; }
   isAuthenticated(): boolean { return this.token !== null && !this.isExpired(); }
   hasRole(required: UserRole): boolean {
