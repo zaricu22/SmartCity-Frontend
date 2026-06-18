@@ -6,6 +6,7 @@ import { EventBusService } from '../../../shared/infrastructure/messaging/event-
 import { Energy } from '../../domain/value-object/energy';
 import { ConsumptionChangedEvent } from '../../domain/event/consumption-changed.event';
 import { DeviceAddedEvent } from '../../domain/event/device-added.event';
+import { ProductionChangedEvent } from '../../domain/event/production-changed.event';
 
 export interface ConsumptionUpdateMessage {
   buildingId: string;
@@ -21,12 +22,20 @@ export interface DeviceAddedMessage {
   deviceType: DeviceType;
 }
 
+export interface ProductionUpdateMessage {
+  buildingId: string;
+  deviceId: string;
+  newValue: number;
+  newUnit: EnergyUnit;
+}
+
 /**
  * WebSocket client — subscribes to domain event topics pushed by the backend.
  *
  * Topics (STOMP):
  *   /topic/buildings/{buildingId}/consumption  — consumption change updates
  *   /topic/buildings/{buildingId}/devices      — device addition updates
+ *   /topic/buildings/{buildingId}/production   — device production change updates
  *
  * Requires @stomp/stompjs or sockjs-client to be installed.
  * Stub implementation — replace the connect() body with real STOMP wiring.
@@ -35,6 +44,7 @@ export interface DeviceAddedMessage {
 export class BuildingWebSocketService implements OnDestroy {
   private readonly consumptionUpdates$ = new Subject<ConsumptionUpdateMessage>();
   private readonly deviceAdded$ = new Subject<DeviceAddedMessage>();
+  private readonly productionUpdates$ = new Subject<ProductionUpdateMessage>();
 
   private client: any; // replace with Client from @stomp/stompjs
 
@@ -61,6 +71,16 @@ export class BuildingWebSocketService implements OnDestroy {
       };
       this.eventBus.publish(event);
     });
+
+    this.productionUpdates$.subscribe(msg => {
+      const event: ProductionChangedEvent = {
+        type: 'PRODUCTION_CHANGED',
+        buildingId: msg.buildingId,
+        deviceId: msg.deviceId,
+        newProduction: new Energy(msg.newValue, msg.newUnit),
+      };
+      this.eventBus.publish(event);
+    });
   }
 
   connect(): void {
@@ -73,6 +93,9 @@ export class BuildingWebSocketService implements OnDestroy {
     //   this.client.subscribe(`/topic/buildings/${buildingId}/devices`, msg => {
     //     this.deviceAdded$.next(JSON.parse(msg.body));
     //   });
+    //   this.client.subscribe(`/topic/buildings/${buildingId}/production`, msg => {
+    //     this.productionUpdates$.next(JSON.parse(msg.body));
+    //   });
     // };
     // this.client.activate();
   }
@@ -83,6 +106,10 @@ export class BuildingWebSocketService implements OnDestroy {
 
   deviceAdded(): Observable<DeviceAddedMessage> {
     return this.deviceAdded$.asObservable();
+  }
+
+  productionUpdates(): Observable<ProductionUpdateMessage> {
+    return this.productionUpdates$.asObservable();
   }
 
   ngOnDestroy(): void {

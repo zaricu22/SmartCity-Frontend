@@ -34,13 +34,14 @@ export class BuildingListComponent implements OnInit, HasUnsavedChanges {
   private readonly reload$ = new Subject<void>();
 
   // Merge manual reload triggers with external event bus pushes (WebSocket-sourced).
-  // Any DEVICE_ADDED or CONSUMPTION_CHANGED event from any building refreshes the list
-  // so building cards show up-to-date device counts and consumption values.
+  // Any DEVICE_ADDED, CONSUMPTION_CHANGED, or PRODUCTION_CHANGED event from any building
+  // refreshes the list so building cards show up-to-date device counts and energy values.
   readonly buildings = toSignal(
     merge(
       this.reload$,
       this.eventBus.on('DEVICE_ADDED'),
       this.eventBus.on('CONSUMPTION_CHANGED'),
+      this.eventBus.on('PRODUCTION_CHANGED'),
     ).pipe(
       switchMap(() => this.facade.getAll().pipe(
         tap(() => this.isLoading.set(false)),
