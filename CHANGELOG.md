@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.4.0...v1.4.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **event:** wire missing PRODUCTION_CHANGED event through WebSocket bridge and building-list ([22a67cd](https://github.com/zaricu22/SmartCity-Frontend/commit/22a67cd0b77daf6b46a18af3a04793c789d28dd1))
+
 # [1.4.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.3.0...v1.4.0) (2026-06-18)
 
 
