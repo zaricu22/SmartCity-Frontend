@@ -140,6 +140,18 @@ describe('PublicBuilding', () => {
       const b = makeBuilding();
       expect(() => b.changeDeviceProduction('unknown', new Energy(10, EnergyUnit.kW))).toThrow(DeviceNotFoundException);
     });
+
+    it('should emit ProductionChangedEvent with deviceId and newProduction', () => {
+      const b = makeBuilding();
+      b.addDevice(makeDevice('d-1', 100));
+      b.pullEvents();
+      b.changeDeviceProduction('d-1', new Energy(60, EnergyUnit.kW));
+      const events = b.pullEvents();
+      expect(events.length).toBe(1);
+      expect(events[0].type).toBe('PRODUCTION_CHANGED');
+      expect((events[0] as any).deviceId).toBe('d-1');
+      expect((events[0] as any).newProduction.value).toBe(60);
+    });
   });
 
   describe('pullEvents()', () => {
