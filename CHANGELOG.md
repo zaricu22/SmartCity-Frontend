@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.4.2...v1.5.0) (2026-06-19)
+
+
+### Features
+
+* **asset:** implement pageable building list with URL-driven sort and pagination ([#41](https://github.com/zaricu22/SmartCity-Frontend/issues/41)) ([6b5533b](https://github.com/zaricu22/SmartCity-Frontend/commit/6b5533b3b5624317a1b5de0e2de63f6a0dee3593))
+
 ## [1.4.2](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.4.1...v1.4.2) (2026-06-19)
 
 
