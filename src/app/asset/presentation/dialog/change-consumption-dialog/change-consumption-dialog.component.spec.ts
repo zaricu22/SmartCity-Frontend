@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChangeConsumptionDialogComponent } from './change-consumption-dialog.component';
 import type { ChangeConsumptionDialogResult } from './change-consumption-dialog.component';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
 describe('ChangeConsumptionDialogComponent', () => {
   let fixture: ComponentFixture<ChangeConsumptionDialogComponent>;

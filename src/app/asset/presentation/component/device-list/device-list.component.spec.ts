@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DeviceListComponent } from './device-list.component';
 import { EnergyDeviceDto } from '../../../application/dto/energy-device.dto';
-import { DeviceType } from '../../../application/shared/enums/device-type.enum';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
 describe('DeviceListComponent', () => {
   let fixture: ComponentFixture<DeviceListComponent>;

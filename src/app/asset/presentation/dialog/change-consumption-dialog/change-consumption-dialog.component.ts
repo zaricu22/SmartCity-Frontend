@@ -1,6 +1,6 @@
 import { Component, inject, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
 export interface ChangeConsumptionDialogResult {
   readonly consumptionValue: number;
