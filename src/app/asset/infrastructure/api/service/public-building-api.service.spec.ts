@@ -10,6 +10,7 @@ import { PublicBuilding } from '../../../domain/aggregate/public-building';
 import { EnergyDevice } from '../../../domain/entity/energy-device';
 import { Energy } from '../../../domain/value-object/energy';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
+import { DEFAULT_PAGE_REQUEST } from '../../../shared/page-request';
 
 describe('PublicBuildingApiService', () => {
   let service: PublicBuildingApiService;
@@ -61,16 +62,21 @@ describe('PublicBuildingApiService', () => {
   });
 
   describe('findAll()', () => {
-    it('should GET /v1/buildings and return list of aggregates', (done) => {
-      service.findAll().subscribe(buildings => {
-        expect(buildings.length).toBe(1);
-        expect(buildings[0].id).toBe('b-1');
+    it('should GET /v1/buildings with page params and return Page of aggregates', (done) => {
+      service.findAll(DEFAULT_PAGE_REQUEST).subscribe(page => {
+        expect(page.content.length).toBe(1);
+        expect(page.content[0].id).toBe('b-1');
+        expect(page.totalElements).toBe(1);
+        expect(page.totalPages).toBe(1);
         done();
       });
 
-      const req = http.expectOne(BASE);
+      const req = http.expectOne(r => r.url === BASE);
       expect(req.request.method).toBe('GET');
-      req.flush([buildingResponse]);
+      expect(req.request.params.get('page')).toBe('0');
+      expect(req.request.params.get('size')).toBe('10');
+      expect(req.request.params.get('sort')).toBe('name,asc');
+      req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
     });
   });
 

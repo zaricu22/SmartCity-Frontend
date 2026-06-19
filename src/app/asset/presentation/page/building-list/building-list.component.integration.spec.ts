@@ -8,8 +8,8 @@ import { ASSET_PROVIDERS } from '../../../asset.providers';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
 import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
 import { PublicBuildingResponse } from '../../../infrastructure/api/response/public-building.response';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
-import { DeviceType } from '../../../application/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
+import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
 
 /**
  * Integration tests — full DI chain is real:
@@ -50,6 +50,15 @@ describe('BuildingListComponent (integration)', () => {
     },
   ];
 
+  // Wraps raw building array in the Spring Page envelope the API now returns
+  const pageOf = (content: PublicBuildingResponse[], total = content.length) => ({
+    content,
+    totalElements: total,
+    totalPages: Math.ceil(total / 10) || 1,
+    pageNumber: 0,
+    pageSize: 10,
+  });
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BuildingListComponent],
@@ -70,11 +79,14 @@ describe('BuildingListComponent (integration)', () => {
   afterEach(() => http.verify());
 
   it('should fetch /v1/buildings on init and render one card per building', fakeAsync(() => {
-    fixture.detectChanges(); // triggers ngOnInit → facade.getAll() → HTTP GET
+    fixture.detectChanges();
 
-    const req = http.expectOne(BASE);
+    // URL now includes pagination/sort query params — match on base URL only
+    const req = http.expectOne(r => r.url === BASE);
     expect(req.request.method).toBe('GET');
-    req.flush(buildingResponses);
+    expect(req.request.params.get('page')).toBe('0');
+    expect(req.request.params.get('sort')).toBe('name,asc');
+    req.flush(pageOf(buildingResponses));
 
     tick();
     fixture.detectChanges();
@@ -85,7 +97,7 @@ describe('BuildingListComponent (integration)', () => {
 
   it('should render building names from the HTTP response', fakeAsync(() => {
     fixture.detectChanges();
-    http.expectOne(BASE).flush(buildingResponses);
+    http.expectOne(r => r.url === BASE).flush(pageOf(buildingResponses));
     tick();
     fixture.detectChanges();
 
@@ -96,7 +108,7 @@ describe('BuildingListComponent (integration)', () => {
 
   it('should show empty state when the API returns no buildings', fakeAsync(() => {
     fixture.detectChanges();
-    http.expectOne(BASE).flush([]);
+    http.expectOne(r => r.url === BASE).flush(pageOf([]));
     tick();
     fixture.detectChanges();
 
@@ -106,7 +118,7 @@ describe('BuildingListComponent (integration)', () => {
 
   it('should show create dialog and POST to /v1/buildings on confirm', fakeAsync(() => {
     fixture.detectChanges();
-    http.expectOne(BASE).flush(buildingResponses);
+    http.expectOne(r => r.url === BASE).flush(pageOf(buildingResponses));
     tick();
     fixture.detectChanges();
 
@@ -125,8 +137,8 @@ describe('BuildingListComponent (integration)', () => {
     expect(createReq.request.body.name).toBe('School');
     createReq.flush(null);
 
-    // Should reload the list
-    http.expectOne(BASE).flush([...buildingResponses]);
+    // Should reload the list (already on page 0, so reload$ fires)
+    http.expectOne(r => r.url === BASE).flush(pageOf([...buildingResponses]));
     tick();
     fixture.detectChanges();
 
@@ -135,5 +147,4 @@ describe('BuildingListComponent (integration)', () => {
     // throttleTime(2000) leaves a timer in the fakeAsync queue — discard it
     discardPeriodicTasks();
   }));
-
 });

@@ -1,5 +1,6 @@
 import { BuildingResponseMapper } from './building-response.mapper';
 import { PublicBuildingResponse } from '../response/public-building.response';
+import { PageResponse } from '../response/page.response';
 import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
@@ -49,6 +50,18 @@ describe('BuildingResponseMapper', () => {
       const building = BuildingResponseMapper.toDomain(buildingResponse);
       expect(building.pullEvents().length).toBe(0);
     });
+
+    it('should set productionRate when productionRateValue > 0', () => {
+      const response: PublicBuildingResponse = {
+        ...buildingResponse,
+        devices: [
+          { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 75, productionRateUnit: EnergyUnit.kW },
+        ],
+      };
+      const building = BuildingResponseMapper.toDomain(response);
+      expect(building.devices[0].productionRate.value).toBe(75);
+      expect(building.devices[0].productionRate.unit).toBe(EnergyUnit.kW);
+    });
   });
 
   describe('toDomainList()', () => {
@@ -62,6 +75,38 @@ describe('BuildingResponseMapper', () => {
 
     it('should return empty array for empty input', () => {
       expect(BuildingResponseMapper.toDomainList([])).toEqual([]);
+    });
+  });
+
+  describe('toPage()', () => {
+    it('should map Spring Page envelope to Page<PublicBuilding>', () => {
+      const response: PageResponse<PublicBuildingResponse> = {
+        content: [buildingResponse],
+        totalElements: 5,
+        totalPages: 3,
+        pageNumber: 1,
+        pageSize: 2,
+      };
+      const page = BuildingResponseMapper.toPage(response);
+      expect(page.content.length).toBe(1);
+      expect(page.content[0].id).toBe('b-1');
+      expect(page.totalElements).toBe(5);
+      expect(page.totalPages).toBe(3);
+      expect(page.page).toBe(1);
+      expect(page.size).toBe(2);
+    });
+
+    it('should return empty content for an empty page', () => {
+      const response: PageResponse<PublicBuildingResponse> = {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        pageNumber: 0,
+        pageSize: 10,
+      };
+      const page = BuildingResponseMapper.toPage(response);
+      expect(page.content).toEqual([]);
+      expect(page.totalElements).toBe(0);
     });
   });
 });

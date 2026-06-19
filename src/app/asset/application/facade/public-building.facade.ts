@@ -10,6 +10,8 @@ import { PublicBuildingDto } from '../dto/public-building.dto';
 import { ApplicationException } from '../exception/application.exception';
 import { AppHttpError } from '../../../shared/infrastructure/error/app-http-error';
 import { DomainException } from '../../domain/exception/domain.exception';
+import { Page } from '../../shared/page';
+import { PageRequest } from '../../shared/page-request';
 
 // Single injection point for the asset bounded context — components never inject services directly
 @Injectable()
@@ -33,8 +35,8 @@ export class PublicBuildingFacade {
   }
 
   // Queries
-  getAll(): Observable<PublicBuildingDto[]> {
-    return this.queryService.getAll().pipe(catchError(this.handleError('Failed to load buildings.')));
+  getAll(req: PageRequest): Observable<Page<PublicBuildingDto>> {
+    return this.queryService.getAll(req).pipe(catchError(this.handleError('Failed to load buildings.')));
   }
 
   getById(id: string): Observable<PublicBuildingDto> {

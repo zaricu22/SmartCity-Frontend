@@ -1,11 +1,14 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { PublicBuilding } from '../../../domain/aggregate/public-building';
 import { PublicBuildingRepository } from '../../../domain/repository/public-building.repository';
 import { EnergyDevice } from '../../../domain/entity/energy-device';
 import { Energy } from '../../../domain/value-object/energy';
+import { Page } from '../../../shared/page';
+import { PageRequest } from '../../../shared/page-request';
 import { PublicBuildingResponse } from '../response/public-building.response';
+import { PageResponse } from '../response/page.response';
 import { BuildingResponseMapper } from '../mapper/building-response.mapper';
 import { CreateBuildingRequest } from '../request/create-building.request';
 import { AddDeviceRequest } from '../request/add-device.request';
@@ -32,10 +35,14 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
       .pipe(map(BuildingResponseMapper.toDomain));
   }
 
-  findAll(): Observable<PublicBuilding[]> {
+  findAll(req: PageRequest): Observable<Page<PublicBuilding>> {
+    const params = new HttpParams()
+      .set('page', String(req.page))
+      .set('size', String(req.size))
+      .set('sort', `${req.sort},${req.direction}`);
     return this.http
-      .get<PublicBuildingResponse[]>(this.base)
-      .pipe(map(BuildingResponseMapper.toDomainList));
+      .get<PageResponse<PublicBuildingResponse>>(this.base, { params })
+      .pipe(map(res => BuildingResponseMapper.toPage(res)));
   }
 
   save(building: PublicBuilding): Observable<void> {
