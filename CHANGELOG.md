@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.4.1...v1.4.2) (2026-06-19)
+
+
+### Bug Fixes
+
+* **presentation:** move app-toast and app-confirm-dialog components ([5884fa9](https://github.com/zaricu22/SmartCity-Frontend/commit/5884fa9ae1ef6da54fcb5f15da73a17b14519241))
+
 ## [1.4.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.4.0...v1.4.1) (2026-06-18)
 
 
