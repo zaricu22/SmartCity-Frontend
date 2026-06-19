@@ -5,6 +5,8 @@ import { RouterOutlet } from '@angular/router';
 import { catchError, map, of, timeout } from 'rxjs';
 import { API_BASE_URL } from './shared/infrastructure/api/api.config';
 import { ToastService } from './shared/presentation/service/toast.service';
+import { ToastComponent } from './shared/presentation/component/toast/toast.component';
+import { ConfirmDialogComponent } from './shared/presentation/component/confirm-dialog/confirm-dialog.component';
 
 // Render's free tier sleeps the backend after inactivity — the first request after a
 // cold start doesn't error, it just hangs for up to several minutes. A short client-side
@@ -14,7 +16,7 @@ const PING_TIMEOUT_MS = 4000;
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastComponent, ConfirmDialogComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -34,7 +36,7 @@ export class AppComponent {
     const toast = inject(ToastService);
 
     http
-      .get(`${apiBaseUrl}/v1/buildings/all`, { observe: 'response' })
+      .get(`${apiBaseUrl}/actuator/health`, { observe: 'response' })
       .pipe(
         map(() => true),
         timeout(PING_TIMEOUT_MS),

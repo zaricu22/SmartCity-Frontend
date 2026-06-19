@@ -10,7 +10,7 @@ export interface ConfirmDialogRequest {
 export class ConfirmDialogService {
   private readonly request$ = new Subject<ConfirmDialogRequest>();
 
-  // Consumed by ConfirmDialogComponent in the shell template
+  // Consumed by ConfirmDialogComponent mounted in app.component.html
   readonly requests$ = this.request$.asObservable();
 
   confirm(message: string): Observable<boolean> {

@@ -10,7 +10,7 @@ describe('AppComponent', () => {
   let http: HttpTestingController;
   let toastService: ToastService;
 
-  const PING_URL = `${DEFAULT_API_BASE_URL}/v1/buildings/all`;
+  const PING_URL = `${DEFAULT_API_BASE_URL}/actuator/health`;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
