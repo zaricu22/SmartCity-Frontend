@@ -3,6 +3,8 @@ import { Observable, map } from 'rxjs';
 import { PublicBuildingRepository } from '../../domain/repository/public-building.repository';
 import { BuildingDtoMapper } from '../mapper/building-dto.mapper';
 import { PublicBuildingDto } from '../dto/public-building.dto';
+import { Page } from '../../shared/page';
+import { PageRequest } from '../../shared/page-request';
 
 @Injectable()
 export class PublicBuildingQueryService {
@@ -12,9 +14,9 @@ export class PublicBuildingQueryService {
     return this.repository.findById(id).pipe(map(BuildingDtoMapper.toDto));
   }
 
-  getAll(): Observable<PublicBuildingDto[]> {
-    return this.repository.findAll().pipe(
-      map(buildings => buildings.map(BuildingDtoMapper.toDto)),
+  getAll(req: PageRequest): Observable<Page<PublicBuildingDto>> {
+    return this.repository.findAll(req).pipe(
+      map(page => ({ ...page, content: page.content.map(BuildingDtoMapper.toDto) })),
     );
   }
 }

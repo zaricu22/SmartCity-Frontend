@@ -1,7 +1,9 @@
 import { EnergyDevice } from '../../../domain/entity/energy-device';
 import { PublicBuilding } from '../../../domain/aggregate/public-building';
 import { Energy } from '../../../domain/value-object/energy';
+import { Page } from '../../../shared/page';
 import { PublicBuildingResponse } from '../response/public-building.response';
+import { PageResponse } from '../response/page.response';
 
 export class BuildingResponseMapper {
   private constructor() {}
@@ -36,5 +38,15 @@ export class BuildingResponseMapper {
 
   static toDomainList(responses: PublicBuildingResponse[]): PublicBuilding[] {
     return responses.map(BuildingResponseMapper.toDomain);
+  }
+
+  static toPage(response: PageResponse<PublicBuildingResponse>): Page<PublicBuilding> {
+    return {
+      content: BuildingResponseMapper.toDomainList(response.content),
+      totalElements: response.totalElements,
+      totalPages: response.totalPages,
+      page: response.pageNumber,
+      size: response.pageSize,
+    };
   }
 }

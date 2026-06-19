@@ -9,6 +9,16 @@
     }
   </header>
 
+  <div class="building-list-page__toolbar">
+    <label class="building-list-page__sort-label" for="sort-select">Sort by</label>
+    <select id="sort-select" class="building-list-page__sort" (change)="onSortChange($any($event.target).value)">
+      <option value="name,asc"      [selected]="sortKey() === 'name,asc'">Name A–Z</option>
+      <option value="name,desc"     [selected]="sortKey() === 'name,desc'">Name Z–A</option>
+      <option value="location,asc"  [selected]="sortKey() === 'location,asc'">Location A–Z</option>
+      <option value="location,desc" [selected]="sortKey() === 'location,desc'">Location Z–A</option>
+    </select>
+  </div>
+
   @if (isLoading()) {
     <p class="building-list-page__loading">
       <span class="building-list-page__spinner"></span>
@@ -20,6 +30,20 @@
         <app-building-card [building]="building" />
       }
     </div>
+
+    @if (totalPages() > 1) {
+      <div class="building-list-page__pagination">
+        <button class="btn btn--secondary" [disabled]="!hasPrev()" (click)="goToPage(currentPage() - 1)">
+          <svg lucideChevronLeft class="btn__icon"></svg>
+          Prev
+        </button>
+        <span class="building-list-page__page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+        <button class="btn btn--secondary" [disabled]="!hasNext()" (click)="goToPage(currentPage() + 1)">
+          Next
+          <svg lucideChevronRight class="btn__icon"></svg>
+        </button>
+      </div>
+    }
   } @else {
     <app-empty-state>
       <ng-template #emptyTpl>
