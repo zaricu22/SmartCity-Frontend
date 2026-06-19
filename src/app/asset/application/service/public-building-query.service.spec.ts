@@ -3,12 +3,22 @@ import { of } from 'rxjs';
 import { PublicBuildingQueryService } from './public-building-query.service';
 import { PublicBuildingRepository } from '../../domain/repository/public-building.repository';
 import { PublicBuilding } from '../../domain/aggregate/public-building';
+import { DEFAULT_PAGE_REQUEST } from '../../shared/page-request';
+import type { Page } from '../../shared/page';
 
 describe('PublicBuildingQueryService', () => {
   let service: PublicBuildingQueryService;
   let repository: jest.Mocked<PublicBuildingRepository>;
 
   const makeBuilding = (id: string, name: string) => new PublicBuilding(id, name, 'Zone A');
+
+  const pageOf = (buildings: PublicBuilding[]): Page<PublicBuilding> => ({
+    content: buildings,
+    totalElements: buildings.length,
+    totalPages: Math.ceil(buildings.length / 10) || 1,
+    page: 0,
+    size: 10,
+  });
 
   beforeEach(() => {
     repository = {
@@ -46,23 +56,26 @@ describe('PublicBuildingQueryService', () => {
   });
 
   describe('getAll()', () => {
-    it('should return a list of DTOs', (done) => {
+    it('should return a Page of DTOs mapped from domain aggregates', (done) => {
       const buildings = [makeBuilding('b-1', 'City Hall'), makeBuilding('b-2', 'Library')];
-      repository.findAll.mockReturnValue(of(buildings));
+      repository.findAll.mockReturnValue(of(pageOf(buildings)));
 
-      service.getAll().subscribe(dtos => {
-        expect(dtos.length).toBe(2);
-        expect(dtos[0].id).toBe('b-1');
-        expect(dtos[1].id).toBe('b-2');
+      service.getAll(DEFAULT_PAGE_REQUEST).subscribe(page => {
+        expect(page.content.length).toBe(2);
+        expect(page.content[0].id).toBe('b-1');
+        expect(page.content[1].id).toBe('b-2');
+        expect(page.totalElements).toBe(2);
+        expect(repository.findAll).toHaveBeenCalledWith(DEFAULT_PAGE_REQUEST);
         done();
       });
     });
 
-    it('should return empty list when there are no buildings', (done) => {
-      repository.findAll.mockReturnValue(of([]));
+    it('should return empty Page when there are no buildings', (done) => {
+      repository.findAll.mockReturnValue(of(pageOf([])));
 
-      service.getAll().subscribe(dtos => {
-        expect(dtos).toEqual([]);
+      service.getAll(DEFAULT_PAGE_REQUEST).subscribe(page => {
+        expect(page.content).toEqual([]);
+        expect(page.totalElements).toBe(0);
         done();
       });
     });

@@ -1,22 +1,32 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { provideRouter } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import { Router, provideRouter } from '@angular/router';
 import { BuildingListComponent } from './building-list.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
+import type { Page } from '../../../shared/page';
 
 describe('BuildingListComponent', () => {
   let fixture: ComponentFixture<BuildingListComponent>;
   let component: BuildingListComponent;
   let facade: jest.Mocked<PublicBuildingFacade>;
+  let router: Router;
 
   const stubBuildings: PublicBuildingDto[] = [
     { id: 'b-1', name: 'City Hall', location: 'Zone A', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [] },
     { id: 'b-2', name: 'Library',   location: 'Zone B', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [] },
   ];
+
+  const stubPage: Page<PublicBuildingDto> = {
+    content: stubBuildings,
+    totalElements: 2,
+    totalPages: 1,
+    page: 0,
+    size: 10,
+  };
 
   let adminAuth: { hasRole: jest.Mock };
 
@@ -31,7 +41,7 @@ describe('BuildingListComponent', () => {
       changeConsumption: jest.fn(),
       changeProduction: jest.fn(),
     } as unknown as jest.Mocked<PublicBuildingFacade>;
-    facade.getAll.mockReturnValue(of(stubBuildings));
+    facade.getAll.mockReturnValue(of(stubPage));
 
     await TestBed.configureTestingModule({
       imports: [BuildingListComponent],
@@ -41,6 +51,8 @@ describe('BuildingListComponent', () => {
         provideRouter([]),
       ],
     }).compileComponents();
+
+    router = TestBed.inject(Router);
 
     fixture = TestBed.createComponent(BuildingListComponent);
     component = fixture.componentInstance;
@@ -75,6 +87,50 @@ describe('BuildingListComponent', () => {
 
     expect(facade.create).toHaveBeenCalledWith({ name: 'School', location: 'Zone C' });
     expect(component.showCreateDialog).toBe(false);
-    expect(facade.getAll).toHaveBeenCalledTimes(2); // initial trigger + reload trigger
+    expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after create
+  });
+
+  it('should reset isSaving to false and keep dialog open on create error', () => {
+    facade.create.mockReturnValue(throwError(() => new Error('Server error')));
+    component.showCreateDialog = true;
+
+    component.onCreate({ name: 'School', location: 'Zone C' });
+
+    expect(component.isSaving()).toBe(false);
+    expect(component.showCreateDialog).toBe(true);
+  });
+
+  it('should navigate to the given page keeping existing query params', () => {
+    const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    component.goToPage(2);
+
+    expect(navigateSpy).toHaveBeenCalledWith([], {
+      relativeTo: expect.anything(),
+      queryParams: { page: 2 },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('should navigate with new sort/dir and reset page to 0 on sort change', () => {
+    const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    component.onSortChange('location,desc');
+
+    expect(navigateSpy).toHaveBeenCalledWith([], {
+      relativeTo: expect.anything(),
+      queryParams: { sort: 'location', dir: 'desc', page: 0 },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('should return false from hasUnsavedChanges when dialog is closed', () => {
+    component.showCreateDialog = false;
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('should return true from hasUnsavedChanges when dialog is open', () => {
+    component.showCreateDialog = true;
+    expect(component.hasUnsavedChanges()).toBe(true);
   });
 });
