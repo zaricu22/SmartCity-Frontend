@@ -1,4 +1,4 @@
-import { EnergyUnit } from '../shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 import { EnergyDeviceDto } from './energy-device.dto';
 
 // Application-layer read model for a public building.

@@ -7,8 +7,8 @@ import { BuildingDetailComponent } from './building-detail.component';
 import { ASSET_PROVIDERS } from '../../../asset.providers';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
 import { PublicBuildingResponse } from '../../../infrastructure/api/response/public-building.response';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
-import { DeviceType } from '../../../application/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
+import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
 
 /**
  * Integration tests — full DI chain is real:

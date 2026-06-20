@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { EnergyUnit } from '../../../asset/application/shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../../asset/domain/shared/enums/energy-unit.enum';
 
 @Pipe({ name: 'energy', standalone: true })
 export class EnergyPipe implements PipeTransform {

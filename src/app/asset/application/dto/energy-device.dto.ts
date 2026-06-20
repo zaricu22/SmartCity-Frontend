@@ -1,5 +1,5 @@
-import { DeviceType } from '../shared/enums/device-type.enum';
-import { EnergyUnit } from '../shared/enums/energy-unit.enum';
+import { DeviceType } from '../../domain/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 
 // Application-layer read model for a single energy device.
 // Returned by PublicBuildingQueryService — contains no web or infrastructure types.
