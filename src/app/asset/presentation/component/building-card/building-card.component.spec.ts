@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BuildingCardComponent } from './building-card.component';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
 describe('BuildingCardComponent', () => {
   let fixture: ComponentFixture<BuildingCardComponent>;

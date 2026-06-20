@@ -1,8 +1,8 @@
 import { Component, inject, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { PositiveNumberDirective } from '../../../../shared/presentation/directive/positive-number.directive';
-import { DeviceType } from '../../../application/shared/enums/device-type.enum';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { AddDeviceCommand } from '../../../application/command/add-device.command';
 
 export type AddDeviceDialogResult = Omit<AddDeviceCommand, 'buildingId'>;

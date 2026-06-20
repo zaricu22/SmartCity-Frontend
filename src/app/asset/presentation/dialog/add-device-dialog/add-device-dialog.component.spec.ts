@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AddDeviceDialogComponent, AddDeviceDialogResult } from './add-device-dialog.component';
-import { DeviceType } from '../../../application/shared/enums/device-type.enum';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
 describe('AddDeviceDialogComponent', () => {
   let fixture: ComponentFixture<AddDeviceDialogComponent>;

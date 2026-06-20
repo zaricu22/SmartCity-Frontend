@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { EnergyPipe } from '../../../../shared/presentation/pipe/energy.pipe';
 
 @Component({

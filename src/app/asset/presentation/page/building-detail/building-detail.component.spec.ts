@@ -5,8 +5,8 @@ import { BuildingDetailComponent } from './building-detail.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import { EnergyDeviceDto } from '../../../application/dto/energy-device.dto';
-import { DeviceType } from '../../../application/shared/enums/device-type.enum';
-import { EnergyUnit } from '../../../application/shared/enums/energy-unit.enum';
+import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
+import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 
 describe('BuildingDetailComponent', () => {

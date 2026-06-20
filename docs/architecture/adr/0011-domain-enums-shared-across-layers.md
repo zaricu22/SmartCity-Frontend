@@ -1,62 +1,70 @@
 # ADR-0011: Domain Enums Shared Across Layers
 
-**Status:** Accepted  
+**Status:** Amended (2026-06-19)  
 **Date:** 2026-06-13
 
 ## Context
 
-Several TypeScript enums are used both in the domain layer and in the infrastructure
-(HTTP response types) and presentation (component templates) layers:
+Several TypeScript enums are used by all four DDD layers — domain, application,
+infrastructure, and presentation:
 
-- `EnergyDeviceType` — used in `EnergyDevice` entity, `EnergyDeviceResponse`, `DeviceType` DTO
-- `EnergyUnit` — used in `Energy` value object, `EnergyDeviceResponse`, `EnergyDto`
+- `DeviceType` — used in `EnergyDevice` entity, `AddDeviceRequest`, `EnergyDeviceResponse`,
+  `AddDeviceDialogComponent`
+- `EnergyUnit` — used in `Energy` value object, HTTP requests/responses, `EnergyDisplayComponent`
 
 In strict DDD, the infrastructure and presentation layers should define their own
-representations (DTOs, response types) and translate to/from domain types. This avoids
-domain types leaking into outer layers and keeps the domain independent of serialization
-concerns.
-
-Alternatives considered:
-
-- **Separate enums per layer** — domain has `EnergyUnit`, infrastructure has `ApiEnergyUnit`,
-  application has `DtoEnergyUnit`; mappers translate between them; complete isolation but
-  significant boilerplate for no behavioral difference
-- **Single shared enum** — one enum definition referenced directly in all layers; no
-  translation; values match the backend API exactly
+representations and translate to/from domain types. In practice this would mean three
+separate `EnergyUnit` enums (domain, infrastructure, presentation) and two mapper steps
+for no behavioral difference — the values are identical and match the backend API contract.
 
 ## Decision
 
-Use a **single shared enum** defined in the domain layer and imported directly by all
-outer layers:
+Use a **single shared enum** defined in `domain/shared/enums/` and imported directly by
+all outer layers.
 
-```typescript
-// domain/value-object/energy.ts
-export enum EnergyUnit { kW = 'kW', kWh = 'kWh' }
-export enum EnergyDeviceType { SOLAR_PANEL = 'SOLAR_PANEL', BATTERY = 'BATTERY', WIND_TURBINE = 'WIND_TURBINE' }
+This is consistent with standard DDD and Clean Architecture: the dependency rule states
+that **outer layers depend on inner layers**, not the reverse. Presentation and
+infrastructure importing domain vocabulary types is the expected direction. What the rule
+prohibits is **calling domain logic from outer layers** — instantiating aggregates,
+invoking specifications, or bypassing the facade.
 
-// infrastructure/api/response/energy-device.response.ts
-import { EnergyDeviceType, EnergyUnit } from '@domain/value-object/energy';
-export interface EnergyDeviceResponse {
-  type: EnergyDeviceType;  // domain enum used directly
-  ratedCapacityUnit: EnergyUnit;
-}
+Separate enum definitions per layer would add translation boilerplate with zero domain
+benefit and would require three coordinated changes every time a new device type or
+energy unit is added.
+
+## Amendment (2026-06-19)
+
+The original implementation introduced a re-export workaround:
+
+```
+domain/shared/enums/energy-unit.enum.ts     ← definition
+application/shared/enums/energy-unit.enum.ts ← export { EnergyUnit } from '../../domain/...'
 ```
 
-This is a **pragmatic DDD trade-off** — the enums are pure value types with no
-behavior, their values are stable (match the backend API contract), and separate
-definitions would add translation code with zero domain benefit.
+Presentation imported from `application/shared/enums/` to avoid triggering the arch test
+rule "presentation must not import from domain." This was unnecessary — the rule exists to
+prevent presentation from calling domain logic, not to prevent it from using domain types.
+
+**The workaround was removed.** The arch test rule 7 now carries an explicit exception:
+
+```
+presentation must not import from domain (except domain/shared/enums — ADR-0011)
+```
+
+Presentation now imports `EnergyUnit` and `DeviceType` directly from
+`domain/shared/enums/`, the same as every other layer.
 
 ## Consequences
 
 **Positive:**
 - No enum translation code in mappers
-- Single source of truth — adding a new device type requires one change, not three
-- IDE auto-complete works consistently across all layers
+- Single source of truth and single import path for all layers
+- `application/shared/enums/` re-export folder eliminated
+- Arch rule exception is explicit and documented rather than hidden in an indirection layer
 
 **Negative:**
-- Infrastructure and presentation layers import from the domain layer — a strict onion
-  architecture violation (outer layers may import inner layers, but this goes domain → infra)
 - If the backend API ever changes an enum value name, the domain layer must change;
   domain purity requires that domain types change only for domain reasons
-- A future requirement for a display-friendly label (e.g. `"Solar Panel"` instead of
-  `"SOLAR_PANEL"`) would need to be added to the enum or handled in a separate map
+- A future requirement for display-friendly labels (e.g. `"Solar Panel"` instead of
+  `"SOLAR_PANEL"`) would need a separate display map rather than adding presentation
+  concerns to the enum
