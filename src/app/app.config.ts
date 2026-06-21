@@ -5,11 +5,11 @@ import { provideClientHydration } from '@angular/platform-browser';
 
 import { routes } from './app.routes';
 import { requestIdInterceptor } from './shared/infrastructure/interceptor/request-id.interceptor';
-import { authInterceptor } from './shared/infrastructure/interceptor/auth.interceptor';
+import { authInterceptor } from './auth/infrastructure/interceptor/auth.interceptor';
 import { httpErrorInterceptor } from './shared/infrastructure/interceptor/http-error.interceptor';
 import { GlobalErrorHandler } from './shared/infrastructure/error/global-error-handler';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from './shared/infrastructure/api/api.config';
-import { AuthService } from './shared/infrastructure/auth/auth.service';
+import { AuthService } from './auth/infrastructure/service/auth.service';
 
 // Runs before the first route is activated.
 // Clears any expired in-memory token so the auth guard redirects to /login cleanly.

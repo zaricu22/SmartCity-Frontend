@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
-import { AuthService } from '../../../infrastructure/auth/auth.service';
-import { AuthApiService } from '../../../infrastructure/auth/auth-api.service';
-import { LoginResponse } from '../../../infrastructure/auth/login.response';
-import { API_BASE_URL } from '../../../infrastructure/api/api.config';
+import { AuthService } from '../../../infrastructure/service/auth.service';
+import { AuthApiService } from '../../../infrastructure/service/auth-api.service';
+import { LoginResponse } from '../../../infrastructure/model/login.response';
+import { API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
 
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;

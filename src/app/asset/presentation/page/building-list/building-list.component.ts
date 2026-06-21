@@ -10,12 +10,12 @@ import { BuildingCardComponent } from '../../component/building-card/building-ca
 import { CreateBuildingDialogComponent } from '../../dialog/create-building-dialog/create-building-dialog.component';
 import { EmptyStateComponent } from '../../../../shared/presentation/component/empty-state/empty-state.component';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
-import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
+import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
 import { PageRequest, DEFAULT_PAGE_REQUEST } from '../../../shared/page-request';
 import type { Page } from '../../../shared/page';
 import type { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import type { CreateBuildingDialogResult } from '../../dialog/create-building-dialog/create-building-dialog.component';
-import type { HasUnsavedChanges } from '../../../../shared/infrastructure/auth/unsaved-changes.guard';
+import type { HasUnsavedChanges } from '../../../../shared/infrastructure/guard/unsaved-changes.guard';
 
 const EMPTY_PAGE: Page<PublicBuildingDto> = {
   content: [],

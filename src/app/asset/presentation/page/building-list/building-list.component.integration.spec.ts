@@ -6,7 +6,7 @@ import { provideRouter } from '@angular/router';
 import { BuildingListComponent } from './building-list.component';
 import { ASSET_PROVIDERS } from '../../../asset.providers';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
-import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
+import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
 import { PublicBuildingResponse } from '../../../infrastructure/api/response/public-building.response';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { DeviceType } from '../../../domain/shared/enums/device-type.enum';

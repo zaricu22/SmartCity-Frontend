@@ -4,7 +4,7 @@ import { of, throwError } from 'rxjs';
 import { Router, provideRouter } from '@angular/router';
 import { BuildingListComponent } from './building-list.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
-import { AuthService } from '../../../../shared/infrastructure/auth/auth.service';
+import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import type { Page } from '../../../shared/page';
