@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.5.0...v1.6.0) (2026-06-21)
+
+
+### Features
+
+* **auth:** add registration, Google OAuth2 login, and callback handler ([#45](https://github.com/zaricu22/SmartCity-Frontend/issues/45)) ([c139725](https://github.com/zaricu22/SmartCity-Frontend/commit/c1397253981e44b5b8fb3b716827d807be9c8070)), closes [#token](https://github.com/zaricu22/SmartCity-Frontend/issues/token)
+
 # [1.5.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.4.2...v1.5.0) (2026-06-19)
 
 
