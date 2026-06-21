@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideZap } from '@lucide/angular';
 import { AuthService, UserRole } from '../../../infrastructure/auth/auth.service';
 import { AuthApiService } from '../../../infrastructure/auth/auth-api.service';
+import { API_BASE_URL } from '../../../infrastructure/api/api.config';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideZap, ReactiveFormsModule],
+  imports: [LucideZap, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -26,6 +27,7 @@ export class LoginComponent {
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly googleOAuthUrl = `${inject(API_BASE_URL)}/oauth2/authorization/google`;
 
   login(): void {
     if (this.form.invalid) return;
@@ -41,9 +43,15 @@ export class LoginComponent {
       },
       error: () => {
         this.isLoading.set(false);
-        this.errorMessage.set('Invalid username or password.');
+        this.errorMessage.set('Invalid email or password.');
       },
     });
+  }
+
+  loginWithGoogle(): void {
+    // router.navigate() only resolves in-app paths — it cannot reach an external URL.
+    // Full page navigation is required to hand control to the backend OAuth2 endpoint.
+    window.location.href = this.googleOAuthUrl;
   }
 
   private redirectAfterLogin(): void {
