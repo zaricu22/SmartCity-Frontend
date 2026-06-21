@@ -1,0 +1,58 @@
+<div class="register-page">
+  <div class="register-page__brand">
+    <div class="register-page__brand-mark">
+      <svg lucideZap class="register-page__brand-icon"></svg>
+      <h1 class="register-page__brand-text">SmartCity<strong>Energy</strong></h1>
+    </div>
+    <p class="register-page__tagline">Monitor and manage public building energy consumption.</p>
+    <div class="register-page__skyline" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="register-page__panel">
+    <div class="register-page__card">
+      <h2>Create account</h2>
+
+      <form [formGroup]="form" (ngSubmit)="register()">
+        <div class="register-page__fields">
+          <label class="register-page__label">
+            Email
+            <input class="register-page__input" type="email" formControlName="email" autocomplete="email" />
+            @if (form.get('email')?.invalid && form.get('email')?.dirty) {
+              <span class="register-page__field-error">Enter a valid email address.</span>
+            }
+          </label>
+
+          <label class="register-page__label">
+            Password
+            <input class="register-page__input" type="password" formControlName="password" autocomplete="new-password" />
+            @if (form.get('password')?.hasError('minlength') && form.get('password')?.dirty) {
+              <span class="register-page__field-error">Password must be at least 8 characters.</span>
+            }
+          </label>
+
+          <label class="register-page__label">
+            Confirm password
+            <input class="register-page__input" type="password" formControlName="confirmPassword" autocomplete="new-password" />
+            @if (form.errors?.['passwordsMismatch'] && form.get('confirmPassword')?.dirty) {
+              <span class="register-page__field-error">Passwords do not match.</span>
+            }
+          </label>
+
+          @if (errorMessage()) {
+            <p class="register-page__error" role="alert">{{ errorMessage() }}</p>
+          }
+        </div>
+
+        <button type="submit" class="btn btn--primary register-page__submit" [disabled]="form.invalid || isLoading()">
+          {{ isLoading() ? 'Creating account…' : 'Create account' }}
+        </button>
+      </form>
+
+      <p class="register-page__footer">
+        Already have an account? <a routerLink="/login" class="register-page__footer-link">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
