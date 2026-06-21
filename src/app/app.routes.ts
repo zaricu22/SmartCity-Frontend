@@ -10,6 +10,19 @@ export const routes: Routes = [
       import('./shared/presentation/page/login/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'register',
+    canActivate: [loggedInGuard],
+    loadComponent: () =>
+      import('./shared/presentation/page/register/register.component').then(m => m.RegisterComponent),
+  },
+  {
+    path: 'callback',
+    // No guard: the OAuth2 redirect arrives with no in-memory auth state. loggedInGuard
+    // would redirect to / for an active session, or block re-authentication for an expired one.
+    loadComponent: () =>
+      import('./shared/presentation/page/callback/callback.component').then(m => m.CallbackComponent),
+  },
+  {
     path: 'forbidden',
     loadComponent: () =>
       import('./shared/presentation/page/forbidden/forbidden.component').then(m => m.ForbiddenComponent),

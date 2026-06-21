@@ -16,6 +16,10 @@ export class AuthApiService {
     return this.http.post<LoginResponse>(`${this.base}/login`, { username, password });
   }
 
+  register(email: string, password: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/register`, { email, password });
+  }
+
   refresh(refreshToken: string): Observable<LoginResponse> {
     return this.refreshHttp.post<LoginResponse>(`${this.base}/refresh`, { refreshToken });
   }
