@@ -72,14 +72,14 @@ describe('AuthApiService', () => {
   });
 
   describe('register()', () => {
-    it('should POST to /v1/auth/register with email and password', () => {
-      let completed = false;
-      service.register('user@example.com', 'password123').subscribe({ complete: () => (completed = true) });
+    it('should POST to /v1/auth/register with email and password and return a LoginResponse', () => {
+      let result: LoginResponse | undefined;
+      service.register('user@example.com', 'password123').subscribe(r => (result = r));
       const req = controller.expectOne(`${base}/v1/auth/register`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ email: 'user@example.com', password: 'password123' });
-      req.flush(null, { status: 201, statusText: 'Created' });
-      expect(completed).toBe(true);
+      req.flush(mockResponse, { status: 201, statusText: 'Created' });
+      expect(result).toEqual(mockResponse);
     });
   });
 });

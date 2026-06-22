@@ -4,21 +4,33 @@ import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RegisterComponent } from './register.component';
 import { AuthApiService } from '../../../infrastructure/service/auth-api.service';
+import { AuthService } from '../../../infrastructure/service/auth.service';
+import { LoginResponse } from '../../../infrastructure/model/login.response';
 
 describe('RegisterComponent', () => {
   let fixture: ComponentFixture<RegisterComponent>;
   let component: RegisterComponent;
   let authApi: jest.Mocked<AuthApiService>;
+  let auth: jest.Mocked<AuthService>;
   let router: Router;
 
+  const mockResponse: LoginResponse = {
+    token: 'jwt-token',
+    role: 'VIEWER',
+    expiresInMs: 3_600_000,
+    refreshToken: 'refresh-uuid',
+  };
+
   beforeEach(async () => {
-    authApi = { register: jest.fn().mockReturnValue(of(undefined)) } as unknown as jest.Mocked<AuthApiService>;
+    authApi = { register: jest.fn().mockReturnValue(of(mockResponse)) } as unknown as jest.Mocked<AuthApiService>;
+    auth = { setToken: jest.fn() } as unknown as jest.Mocked<AuthService>;
 
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
       providers: [
         provideRouter([]),
         { provide: AuthApiService, useValue: authApi },
+        { provide: AuthService, useValue: auth },
       ],
     }).compileComponents();
 
@@ -49,11 +61,12 @@ describe('RegisterComponent', () => {
     expect(component.form.errors).toBeNull();
   });
 
-  it('should call AuthApiService.register with email and password and navigate to /login on success', () => {
+  it('should call register, setToken with the response, and navigate to / on success', () => {
     component.form.setValue({ email: 'user@example.com', password: 'password1', confirmPassword: 'password1' });
     component.register();
     expect(authApi.register).toHaveBeenCalledWith('user@example.com', 'password1');
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+    expect(auth.setToken).toHaveBeenCalledWith('jwt-token', 'VIEWER', 3_600_000, 'refresh-uuid');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
   it('should show duplicate email error on 409', () => {
