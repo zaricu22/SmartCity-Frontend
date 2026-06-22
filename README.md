@@ -17,9 +17,9 @@ An Angular 18 single-page application for managing smart city infrastructure —
 
 ## Screenshots
 
-![Login](docs/screenshots/login-page.png)
-![Building list](docs/screenshots/building-list.png)
-![Building detail](docs/screenshots/building-detail.png)
+![Login](docs/screenshots/login-page.png?v=2) 
+![Building list](docs/screenshots/building-list.png?v=2)
+![Building detail](docs/screenshots/building-detail.png?v=2)
 
 ---
 
