@@ -3,7 +3,7 @@ import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RegisterComponent } from './register.component';
-import { AuthApiService } from '../../../infrastructure/auth/auth-api.service';
+import { AuthApiService } from '../../../infrastructure/service/auth-api.service';
 
 describe('RegisterComponent', () => {
   let fixture: ComponentFixture<RegisterComponent>;

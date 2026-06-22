@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { PLATFORM_ID } from '@angular/core';
 import { CallbackComponent } from './callback.component';
-import { AuthService } from '../../../infrastructure/auth/auth.service';
+import { AuthService } from '../../../infrastructure/service/auth.service';
 
 // Replace window.location with a getter backed by a mutable object.
 // Object.defineProperty with a value descriptor is not reliably redefinable

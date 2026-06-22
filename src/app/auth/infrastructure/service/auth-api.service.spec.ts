@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AuthApiService } from './auth-api.service';
-import { API_BASE_URL } from '../api/api.config';
-import { LoginResponse } from './login.response';
+import { API_BASE_URL } from '../../../shared/infrastructure/api/api.config';
+import { LoginResponse } from '../model/login.response';
 
 // provideHttpClientTesting() overrides the HttpBackend token with a mock backend.
 // AuthApiService.refreshHttp uses new HttpClient(inject(HttpBackend)), which resolves to

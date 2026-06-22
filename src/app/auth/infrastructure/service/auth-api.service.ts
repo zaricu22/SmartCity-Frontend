@@ -1,8 +1,8 @@
 import { HttpBackend, HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { API_BASE_URL } from '../api/api.config';
-import { LoginResponse } from './login.response';
+import { API_BASE_URL } from '../../../shared/infrastructure/api/api.config';
+import { LoginResponse } from '../model/login.response';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {

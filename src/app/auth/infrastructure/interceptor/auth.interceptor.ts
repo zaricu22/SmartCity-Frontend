@@ -2,8 +2,8 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/comm
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService, UserRole } from '../auth/auth.service';
-import { AuthApiService } from '../auth/auth-api.service';
+import { AuthService, UserRole } from '../service/auth.service';
+import { AuthApiService } from '../service/auth-api.service';
 
 // HttpRequest is immutable — clone() is the only way to add headers without mutating the original
 const addBearer = (req: HttpRequest<unknown>, token: string) =>

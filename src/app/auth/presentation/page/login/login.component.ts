@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideZap } from '@lucide/angular';
-import { AuthService, UserRole } from '../../../infrastructure/auth/auth.service';
-import { AuthApiService } from '../../../infrastructure/auth/auth-api.service';
-import { API_BASE_URL } from '../../../infrastructure/api/api.config';
+import { AuthService, UserRole } from '../../../infrastructure/service/auth.service';
+import { AuthApiService } from '../../../infrastructure/service/auth-api.service';
+import { API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
 
 @Component({
   selector: 'app-login',
