@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideZap } from '@lucide/angular';
 import { AuthApiService } from '../../../infrastructure/service/auth-api.service';
+import { AuthService, UserRole } from '../../../infrastructure/service/auth.service';
 
 // Module-level (not a class method) — Angular validators receive AbstractControl as their
 // only argument; a plain function is cleaner than a bound method. Group-level (not on the
@@ -25,6 +26,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 })
 export class RegisterComponent {
   private readonly authApi = inject(AuthApiService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   readonly form = inject(FormBuilder).nonNullable.group(
@@ -45,10 +47,9 @@ export class RegisterComponent {
     this.errorMessage.set(null);
     const { email, password } = this.form.getRawValue();
     this.authApi.register(email, password).subscribe({
-      next: () => {
-        // POST /register returns 201 void — no JWT is issued. Registration and authentication
-        // are separate: the user must log in explicitly after creating an account.
-        this.router.navigateByUrl('/login');
+      next: (res) => {
+        this.auth.setToken(res.token, res.role as UserRole, res.expiresInMs, res.refreshToken);
+        this.router.navigateByUrl('/');
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
