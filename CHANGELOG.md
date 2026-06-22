@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.6.0...v1.6.1) (2026-06-22)
+
+
+### Bug Fixes
+
+* **auth:** auto-login after registration by consuming LoginResponse from POST /register ([36a3f89](https://github.com/zaricu22/SmartCity-Frontend/commit/36a3f89f3d54e7dff6727f9c56ee4e93726d168e))
+
 # [1.6.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.5.0...v1.6.0) (2026-06-21)
 
 
