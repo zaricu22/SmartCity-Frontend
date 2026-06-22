@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService, UserRole } from '../../../infrastructure/auth/auth.service';
+import { AuthService, UserRole } from '../../../infrastructure/service/auth.service';
 
 @Component({
   selector: 'app-callback',

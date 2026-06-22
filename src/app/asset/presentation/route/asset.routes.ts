@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { roleGuard } from '../../../shared/infrastructure/auth/auth.guard';
-import { unsavedChangesGuard } from '../../../shared/infrastructure/auth/unsaved-changes.guard';
+import { roleGuard } from '../../../auth/infrastructure/guard/auth.guard';
+import { unsavedChangesGuard } from '../../../shared/infrastructure/guard/unsaved-changes.guard';
 
 export const ASSET_ROUTES: Routes = [
   {

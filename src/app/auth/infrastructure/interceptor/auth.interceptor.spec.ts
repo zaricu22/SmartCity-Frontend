@@ -4,9 +4,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
-import { AuthService } from '../auth/auth.service';
-import { AuthApiService } from '../auth/auth-api.service';
-import { LoginResponse } from '../auth/login.response';
+import { AuthService } from '../service/auth.service';
+import { AuthApiService } from '../service/auth-api.service';
+import { LoginResponse } from '../model/login.response';
 
 describe('authInterceptor', () => {
   let http: HttpClient;

@@ -14,7 +14,7 @@ import { AddDeviceCommand } from '../../../application/command/add-device.comman
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 import type { AddDeviceDialogResult } from '../../dialog/add-device-dialog/add-device-dialog.component';
 import type { ChangeConsumptionDialogResult } from '../../dialog/change-consumption-dialog/change-consumption-dialog.component';
-import type { HasUnsavedChanges } from '../../../../shared/infrastructure/auth/unsaved-changes.guard';
+import type { HasUnsavedChanges } from '../../../../shared/infrastructure/guard/unsaved-changes.guard';
 import type { DeviceAddedEvent } from '../../../domain/event/device-added.event';
 import type { ConsumptionChangedEvent } from '../../../domain/event/consumption-changed.event';
 import type { ProductionChangedEvent } from '../../../domain/event/production-changed.event';

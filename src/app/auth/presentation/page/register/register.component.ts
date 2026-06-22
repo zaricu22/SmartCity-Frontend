@@ -3,7 +3,7 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideZap } from '@lucide/angular';
-import { AuthApiService } from '../../../infrastructure/auth/auth-api.service';
+import { AuthApiService } from '../../../infrastructure/service/auth-api.service';
 
 // Module-level (not a class method) — Angular validators receive AbstractControl as their
 // only argument; a plain function is cleaner than a bound method. Group-level (not on the
