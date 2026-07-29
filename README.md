@@ -227,7 +227,7 @@ requests respond normally once it's awake.
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/auth/login` | Authenticate, receive JWT |
-| `GET` | `/v1/buildings/all` | List all buildings |
+| `GET` | `/v1/buildings?page=&size=&sort=&eligible=` | Paginated building list; `eligible=true` filters to subsidy-eligible buildings only (server-side, ADR-0024) |
 | `GET` | `/v1/buildings/:id` | Get building by ID |
 | `POST` | `/v1/buildings` | Create building |
 | `DELETE` | `/v1/buildings/:id` | Delete building |
