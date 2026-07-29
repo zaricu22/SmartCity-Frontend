@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.6.1...v1.6.2) (2026-07-29)
+
+
+### Bug Fixes
+
+* **docs:** update ui screenshots ([bdd6127](https://github.com/zaricu22/SmartCity-Frontend/commit/bdd61279b35f716f9864e6557755f9d68efc3120))
+
 ## [1.6.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.6.0...v1.6.1) (2026-06-22)
 
 
