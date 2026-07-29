@@ -232,10 +232,15 @@ jobs:
       # sonar.javascript.tsconfigPaths — pins the scanner to these two tsconfigs
       # sonar.coverage.exclusions — bootstrap entry points and route/config files have no testable
       #   logic; environments/** and main*.ts are already excluded from Jest collectCoverageFrom
+      # Disabled: SonarCloud's GitHub ALM/DevOps Platform binding is failing server-side
+      # ("Something went wrong while trying to get the pullrequest with key X") — not
+      # fixable from this repo. Remove `if: false` once the binding is restored on sonarcloud.io.
       - name: SonarCloud analysis
+        if: false
         uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           args: >
             -Dsonar.projectKey=zaricu22_SmartCity-Frontend
