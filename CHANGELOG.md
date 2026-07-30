@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.8.0...v1.9.0) (2026-07-30)
+
+
+### Features
+
+* **asset:** wire BuildingCreatedEvent end-to-end with real-time list sync ([#65](https://github.com/zaricu22/SmartCity-Frontend/issues/65)) ([e378164](https://github.com/zaricu22/SmartCity-Frontend/commit/e3781646c54f7004ebf82784a4c9cd421e89c9d9))
+
 # [1.8.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.7.0...v1.8.0) (2026-07-30)
 
 
