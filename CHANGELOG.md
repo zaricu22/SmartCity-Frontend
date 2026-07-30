@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.7.0...v1.8.0) (2026-07-30)
+
+
+### Features
+
+* **websocket:** implement STOMP/SockJS transport for real-time building updates ([#63](https://github.com/zaricu22/SmartCity-Frontend/issues/63)) ([3e61416](https://github.com/zaricu22/SmartCity-Frontend/commit/3e614165f576caefaf1501418565828d87bfae3f))
+
 # [1.7.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.6.2...v1.7.0) (2026-07-30)
 
 
