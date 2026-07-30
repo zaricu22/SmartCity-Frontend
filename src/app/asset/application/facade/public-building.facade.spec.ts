@@ -4,6 +4,7 @@ import { PublicBuildingFacade } from './public-building.facade';
 import { PublicBuildingAppService } from '../service/public-building-app.service';
 import { PublicBuildingQueryService } from '../service/public-building-query.service';
 import { PublicBuildingRepository } from '../../domain/repository/public-building.repository';
+import { BuildingRealtimeGateway } from '../../domain/gateway/building-realtime.gateway';
 import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 import { PublicBuildingDto } from '../dto/public-building.dto';
@@ -12,6 +13,7 @@ describe('PublicBuildingFacade', () => {
   let facade: PublicBuildingFacade;
   let appService: jest.Mocked<PublicBuildingAppService>;
   let queryService: jest.Mocked<PublicBuildingQueryService>;
+  let realtimeGateway: jest.Mocked<BuildingRealtimeGateway>;
 
   const stubDto: PublicBuildingDto = {
     id: 'b-1', name: 'Hall', location: 'Zone A',
@@ -31,12 +33,18 @@ describe('PublicBuildingFacade', () => {
       getById: jest.fn(),
     } as unknown as jest.Mocked<PublicBuildingQueryService>;
 
+    realtimeGateway = {
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+    } as unknown as jest.Mocked<BuildingRealtimeGateway>;
+
     TestBed.configureTestingModule({
       providers: [
         PublicBuildingFacade,
         { provide: PublicBuildingAppService, useValue: appService },
         { provide: PublicBuildingQueryService, useValue: queryService },
         { provide: PublicBuildingRepository, useValue: {} },
+        { provide: BuildingRealtimeGateway, useValue: realtimeGateway },
       ],
     });
 
@@ -95,5 +103,15 @@ describe('PublicBuildingFacade', () => {
       expect(appService.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', cmd);
       done();
     });
+  });
+
+  it('connectRealtime() delegates to realtimeGateway', () => {
+    facade.connectRealtime('b-1');
+    expect(realtimeGateway.connect).toHaveBeenCalledWith('b-1');
+  });
+
+  it('disconnectRealtime() delegates to realtimeGateway', () => {
+    facade.disconnectRealtime();
+    expect(realtimeGateway.disconnect).toHaveBeenCalled();
   });
 });

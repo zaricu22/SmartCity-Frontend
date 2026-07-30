@@ -10,6 +10,7 @@ import { PublicBuildingDto } from '../dto/public-building.dto';
 import { ApplicationException } from '../exception/application.exception';
 import { AppHttpError } from '../../../shared/infrastructure/error/app-http-error';
 import { DomainException } from '../../domain/exception/domain.exception';
+import { BuildingRealtimeGateway } from '../../domain/gateway/building-realtime.gateway';
 import { Page } from '../../shared/page';
 import { PageRequest } from '../../shared/page-request';
 
@@ -19,6 +20,7 @@ export class PublicBuildingFacade {
   constructor(
     private readonly appService: PublicBuildingAppService,
     private readonly queryService: PublicBuildingQueryService,
+    private readonly realtimeGateway: BuildingRealtimeGateway,
   ) {}
 
   private handleError(fallback: string) {
@@ -58,5 +60,14 @@ export class PublicBuildingFacade {
 
   changeProduction(buildingId: string, deviceId: string, cmd: ChangeProductionCommand): Observable<void> {
     return this.appService.changeProduction(buildingId, deviceId, cmd).pipe(catchError(this.handleError('Failed to update production.')));
+  }
+
+  // Real-time updates
+  connectRealtime(buildingId: string): void {
+    this.realtimeGateway.connect(buildingId);
+  }
+
+  disconnectRealtime(): void {
+    this.realtimeGateway.disconnect();
   }
 }

@@ -80,11 +80,15 @@ export class PublicBuilding {
   changeDeviceProduction(deviceId: string, production: Energy): void {
     const device = this._devices.find(d => d.id === deviceId);
     if (!device) throw new DeviceNotFoundException();
+
+    const old = device.productionRate;
     device.changeProduction(production);
+
     this._domainEvents.push({
       type: 'PRODUCTION_CHANGED',
       buildingId: this._id,
       deviceId,
+      oldProduction: old,
       newProduction: production,
     } satisfies ProductionChangedEvent);
   }

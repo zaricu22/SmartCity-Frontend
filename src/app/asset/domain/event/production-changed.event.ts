@@ -5,5 +5,6 @@ export interface ProductionChangedEvent extends DomainEvent {
   readonly type: 'PRODUCTION_CHANGED';
   readonly buildingId: string;
   readonly deviceId: string;
+  readonly oldProduction: Energy;
   readonly newProduction: Energy;
 }
