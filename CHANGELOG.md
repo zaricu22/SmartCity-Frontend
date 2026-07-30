@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.9.0...v1.10.0) (2026-07-30)
+
+
+### Features
+
+* **websocket:** surface STOMP auth failures to the user ([#67](https://github.com/zaricu22/SmartCity-Frontend/issues/67)) ([5ebdc0f](https://github.com/zaricu22/SmartCity-Frontend/commit/5ebdc0f584b90472bf396626fa91bee11c39b14d))
+
 # [1.9.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.8.0...v1.9.0) (2026-07-30)
 
 
