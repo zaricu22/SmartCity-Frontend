@@ -44,6 +44,16 @@ describe('PublicBuilding', () => {
       expect(error).toBeInstanceOf(ValidationException);
       expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_ADDRESS_EMPTY);
     });
+
+    it('should emit BuildingCreatedEvent', () => {
+      const b = makeBuilding();
+      const events = b.pullEvents();
+      expect(events.length).toBe(1);
+      expect(events[0].type).toBe('BUILDING_CREATED');
+      expect((events[0] as any).buildingId).toBe('b-1');
+      expect((events[0] as any).name).toBe('City Hall');
+      expect((events[0] as any).location).toBe('Zone A - Main St');
+    });
   });
 
   describe('addDevice()', () => {
@@ -55,6 +65,7 @@ describe('PublicBuilding', () => {
 
     it('should emit DeviceAddedEvent', () => {
       const b = makeBuilding();
+      b.pullEvents(); // drain BUILDING_CREATED from construction
       b.addDevice(makeDevice('d-1', 100));
       const events = b.pullEvents();
       expect(events.length).toBe(1);
@@ -167,7 +178,8 @@ describe('PublicBuilding', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.addDevice(makeDevice('d-2', 50));
-      expect(b.pullEvents().length).toBe(2);
+      // BUILDING_CREATED (from construction) + 2x DEVICE_ADDED
+      expect(b.pullEvents().length).toBe(3);
     });
   });
 });

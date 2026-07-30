@@ -63,7 +63,7 @@ export class PublicBuildingFacade {
   }
 
   // Real-time updates
-  connectRealtime(buildingId: string): void {
+  connectRealtime(buildingId?: string): void {
     this.realtimeGateway.connect(buildingId);
   }
 

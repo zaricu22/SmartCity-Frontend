@@ -245,7 +245,7 @@ src/app/
 │   │   ├── aggregate/             #   PublicBuilding
 │   │   ├── entity/                #   EnergyDevice
 │   │   ├── value-object/          #   Energy (immutable, kW/MW/GW conversion)
-│   │   ├── event/                 #   DeviceAddedEvent, ConsumptionChangedEvent, ProductionChangedEvent
+│   │   ├── event/                 #   BuildingCreatedEvent, DeviceAddedEvent, ConsumptionChangedEvent, ProductionChangedEvent
 │   │   ├── exception/             #   DomainException, DeviceNotFoundException, ...
 │   │   ├── specification/         #   SubsidyEligibilitySpecification
 │   │   ├── shared/enums/          #   DeviceType, EnergyUnit, ErrorCode

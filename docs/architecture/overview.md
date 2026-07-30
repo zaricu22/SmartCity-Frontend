@@ -119,7 +119,7 @@ Enforced structurally by ts-arch — see [ADR-0018](adr/0018-ts-arch-ddd-enforce
 | Aggregate root | `PublicBuilding` | Building identity, device collection, consumption invariant |
 | Entity | `EnergyDevice` | Unique identity within building, mutable production rate |
 | Value object | `Energy` | Immutable value + unit pair, cross-unit comparison via normalization |
-| Domain event | `DeviceAddedEvent`, `ConsumptionChangedEvent`, `ProductionChangedEvent` | Published after write succeeds, consumed by EventBus → component reload + WebSocket |
+| Domain event | `BuildingCreatedEvent`, `DeviceAddedEvent`, `ConsumptionChangedEvent`, `ProductionChangedEvent` | Published after write succeeds, consumed by EventBus → component reload. All four also bridge from backend WebSocket pushes (ADR-0025, ADR-0026) |
 | Specification | `SubsidyEligibilitySpecification` | Encapsulates eligibility business rule (≥ 2 devices, > 50 kW, Zone A location); mirrored server-side by `SubsidyEligibilityJpaSpecification` to filter `GET /v1/buildings?eligible=true` (ADR-0024) |
 
 ---
@@ -276,3 +276,4 @@ All non-obvious design choices are captured as ADRs in [`adr/`](adr/).
 | [0023](adr/0023-oauth2-full-page-redirect-and-fragment-callback.md) | OAuth2 full-page redirect and fragment callback |
 | [0024](adr/0024-eligible-query-param-server-side-filtering.md) | Server-side eligibility filtering via `eligible` query param |
 | [0025](adr/0025-stomp-sockjs-websocket-transport.md) | STOMP over SockJS for real-time building updates |
+| [0026](adr/0026-building-created-event-local-only.md) | BuildingCreatedEvent modeled as domain event + `/topic/buildings` WebSocket bridge |

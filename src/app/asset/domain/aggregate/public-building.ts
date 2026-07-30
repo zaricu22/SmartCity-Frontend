@@ -1,4 +1,5 @@
 import { EnergyDevice } from '../entity/energy-device';
+import { BuildingCreatedEvent } from '../event/building-created.event';
 import { ConsumptionChangedEvent } from '../event/consumption-changed.event';
 import { DeviceAddedEvent } from '../event/device-added.event';
 import { ProductionChangedEvent } from '../event/production-changed.event';
@@ -16,7 +17,7 @@ export class PublicBuilding {
   private readonly _location: string;
   private _consumption: Energy;
   private readonly _devices: EnergyDevice[];
-  private readonly _domainEvents: (DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] = [];
+  private readonly _domainEvents: (BuildingCreatedEvent | DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] = [];
 
   constructor(id: string, name: string, location: string) {
     if (!name || name.trim() === '') {
@@ -31,6 +32,13 @@ export class PublicBuilding {
     this._location = location;
     this._devices = [];
     this._consumption = new Energy(0, EnergyUnit.kW);
+
+    this._domainEvents.push({
+      type: 'BUILDING_CREATED',
+      buildingId: id,
+      name,
+      location,
+    } satisfies BuildingCreatedEvent);
   }
 
   get id(): string { return this._id; }
@@ -40,7 +48,7 @@ export class PublicBuilding {
   // Defensive copy — callers cannot mutate the aggregate's internal device list.
   get devices(): readonly EnergyDevice[] { return [...this._devices]; }
 
-  pullEvents(): (DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] {
+  pullEvents(): (BuildingCreatedEvent | DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] {
     const events = [...this._domainEvents];
     this._domainEvents.length = 0; // mutates in place — preserves the readonly array reference
     return events;

@@ -1,6 +1,6 @@
 # ADR-0005: EventBus Reload Pattern
 
-**Status:** Amended (2026-06-19)  
+**Status:** Amended (2026-07-30)  
 **Date:** 2026-06-13
 
 ## Context
@@ -71,18 +71,45 @@ if (this.currentPage() === 0) {
 }
 ```
 
+## Amendment (2026-07-30): `reload$` removed — `BUILDING_CREATED` closes the last gap
+
+The `reload$` escape hatch existed because `BuildingCreatedEvent` didn't exist on the
+frontend yet (ADR-0026) — `submitCreate()`'s success callback had nothing to subscribe to
+for the page-0 case, so it called `reload$.next()` directly, bypassing the EventBus for
+exactly one of the four mutation types.
+
+Once `PublicBuilding`'s constructor was made to raise `BuildingCreatedEvent` (ADR-0026),
+`BuildingListComponent` started subscribing to it in the same `merge()` as the other
+three events, and the direct `reload$.next()` call became redundant — `AppService.create()`
+publishes `BUILDING_CREATED` before the `subscribe()` success callback even runs, so the
+EventBus merge already triggers the reload by the time that callback executes. `reload$`
+was removed entirely; only the explicit `goToPage(0)` navigation (for the non-zero-page
+case) remains, since the EventBus merge reloads with *current* URL params and can't by
+itself decide to navigate away from a page:
+
+```typescript
+// After successful create — the EventBus BUILDING_CREATED subscription (in the merge
+// above) already reloaded the current page by the time this callback runs.
+if (this.currentPage() !== 0) {
+  this.goToPage(0); // only case left needing explicit action
+}
+```
+
+This makes all four domain events flow through the exact same reload path with zero
+special cases — the thing the original amendment's "Negative" section flagged as
+inconsistent.
+
 ## Consequences
 
 **Positive:**
-- A single reload path handles both local mutations and real-time backend pushes
+- A single reload path handles both local mutations and real-time backend pushes, now
+  for all four domain events with no exceptions
 - Component is decoupled from how or when the operation completed
 - URL-driven state makes pagination bookmarkable and browser-back compatible
-- `reload$` is a minimal escape hatch — used only when the URL is already at the target state
+- No escape-hatch Subject needed anymore — one less moving part
 
 **Negative:**
 - Causality is indirect — a developer debugging a reload must trace from component back
   through EventBus to the publisher
 - In tests, emitting the EventBus event (not completing the command Observable) is what
   triggers the reload — non-obvious without reading this ADR or the inline comments
-- The `reload$` subject exists solely for the page-0 edge case — if pagination is removed,
-  it becomes dead code

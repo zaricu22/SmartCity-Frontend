@@ -7,6 +7,8 @@ import { EnergyDevice } from '../../domain/entity/energy-device';
 import { Energy } from '../../domain/value-object/energy';
 import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
+import { EventBusService } from '../../../shared/infrastructure/messaging/event-bus.service';
+import type { BuildingCreatedEvent } from '../../domain/event/building-created.event';
 
 describe('PublicBuildingAppService', () => {
   let service: PublicBuildingAppService;
@@ -46,11 +48,25 @@ describe('PublicBuildingAppService', () => {
         done();
       });
     });
+
+    it('should publish BuildingCreatedEvent on the EventBus after save succeeds', (done) => {
+      repository.save.mockReturnValue(of(void 0));
+      const eventBus = TestBed.inject(EventBusService);
+
+      eventBus.on<BuildingCreatedEvent>('BUILDING_CREATED').subscribe(event => {
+        expect(event.name).toBe('Library');
+        expect(event.location).toBe('Zone B');
+        done();
+      });
+
+      service.create({ name: 'Library', location: 'Zone B' }).subscribe();
+    });
   });
 
   describe('addDevice()', () => {
     it('should fetch building, add device, and persist via repository', (done) => {
       const building = makeBuilding();
+      building.pullEvents(); // drain BUILDING_CREATED from construction — this building represents a pre-existing one
       repository.findById.mockReturnValue(of(building));
       repository.addDevice.mockReturnValue(of(void 0));
 

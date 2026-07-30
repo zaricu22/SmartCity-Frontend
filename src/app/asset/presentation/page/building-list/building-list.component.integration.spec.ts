@@ -65,7 +65,7 @@ describe('BuildingListComponent (integration)', () => {
       providers: [
         ...ASSET_PROVIDERS,
         { provide: API_BASE_URL, useValue: DEFAULT_API_BASE_URL },
-        { provide: AuthService, useValue: { hasRole: jest.fn().mockReturnValue(true) } },
+        { provide: AuthService, useValue: { hasRole: jest.fn().mockReturnValue(true), getToken: jest.fn().mockReturnValue(null) } },
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([{ path: 'assets/:id', component: BuildingListComponent }]),
@@ -137,7 +137,7 @@ describe('BuildingListComponent (integration)', () => {
     expect(createReq.request.body.name).toBe('School');
     createReq.flush(null);
 
-    // Should reload the list (already on page 0, so reload$ fires)
+    // Should reload the list (already on page 0 — BUILDING_CREATED on the event bus triggers it)
     http.expectOne(r => r.url === BASE).flush(pageOf([...buildingResponses]));
     tick();
     fixture.detectChanges();
