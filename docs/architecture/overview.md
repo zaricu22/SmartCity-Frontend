@@ -120,7 +120,7 @@ Enforced structurally by ts-arch — see [ADR-0018](adr/0018-ts-arch-ddd-enforce
 | Entity | `EnergyDevice` | Unique identity within building, mutable production rate |
 | Value object | `Energy` | Immutable value + unit pair, cross-unit comparison via normalization |
 | Domain event | `DeviceAddedEvent`, `ConsumptionChangedEvent`, `ProductionChangedEvent` | Published after write succeeds, consumed by EventBus → component reload + WebSocket |
-| Specification | `SubsidyEligibilitySpecification` | Encapsulates eligibility business rule (≥ 2 devices, > 50 kW, Zone A location) |
+| Specification | `SubsidyEligibilitySpecification` | Encapsulates eligibility business rule (≥ 2 devices, > 50 kW, Zone A location); mirrored server-side by `SubsidyEligibilityJpaSpecification` to filter `GET /v1/buildings?eligible=true` (ADR-0024) |
 
 ---
 
@@ -274,3 +274,4 @@ All non-obvious design choices are captured as ADRs in [`adr/`](adr/).
 | [0021](adr/0021-e2e-testing-not-implemented.md) | E2E testing not implemented (Cypress removed) |
 | [0022](adr/0022-jwt-refresh-rotating-tokens.md) | JWT refresh with rotating tokens |
 | [0023](adr/0023-oauth2-full-page-redirect-and-fragment-callback.md) | OAuth2 full-page redirect and fragment callback |
+| [0024](adr/0024-eligible-query-param-server-side-filtering.md) | Server-side eligibility filtering via `eligible` query param |
