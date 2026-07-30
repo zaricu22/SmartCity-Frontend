@@ -15,6 +15,7 @@ import { ProductionChangedEvent } from '../../domain/event/production-changed.ev
 import { AuthService } from '../../../auth/infrastructure/service/auth.service';
 import { API_BASE_URL } from '../../../shared/infrastructure/api/api.config';
 import { BuildingRealtimeGateway } from '../../domain/gateway/building-realtime.gateway';
+import { ToastService } from '../../../shared/presentation/service/toast.service';
 
 export interface BuildingCreatedMessage {
   buildingId: string;
@@ -71,10 +72,14 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
   private readonly productionUpdates$ = new Subject<ProductionUpdateMessage>();
 
   private client: Client | null = null;
+  // Guards against a toast per reconnect attempt — reconnectDelay retries every 5s,
+  // and an expired/invalid token would otherwise fail every single retry.
+  private hasShownConnectionErrorToast = false;
 
   constructor(
     private readonly eventBus: EventBusService,
     private readonly authService: AuthService,
+    private readonly toastService: ToastService,
     @Inject(API_BASE_URL) private readonly apiBaseUrl: string,
   ) {
     super();
@@ -136,6 +141,7 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
     if (!this.isBrowser) return;
 
     this.disconnect();
+    this.hasShownConnectionErrorToast = false;
 
     const token = this.authService.getToken();
 
@@ -144,6 +150,17 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
       connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
       reconnectDelay: 5000,
     });
+
+    // STOMP CONNECT is rejected by the backend's StompAuthChannelInterceptor when the
+    // token is missing, expired, or revoked — surface that once rather than silently
+    // retrying forever (reconnectDelay keeps retrying, so this would otherwise fire
+    // again every 5s).
+    this.client.onStompError = frame => {
+      if (this.hasShownConnectionErrorToast) return;
+      this.hasShownConnectionErrorToast = true;
+      const reason = frame.headers['message'] ?? 'authentication failed';
+      this.toastService.show(`Real-time updates unavailable: ${reason}`, 'error');
+    };
 
     this.client.onConnect = () => {
       this.client?.subscribe('/topic/buildings', message => {
