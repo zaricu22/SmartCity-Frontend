@@ -3,6 +3,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { BuildingWebSocketService } from './building-websocket.service';
 import { EventBusService } from '../../../shared/infrastructure/messaging/event-bus.service';
 import { AuthService } from '../../../auth/infrastructure/service/auth.service';
+import { ToastService } from '../../../shared/presentation/service/toast.service';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../shared/infrastructure/api/api.config';
 import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
@@ -14,6 +15,7 @@ import type { ProductionChangedEvent } from '../../domain/event/production-chang
 interface MockStompClient {
   config: { connectHeaders?: Record<string, string> };
   onConnect?: () => void;
+  onStompError?: (frame: { headers: Record<string, string>; body: string }) => void;
   activate: jest.Mock;
   deactivate: jest.Mock;
   subscribe: jest.Mock;
@@ -25,6 +27,7 @@ jest.mock('@stomp/stompjs', () => {
   class MockClient {
     config: unknown;
     onConnect?: () => void;
+    onStompError?: (frame: { headers: Record<string, string>; body: string }) => void;
     activate = jest.fn(() => this.onConnect?.());
     deactivate = jest.fn();
     subscribe = jest.fn();
@@ -43,6 +46,7 @@ describe('BuildingWebSocketService', () => {
   let service: BuildingWebSocketService;
   let eventBus: EventBusService;
   let authService: AuthService;
+  let toastService: ToastService;
 
   const BUILDING_ID = 'b-1';
 
@@ -61,6 +65,7 @@ describe('BuildingWebSocketService', () => {
     service = TestBed.inject(BuildingWebSocketService);
     eventBus = TestBed.inject(EventBusService);
     authService = TestBed.inject(AuthService);
+    toastService = TestBed.inject(ToastService);
   });
 
   it('creates a STOMP client with an Authorization header when a token is present', () => {
@@ -190,6 +195,51 @@ describe('BuildingWebSocketService', () => {
         newUnit: EnergyUnit.kW,
       }),
     });
+  });
+
+  it('shows an error toast when the STOMP CONNECT is rejected', () => {
+    const showSpy = jest.spyOn(toastService, 'show');
+    service.connect(BUILDING_ID);
+
+    mockInstances[0].onStompError?.({ headers: { message: 'Bad credentials' }, body: '' });
+
+    expect(showSpy).toHaveBeenCalledWith(
+      'Real-time updates unavailable: Bad credentials',
+      'error',
+    );
+  });
+
+  it('falls back to a generic reason when the STOMP error frame has no message header', () => {
+    const showSpy = jest.spyOn(toastService, 'show');
+    service.connect(BUILDING_ID);
+
+    mockInstances[0].onStompError?.({ headers: {}, body: '' });
+
+    expect(showSpy).toHaveBeenCalledWith(
+      'Real-time updates unavailable: authentication failed',
+      'error',
+    );
+  });
+
+  it('does not show a duplicate toast on repeated STOMP errors from the same connection', () => {
+    const showSpy = jest.spyOn(toastService, 'show');
+    service.connect(BUILDING_ID);
+
+    mockInstances[0].onStompError?.({ headers: { message: 'Bad credentials' }, body: '' });
+    mockInstances[0].onStompError?.({ headers: { message: 'Bad credentials' }, body: '' });
+
+    expect(showSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows the toast again after a fresh connect() call', () => {
+    const showSpy = jest.spyOn(toastService, 'show');
+    service.connect(BUILDING_ID);
+    mockInstances[0].onStompError?.({ headers: { message: 'Bad credentials' }, body: '' });
+
+    service.connect(BUILDING_ID);
+    mockInstances[1].onStompError?.({ headers: { message: 'Bad credentials' }, body: '' });
+
+    expect(showSpy).toHaveBeenCalledTimes(2);
   });
 
   it('deactivates the STOMP client on disconnect', () => {
