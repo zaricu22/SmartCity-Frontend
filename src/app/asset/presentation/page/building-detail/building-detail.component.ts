@@ -76,6 +76,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   ngOnInit(): void {
     this.load();
     this.subscribeToEvents();
+    this.facade.connectRealtime(this.buildingId);
   }
 
   load(): void {
@@ -111,7 +112,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
 
   // Subscribe to domain events for this specific building.
   // Covers both local actions (published by PublicBuildingAppService after save)
-  // and external pushes (published by BuildingWebSocketService from backend STOMP messages).
+  // and external pushes (published via BuildingRealtimeGateway from backend STOMP messages).
   private subscribeToEvents(): void {
     const forThisBuilding = <T extends { buildingId: string }>(e: T) =>
       e.buildingId === this.buildingId;
