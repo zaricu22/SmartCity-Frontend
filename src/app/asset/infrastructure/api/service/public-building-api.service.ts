@@ -36,10 +36,15 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
   }
 
   findAll(req: PageRequest): Observable<Page<PublicBuilding>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', String(req.page))
       .set('size', String(req.size))
       .set('sort', `${req.sort},${req.direction}`);
+
+    if (req.eligible !== undefined) {
+      params = params.set('eligible', String(req.eligible));
+    }
+
     return this.http
       .get<PageResponse<PublicBuildingResponse>>(this.base, { params })
       .pipe(map(res => BuildingResponseMapper.toPage(res)));

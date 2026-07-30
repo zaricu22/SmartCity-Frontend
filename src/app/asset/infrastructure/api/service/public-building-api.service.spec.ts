@@ -78,6 +78,15 @@ describe('PublicBuildingApiService', () => {
       expect(req.request.params.get('sort')).toBe('name,asc');
       req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
     });
+
+    it('should include eligible=true when requested', (done) => {
+      service.findAll({ ...DEFAULT_PAGE_REQUEST, eligible: true }).subscribe(() => done());
+
+      const req = http.expectOne(r => r.url === BASE);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.get('eligible')).toBe('true');
+      req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
+    });
   });
 
   describe('save()', () => {

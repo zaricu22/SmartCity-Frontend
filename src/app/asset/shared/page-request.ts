@@ -3,6 +3,7 @@ export interface PageRequest {
   readonly size: number;
   readonly sort: string;
   readonly direction: 'asc' | 'desc';
+  readonly eligible?: boolean;
 }
 
 export const DEFAULT_PAGE_REQUEST: PageRequest = {
