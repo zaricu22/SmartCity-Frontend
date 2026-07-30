@@ -77,6 +77,9 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
     this.load();
     this.subscribeToEvents();
     this.facade.connectRealtime(this.buildingId);
+    // Service is shared across the whole /assets subtree (route-level provider), not
+    // per-page — this component owns disconnecting its own connection on the way out.
+    this.destroyRef.onDestroy(() => this.facade.disconnectRealtime());
   }
 
   load(): void {

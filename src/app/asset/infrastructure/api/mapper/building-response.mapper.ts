@@ -21,8 +21,8 @@ export class BuildingResponseMapper {
       building.addDevice(device);
     });
 
-    // Discard events accumulated during reconstruction — addDevice() registers DEVICE_ADDED events
-    // that must not be published for objects loaded from the DB.
+    // Discard events accumulated during reconstruction — the constructor registers BUILDING_CREATED
+    // and addDevice() registers DEVICE_ADDED, neither of which must be published for objects loaded from the DB.
     building.pullEvents();
 
     // Constructor initialises consumption to Energy(0, kW) — skip zero to avoid the capacity check

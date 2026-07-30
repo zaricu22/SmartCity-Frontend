@@ -5,6 +5,7 @@ import { Router, provideRouter } from '@angular/router';
 import { BuildingListComponent } from './building-list.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
+import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import type { Page } from '../../../shared/page';
@@ -40,6 +41,8 @@ describe('BuildingListComponent', () => {
       addDevice: jest.fn(),
       changeConsumption: jest.fn(),
       changeProduction: jest.fn(),
+      connectRealtime: jest.fn(),
+      disconnectRealtime: jest.fn(),
     } as unknown as jest.Mocked<PublicBuildingFacade>;
     facade.getAll.mockReturnValue(of(stubPage));
 
@@ -64,6 +67,15 @@ describe('BuildingListComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('app-building-card').length).toBe(2);
   });
 
+  it('should connect real-time updates with no buildingId on construction', () => {
+    expect(facade.connectRealtime).toHaveBeenCalledWith();
+  });
+
+  it('should disconnect real-time updates when the component is destroyed', () => {
+    fixture.destroy();
+    expect(facade.disconnectRealtime).toHaveBeenCalled();
+  });
+
   it('should show the create dialog when the button is clicked', () => {
     expect(fixture.nativeElement.querySelector('app-create-building-dialog')).toBeNull();
     fixture.nativeElement.querySelector('button').click();
@@ -78,16 +90,40 @@ describe('BuildingListComponent', () => {
     expect(fixture.nativeElement.querySelector('button')).toBeNull();
   });
 
-  it('should call facade.create and trigger reload when dialog confirms', () => {
+  it('should call facade.create and reload when BUILDING_CREATED event arrives', () => {
     facade.create.mockReturnValue(of('new-id'));
+    const eventBus = TestBed.inject(EventBusService);
     component.showCreateDialog = true;
     fixture.detectChanges();
 
     component.onCreate({ name: 'School', location: 'Zone C' });
+    // Real AppService.create() publishes this after the save succeeds — facade is mocked here,
+    // so simulate what production code does, same pattern as building-detail.component.spec.ts.
+    eventBus.publish({ type: 'BUILDING_CREATED', buildingId: 'new-id', name: 'School', location: 'Zone C' });
 
     expect(facade.create).toHaveBeenCalledWith({ name: 'School', location: 'Zone C' });
     expect(component.showCreateDialog).toBe(false);
-    expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after create
+    expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_CREATED
+  });
+
+  it('should navigate to page 0 when creating a building while on a later page', () => {
+    const eventBus = TestBed.inject(EventBusService);
+    facade.getAll.mockReturnValue(of({ ...stubPage, page: 2 }));
+    // Force a reload with the new stub so currentPage() reflects page 2 — any event
+    // in the merge works, this one just happens to be convenient.
+    eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-1', deviceType: 'SOLAR' } as any);
+    fixture.detectChanges();
+
+    facade.create.mockReturnValue(of('new-id'));
+    const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    component.onCreate({ name: 'School', location: 'Zone C' });
+
+    expect(navigateSpy).toHaveBeenCalledWith([], {
+      relativeTo: expect.anything(),
+      queryParams: { page: 0 },
+      queryParamsHandling: 'merge',
+    });
   });
 
   it('should reset isSaving to false and keep dialog open on create error', () => {
