@@ -1,6 +1,6 @@
 # ADR-0025: STOMP over SockJS for Real-Time Building Updates
 
-**Status:** Accepted
+**Status:** Amended (2026-07-30)
 **Date:** 2026-07-30
 
 ## Context
@@ -71,12 +71,41 @@ Key choices:
   gap (no teardown on the internal `consumptionUpdates$` / `deviceAdded$` /
   `productionUpdates$` subscriptions); fixed while rewriting the same constructor.
 
+## Amendment (2026-07-30): backend auth/CORS confirmed matching; `onStompError` added
+
+The original "Not yet done" list said the backend had no `ChannelInterceptor` for STOMP
+`CONNECT` auth and no CORS origin patterns for the SockJS endpoint. Checked later the same day (read-only, no backend changes made): both now exist in
+`SmartCity-Backend`, and both match this frontend implementation exactly, with no frontend
+changes needed:
+
+- `StompAuthChannelInterceptor` reads `accessor.getFirstNativeHeader("Authorization")` on
+  the STOMP `CONNECT` frame and requires the exact `"Bearer <token>"` format — matching
+  `connectHeaders: { Authorization: \`Bearer ${token}\` }` byte-for-byte.
+- `WebSocketConfig`'s `ALLOWED_ORIGINS` (`http://localhost:4200`,
+  `https://zaricu22.github.io`) match this app's two real origins (dev, GH Pages prod)
+  exactly.
+- `SecurityConfig` explicitly `permitAll()`s `/ws/**` at the HTTP layer with a comment
+  pointing at `StompAuthChannelInterceptor` as where auth actually happens — confirming the
+  `connectHeaders`-based design this ADR chose was the correct anticipation of the backend
+  contract, not a guess that happened to work.
+
+One real gap surfaced during this check and was fixed: the STOMP client had no
+`onStompError` handler, so a rejected `CONNECT` (expired/revoked/missing token) failed
+silently — `reconnectDelay: 5000` would just retry forever with zero user-visible
+feedback. Added `client.onStompError` → `ToastService.show('Real-time updates
+unavailable: ' + reason, 'error')`, guarded by a `hasShownConnectionErrorToast` flag reset
+on each fresh `connect()` call, so a persistently failing connection surfaces one toast
+per connection attempt rather than spamming one every 5 seconds.
+
+`BuildingListComponent` real-time sync — listed as out of scope in the original Decision
+— was completed separately; see ADR-0026's amendment for `/topic/buildings` wiring and a
+connection-lifecycle bug it surfaced and fixed.
+
 ## Consequences
 
 **Positive:**
-- `BuildingDetailComponent` now receives genuine cross-client real-time updates when the
-  transport is exercised — a second tab reflects another user's device/consumption/
-  production change without a manual reload, once the backend auth piece exists.
+- `BuildingDetailComponent` and `BuildingListComponent` both receive genuine cross-client
+  real-time updates — confirmed working end-to-end, not just architecturally complete.
 - No change to the EventBus bridge shape — `ConsumptionChangedEvent` /
   `DeviceAddedEvent` / `ProductionChangedEvent` are published identically whether they
   originated from a local write or a WebSocket push, so every existing subscriber
@@ -84,20 +113,20 @@ Key choices:
 - SSR/prerender is unaffected — `ng build` produces a clean production build with no
   CommonJS bailout warnings (`sockjs-client` added to `allowedCommonJsDependencies` in
   `angular.json`).
+- A rejected STOMP handshake (expired/invalid token) is now visible to the user instead of
+  failing silently forever.
 
 **Negative:**
-- End-to-end real-time sync does not work yet even with this change — the backend has no
-  `ChannelInterceptor` validating the STOMP `CONNECT` `Authorization` header, and no
-  `setAllowedOriginPatterns` on the SockJS endpoint for the GH Pages production origin.
-  Both are backend-repo changes, tracked separately.
 - `reconnectDelay: 5000` is unconditional — there's no backoff cap or max-retry count; a
-  building-detail page left open against a permanently unreachable backend retries every
-  5s indefinitely.
+  page left open against a permanently unreachable backend keeps retrying every 5s
+  indefinitely (though now at least the user sees one toast rather than nothing).
+- The `onStompError` toast message surfaces the backend's raw STOMP error header
+  (`frame.headers['message']`) directly — acceptable today since
+  `StompAuthChannelInterceptor` only ever sends generic messages ("Missing Authorization
+  header...", "Invalid or expired token", "Revoked token"), but would need sanitizing if
+  the backend ever put anything more sensitive in that header.
 
 **Not yet done:**
-- Backend `ChannelInterceptor` for STOMP `CONNECT` auth and SockJS CORS origin patterns
-  (see `SmartCity-Backend` memory / gap tracking).
-- `BuildingListComponent` real-time sync (see Decision — deliberately out of scope).
 - Local dev `environment.ts` `apiBaseUrl` (`http://localhost:8080`) is missing the
   backend's `server.servlet.contextPath=/SmartCityREST`, active in all Spring profiles
   including `dev` — a pre-existing gap that predates this ADR and affects every HTTP call
