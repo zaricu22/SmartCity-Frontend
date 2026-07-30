@@ -6,6 +6,7 @@ import { AuthService } from '../../../auth/infrastructure/service/auth.service';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../shared/infrastructure/api/api.config';
 import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
+import type { BuildingCreatedEvent } from '../../domain/event/building-created.event';
 import type { DeviceAddedEvent } from '../../domain/event/device-added.event';
 import type { ConsumptionChangedEvent } from '../../domain/event/consumption-changed.event';
 import type { ProductionChangedEvent } from '../../domain/event/production-changed.event';
@@ -84,17 +85,46 @@ describe('BuildingWebSocketService', () => {
     );
   });
 
-  it('subscribes to the 3 per-building topics on connect', () => {
+  it('subscribes to /topic/buildings plus the 3 per-building topics when a buildingId is passed', () => {
     service.connect(BUILDING_ID);
 
     const client = mockInstances[0];
     const topics = client.subscribe.mock.calls.map(call => call[0]);
 
     expect(topics).toEqual([
+      '/topic/buildings',
       `/topic/buildings/${BUILDING_ID}/consumption`,
       `/topic/buildings/${BUILDING_ID}/devices`,
       `/topic/buildings/${BUILDING_ID}/production`,
     ]);
+  });
+
+  it('subscribes only to /topic/buildings when no buildingId is passed', () => {
+    service.connect();
+
+    const client = mockInstances[0];
+    const topics = client.subscribe.mock.calls.map(call => call[0]);
+
+    expect(topics).toEqual(['/topic/buildings']);
+  });
+
+  it('bridges an incoming building-created message onto the EventBus', done => {
+    service.connect();
+
+    eventBus.on<BuildingCreatedEvent>('BUILDING_CREATED').subscribe(event => {
+      expect(event).toEqual({
+        type: 'BUILDING_CREATED',
+        buildingId: 'b-new',
+        name: 'Library',
+        location: 'Zone B',
+      });
+      done();
+    });
+
+    const buildingCreatedHandler = mockInstances[0].subscribe.mock.calls[0][1];
+    buildingCreatedHandler({
+      body: JSON.stringify({ buildingId: 'b-new', name: 'Library', location: 'Zone B' }),
+    });
   });
 
   it('bridges an incoming consumption message onto the EventBus', done => {
@@ -107,7 +137,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
-    const consumptionHandler = mockInstances[0].subscribe.mock.calls[0][1];
+    const consumptionHandler = mockInstances[0].subscribe.mock.calls[1][1];
     consumptionHandler({
       body: JSON.stringify({
         buildingId: BUILDING_ID,
@@ -132,7 +162,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
-    const deviceAddedHandler = mockInstances[0].subscribe.mock.calls[1][1];
+    const deviceAddedHandler = mockInstances[0].subscribe.mock.calls[2][1];
     deviceAddedHandler({
       body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-1', deviceType: DeviceType.SOLAR }),
     });
@@ -149,7 +179,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
-    const productionHandler = mockInstances[0].subscribe.mock.calls[2][1];
+    const productionHandler = mockInstances[0].subscribe.mock.calls[3][1];
     productionHandler({
       body: JSON.stringify({
         buildingId: BUILDING_ID,
@@ -166,6 +196,14 @@ describe('BuildingWebSocketService', () => {
     service.connect(BUILDING_ID);
     service.disconnect();
 
+    expect(mockInstances[0].deactivate).toHaveBeenCalled();
+  });
+
+  it('deactivates any existing client before creating a new one on repeated connect() calls', () => {
+    service.connect('b-1');
+    service.connect('b-2');
+
+    expect(mockInstances).toHaveLength(2);
     expect(mockInstances[0].deactivate).toHaveBeenCalled();
   });
 

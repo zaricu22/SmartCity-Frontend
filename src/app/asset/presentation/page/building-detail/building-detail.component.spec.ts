@@ -60,6 +60,11 @@ describe('BuildingDetailComponent', () => {
     expect(facade.connectRealtime).toHaveBeenCalledWith('b-1');
   });
 
+  it('should disconnect real-time updates when the component is destroyed', () => {
+    fixture.destroy();
+    expect(facade.disconnectRealtime).toHaveBeenCalled();
+  });
+
   it('should reflect hasDevices computed signal', () => {
     expect(component.hasDevices()).toBe(true);
   });

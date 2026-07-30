@@ -63,17 +63,13 @@ export class BuildingListComponent implements HasUnsavedChanges {
   isLoading = signal(true);
   isSaving = signal(false);
 
-  // Handles forced reloads that must re-use current URL params without changing them
-  // (event bus events and post-create when already on page 0).
-  private readonly reload$ = new Subject<void>();
-
-  // URL query params drive page/sort. Event bus events and forced reloads re-read the
-  // current snapshot so they always use whatever page/sort the user is on.
+  // URL query params drive page/sort. Event bus events re-read the current snapshot
+  // so they always reload using whatever page/sort the user is on.
   private readonly pageResult = toSignal(
     merge(
       this.route.queryParamMap.pipe(map(params => parseParams(params))),
       merge(
-        this.reload$,
+        this.eventBus.on('BUILDING_CREATED'),
         this.eventBus.on('DEVICE_ADDED'),
         this.eventBus.on('CONSUMPTION_CHANGED'),
         this.eventBus.on('PRODUCTION_CHANGED'),
@@ -106,6 +102,12 @@ export class BuildingListComponent implements HasUnsavedChanges {
     this.createAction$
       .pipe(throttleTime(2000), takeUntilDestroyed(this.destroyRef))
       .subscribe(result => this.submitCreate(result));
+
+    // Service is shared across the whole /assets subtree (route-level provider), not
+    // per-page — this component owns its own connect()/disconnect() pair, same as
+    // BuildingDetailComponent. No buildingId: just the collection-level /topic/buildings.
+    this.facade.connectRealtime();
+    this.destroyRef.onDestroy(() => this.facade.disconnectRealtime());
   }
 
   goToPage(page: number): void {
@@ -141,11 +143,11 @@ export class BuildingListComponent implements HasUnsavedChanges {
         next: () => {
           this.showCreateDialog = false;
           this.isSaving.set(false);
-          // Navigate to page 0 so the new building is visible.
-          // If already on page 0 the URL won't change, so a manual reload is needed instead.
-          if (this.currentPage() === 0) {
-            this.reload$.next();
-          } else {
+          // Navigate to page 0 so the new building is visible. If already on page 0,
+          // the URL won't change — but BUILDING_CREATED (published by AppService.create()
+          // once the save succeeds, before this callback runs) already reloads the current
+          // page via the event bus merge above, so no manual reload is needed here.
+          if (this.currentPage() !== 0) {
             this.goToPage(0);
           }
         },
