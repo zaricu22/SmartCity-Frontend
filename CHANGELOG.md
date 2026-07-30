@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.6.2...v1.7.0) (2026-07-30)
+
+
+### Features
+
+* **asset:** add eligible query param to public building list filtering ([#60](https://github.com/zaricu22/SmartCity-Frontend/issues/60)) ([44a60bd](https://github.com/zaricu22/SmartCity-Frontend/commit/44a60bd43f6da1f22075e135334125a4ca432d00))
+
 ## [1.6.2](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.6.1...v1.6.2) (2026-07-29)
 
 
