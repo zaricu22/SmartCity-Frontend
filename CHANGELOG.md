@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.10.0...v1.10.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* **build:** polyfill Node's `global` for sockjs-client in the browser ([c282027](https://github.com/zaricu22/SmartCity-Frontend/commit/c2820270d5305346db12a434f7e6616f3e9bc8cc))
+
 # [1.10.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.9.0...v1.10.0) (2026-07-30)
 
 
