@@ -31,6 +31,8 @@ describe('BuildingDetailComponent', () => {
       getAll: jest.fn(),
       create: jest.fn(),
       changeProduction: jest.fn(),
+      connectRealtime: jest.fn(),
+      disconnectRealtime: jest.fn(),
     } as unknown as jest.Mocked<PublicBuildingFacade>;
     facade.getById.mockReturnValue(of(stubBuilding));
 
@@ -52,6 +54,10 @@ describe('BuildingDetailComponent', () => {
     expect(facade.getById).toHaveBeenCalledWith('b-1');
     expect(fixture.nativeElement.textContent).toContain('City Hall');
     expect(fixture.nativeElement.textContent).toContain('Zone A');
+  });
+
+  it('should connect real-time updates for this building on init', () => {
+    expect(facade.connectRealtime).toHaveBeenCalledWith('b-1');
   });
 
   it('should reflect hasDevices computed signal', () => {

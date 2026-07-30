@@ -17,7 +17,7 @@ Two bounded contexts:
 src/app/asset/
 ├── domain/          — pure TypeScript, zero Angular/RxJS imports
 ├── application/     — CQRS, commands, DTOs, facade
-├── infrastructure/  — HttpClient adapters, WebSocket stub
+├── infrastructure/  — HttpClient adapters, STOMP/SockJS WebSocket bridge (ADR-0025)
 └── presentation/    — Angular components, pages, dialogs, routes
 ```
 
@@ -275,3 +275,4 @@ All non-obvious design choices are captured as ADRs in [`adr/`](adr/).
 | [0022](adr/0022-jwt-refresh-rotating-tokens.md) | JWT refresh with rotating tokens |
 | [0023](adr/0023-oauth2-full-page-redirect-and-fragment-callback.md) | OAuth2 full-page redirect and fragment callback |
 | [0024](adr/0024-eligible-query-param-server-side-filtering.md) | Server-side eligibility filtering via `eligible` query param |
+| [0025](adr/0025-stomp-sockjs-websocket-transport.md) | STOMP over SockJS for real-time building updates |

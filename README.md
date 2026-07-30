@@ -264,7 +264,7 @@ src/app/
 │   │   │   ├── mapper/            #   BuildingResponseMapper (response → domain)
 │   │   │   ├── response/          #   HTTP response types
 │   │   │   └── request/           #   HTTP request body types
-│   │   └── websocket/             #   BuildingWebsocketService (infra exists, not yet wired to EventBus)
+│   │   └── websocket/             #   BuildingWebSocketService (STOMP/SockJS, bridges to EventBus — ADR-0025)
 │   └── presentation/             # Angular pages, components, dialogs, lazy routes
 │       ├── page/                  #   BuildingListComponent, BuildingDetailComponent — route targets
 │       ├── component/             #   BuildingCard, DeviceList, EnergyDisplay — embedded in pages
