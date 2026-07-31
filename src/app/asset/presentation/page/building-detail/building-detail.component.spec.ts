@@ -226,6 +226,18 @@ describe('BuildingDetailComponent', () => {
       expect(showSpy).toHaveBeenCalledWith('Device "Roof Panel" removed.', 'success');
     });
 
+    it('should fall back to a generic name in the toast when the device is not in the loaded building', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.removeDevice.mockReturnValue(of(void 0));
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+
+      component.onRemoveDevice('unknown-device-id');
+
+      expect(showSpy).toHaveBeenCalledWith('Device "Device" removed.', 'success');
+    });
+
     it('should not remove the device when the confirmation is declined', () => {
       const confirmDialogService = TestBed.inject(ConfirmDialogService);
       jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(false));

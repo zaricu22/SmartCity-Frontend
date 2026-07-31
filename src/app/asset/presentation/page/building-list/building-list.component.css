@@ -23,6 +23,23 @@
   gap: var(--space-5);
 }
 
+.building-list-page__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.building-list-page__error-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .building-list-page__loading {
   display: flex;
   align-items: center;
