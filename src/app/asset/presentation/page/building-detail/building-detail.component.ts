@@ -12,6 +12,7 @@ import { AddDeviceDialogComponent } from '../../dialog/add-device-dialog/add-dev
 import { ChangeConsumptionDialogComponent } from '../../dialog/change-consumption-dialog/change-consumption-dialog.component';
 import { AddDeviceCommand } from '../../../application/command/add-device.command';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
+import { ToastService } from '../../../../shared/presentation/service/toast.service';
 import type { AddDeviceDialogResult } from '../../dialog/add-device-dialog/add-device-dialog.component';
 import type { ChangeConsumptionDialogResult } from '../../dialog/change-consumption-dialog/change-consumption-dialog.component';
 import type { HasUnsavedChanges } from '../../../../shared/infrastructure/guard/unsaved-changes.guard';
@@ -39,6 +40,7 @@ import type { ProductionChangedEvent } from '../../../domain/event/production-ch
 export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly eventBus = inject(EventBusService);
+  private readonly toastService = inject(ToastService);
 
   // TODO: plain booleans with OnPush — Angular does not detect these changes automatically; migrate to signal<boolean>(false)
   showAddDeviceDialog = false;
@@ -94,8 +96,14 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         // reload is driven by the DEVICE_ADDED event published after save
-        next: () => { this.showAddDeviceDialog = false; },
-        error: (err: ApplicationException) => this.errorMessage.set(err.message),
+        next: () => {
+          this.showAddDeviceDialog = false;
+          this.toastService.show(`${result.type} device added.`, 'success');
+        },
+        error: (err: ApplicationException) => {
+          this.errorMessage.set(err.message);
+          this.toastService.show(err.message, 'error');
+        },
       });
   }
 
@@ -104,8 +112,14 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         // reload is driven by the CONSUMPTION_CHANGED event published after save
-        next: () => { this.showChangeConsumptionDialog = false; },
-        error: (err: ApplicationException) => this.errorMessage.set(err.message),
+        next: () => {
+          this.showChangeConsumptionDialog = false;
+          this.toastService.show('Consumption updated.', 'success');
+        },
+        error: (err: ApplicationException) => {
+          this.errorMessage.set(err.message);
+          this.toastService.show(err.message, 'error');
+        },
       });
   }
 

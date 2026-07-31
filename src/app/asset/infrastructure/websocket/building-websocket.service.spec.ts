@@ -113,7 +113,8 @@ describe('BuildingWebSocketService', () => {
     expect(topics).toEqual(['/topic/buildings']);
   });
 
-  it('bridges an incoming building-created message onto the EventBus', done => {
+  it('bridges an incoming building-created message onto the EventBus and shows an info toast', done => {
+    const showSpy = jest.spyOn(toastService, 'show');
     service.connect();
 
     eventBus.on<BuildingCreatedEvent>('BUILDING_CREATED').subscribe(event => {
@@ -123,6 +124,7 @@ describe('BuildingWebSocketService', () => {
         name: 'Library',
         location: 'Zone B',
       });
+      expect(showSpy).toHaveBeenCalledWith('Building "Library" was added.', 'info');
       done();
     });
 
@@ -132,13 +134,15 @@ describe('BuildingWebSocketService', () => {
     });
   });
 
-  it('bridges an incoming consumption message onto the EventBus', done => {
+  it('bridges an incoming consumption message onto the EventBus and shows an info toast', done => {
+    const showSpy = jest.spyOn(toastService, 'show');
     service.connect(BUILDING_ID);
 
     eventBus.on<ConsumptionChangedEvent>('CONSUMPTION_CHANGED').subscribe(event => {
       expect(event.buildingId).toBe(BUILDING_ID);
       expect(event.oldConsumption.value).toBe(10);
       expect(event.newConsumption.value).toBe(20);
+      expect(showSpy).toHaveBeenCalledWith('Consumption was updated.', 'info');
       done();
     });
 
@@ -154,7 +158,8 @@ describe('BuildingWebSocketService', () => {
     });
   });
 
-  it('bridges an incoming device-added message onto the EventBus', done => {
+  it('bridges an incoming device-added message onto the EventBus and shows an info toast', done => {
+    const showSpy = jest.spyOn(toastService, 'show');
     service.connect(BUILDING_ID);
 
     eventBus.on<DeviceAddedEvent>('DEVICE_ADDED').subscribe(event => {
@@ -164,6 +169,7 @@ describe('BuildingWebSocketService', () => {
         deviceId: 'd-1',
         deviceType: DeviceType.SOLAR,
       });
+      expect(showSpy).toHaveBeenCalledWith(`A ${DeviceType.SOLAR} device was added.`, 'info');
       done();
     });
 
@@ -173,7 +179,8 @@ describe('BuildingWebSocketService', () => {
     });
   });
 
-  it('bridges an incoming production message onto the EventBus', done => {
+  it('bridges an incoming production message onto the EventBus and shows an info toast', done => {
+    const showSpy = jest.spyOn(toastService, 'show');
     service.connect(BUILDING_ID);
 
     eventBus.on<ProductionChangedEvent>('PRODUCTION_CHANGED').subscribe(event => {
@@ -181,6 +188,7 @@ describe('BuildingWebSocketService', () => {
       expect(event.deviceId).toBe('d-1');
       expect(event.oldProduction.value).toBe(30);
       expect(event.newProduction.value).toBe(50);
+      expect(showSpy).toHaveBeenCalledWith('Device production was updated.', 'info');
       done();
     });
 

@@ -11,10 +11,12 @@ import { CreateBuildingDialogComponent } from '../../dialog/create-building-dial
 import { EmptyStateComponent } from '../../../../shared/presentation/component/empty-state/empty-state.component';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
+import { ToastService } from '../../../../shared/presentation/service/toast.service';
 import { PageRequest, DEFAULT_PAGE_REQUEST } from '../../../shared/page-request';
 import type { Page } from '../../../shared/page';
 import type { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import type { CreateBuildingDialogResult } from '../../dialog/create-building-dialog/create-building-dialog.component';
+import type { ApplicationException } from '../../../application/exception/application.exception';
 import type { HasUnsavedChanges } from '../../../../shared/infrastructure/guard/unsaved-changes.guard';
 
 const EMPTY_PAGE: Page<PublicBuildingDto> = {
@@ -56,6 +58,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
   protected readonly auth = inject(AuthService);
 
   // TODO: plain boolean with OnPush — Angular does not detect this change automatically; migrate to signal<boolean>(false)
@@ -143,6 +146,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
         next: () => {
           this.showCreateDialog = false;
           this.isSaving.set(false);
+          this.toastService.show(`Building "${result.name}" created.`, 'success');
           // Navigate to page 0 so the new building is visible. If already on page 0,
           // the URL won't change — but BUILDING_CREATED (published by AppService.create()
           // once the save succeeds, before this callback runs) already reloads the current
@@ -151,7 +155,10 @@ export class BuildingListComponent implements HasUnsavedChanges {
             this.goToPage(0);
           }
         },
-        error: () => this.isSaving.set(false),
+        error: (err: ApplicationException) => {
+          this.isSaving.set(false);
+          this.toastService.show(err.message, 'error');
+        },
       });
   }
 }
