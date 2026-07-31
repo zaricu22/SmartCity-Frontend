@@ -115,6 +115,29 @@ describe('BuildingListComponent', () => {
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_DELETED
   });
 
+  it('should stop loading, show an error, and keep the stream alive when getAll fails', () => {
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+    facade.getAll.mockReturnValue(throwError(() => new Error('Failed to load buildings.')));
+    const eventBus = TestBed.inject(EventBusService);
+
+    eventBus.publish({ type: 'BUILDING_CREATED', buildingId: 'b-2', name: 'Library', location: 'Zone B' });
+    fixture.detectChanges();
+
+    expect(component.isLoading()).toBe(false);
+    expect(component.errorMessage()).toBe('Failed to load buildings.');
+    expect(showSpy).toHaveBeenCalledWith('Failed to load buildings.', 'error');
+    expect(component.buildings()).toEqual([]);
+
+    // The outer stream must survive the error — a later reload should still work.
+    facade.getAll.mockReturnValue(of(stubPage));
+    eventBus.publish({ type: 'BUILDING_CREATED', buildingId: 'b-3', name: 'Depot', location: 'Zone C' });
+    fixture.detectChanges();
+
+    expect(component.errorMessage()).toBeNull();
+    expect(component.buildings().length).toBe(2);
+  });
+
   it('should navigate to page 0 when creating a building while on a later page', () => {
     const eventBus = TestBed.inject(EventBusService);
     facade.getAll.mockReturnValue(of({ ...stubPage, page: 2 }));

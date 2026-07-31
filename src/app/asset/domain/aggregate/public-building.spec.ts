@@ -12,7 +12,7 @@ import { BuildingTotalCapacityExceededException } from '../exception/building-to
 describe('PublicBuilding', () => {
   const makeBuilding = () => new PublicBuilding('b-1', 'City Hall', 'Zone A - Main St');
   const makeDevice = (id: string, capacityKw: number) =>
-    new EnergyDevice(id, DeviceType.SOLAR, new Energy(capacityKw, EnergyUnit.kW));
+    new EnergyDevice(id, 'Test Device', DeviceType.SOLAR, new Energy(capacityKw, EnergyUnit.kW));
 
   describe('constructor', () => {
     it('should create with valid arguments', () => {
@@ -113,6 +113,7 @@ describe('PublicBuilding', () => {
       expect(events[0].type).toBe('DEVICE_REMOVED');
       expect((events[0] as any).buildingId).toBe('b-1');
       expect((events[0] as any).deviceId).toBe('d-1');
+      expect((events[0] as any).deviceName).toBe('Test Device');
       expect((events[0] as any).deviceType).toBe(DeviceType.SOLAR);
     });
 
@@ -160,7 +161,7 @@ describe('PublicBuilding', () => {
 
     it('should aggregate capacity across different units', () => {
       const b = makeBuilding();
-      b.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(1, EnergyUnit.MW))); // 1000 kW
+      b.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(1, EnergyUnit.MW))); // 1000 kW
       b.pullEvents();
       expect(() => b.changeConsumption(new Energy(1000, EnergyUnit.kW))).not.toThrow();
     });

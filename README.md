@@ -29,7 +29,7 @@ An Angular 18 single-page application for managing smart city infrastructure —
 |---|---|
 | Building list | Browse all public buildings, filter by name, create or delete a building |
 | Building detail | View energy consumption, manage energy devices |
-| Energy devices | Add solar, wind, battery, or hydro devices with rated capacity |
+| Energy devices | Add named solar, wind, battery, or hydro devices with rated capacity |
 | Consumption | Update a building's current energy consumption |
 | Auth | Login with role-based access control (USER / MANAGER / ADMIN) |
 

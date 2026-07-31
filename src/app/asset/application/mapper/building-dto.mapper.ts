@@ -15,6 +15,7 @@ export class BuildingDtoMapper {
       devices: building.devices.map(
         (d): EnergyDeviceDto => ({
           id: d.id,
+          name: d.name,
           type: d.type,
           ratedCapacityValue: d.deviceRatedCapacity.value,
           ratedCapacityUnit: d.deviceRatedCapacity.unit,

@@ -59,6 +59,7 @@ export class PublicBuildingAppService {
     // switchMap cancels any in-flight inner Observable on a new call — prevents duplicate-write race conditions.
     const device = new EnergyDevice(
       crypto.randomUUID(),
+      cmd.name,
       cmd.type,
       new Energy(cmd.ratedCapacityValue, cmd.ratedCapacityUnit),
     );

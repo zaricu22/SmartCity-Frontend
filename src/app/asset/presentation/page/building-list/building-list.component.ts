@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ParamMap } from '@angular/router';
-import { Subject, merge } from 'rxjs';
-import { map, switchMap, tap, throttleTime } from 'rxjs';
+import { Subject, merge, of } from 'rxjs';
+import { catchError, map, switchMap, tap, throttleTime } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { LucidePlus, LucideBuilding2, LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
+import { LucidePlus, LucideBuilding2, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert } from '@lucide/angular';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { BuildingCardComponent } from '../../component/building-card/building-card.component';
 import { CreateBuildingDialogComponent } from '../../dialog/create-building-dialog/create-building-dialog.component';
@@ -48,6 +48,7 @@ function parseParams(params: ParamMap): PageRequest {
     LucideBuilding2,
     LucideChevronLeft,
     LucideChevronRight,
+    LucideTriangleAlert,
   ],
   templateUrl: './building-list.component.html',
   styleUrl: './building-list.component.css',
@@ -65,6 +66,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
   showCreateDialog = false;
   isLoading = signal(true);
   isSaving = signal(false);
+  errorMessage = signal<string | null>(null);
 
   // URL query params drive page/sort. Event bus events re-read the current snapshot
   // so they always reload using whatever page/sort the user is on.
@@ -79,9 +81,22 @@ export class BuildingListComponent implements HasUnsavedChanges {
         this.eventBus.on('PRODUCTION_CHANGED'),
       ).pipe(map(() => parseParams(this.route.snapshot.queryParamMap))),
     ).pipe(
-      tap(() => this.isLoading.set(true)),
+      tap(() => {
+        this.isLoading.set(true);
+        this.errorMessage.set(null);
+      }),
       switchMap(req => this.facade.getAll(req).pipe(
         tap(() => this.isLoading.set(false)),
+        // Without this, a failed request (e.g. a schema mismatch between frontend and
+        // backend) leaves isLoading stuck true forever — the success-only tap() above
+        // never runs, and the outer merged stream terminates entirely, breaking even
+        // future reloads. Catching here keeps the stream alive and surfaces the error.
+        catchError((err: ApplicationException) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err.message);
+          this.toastService.show(err.message, 'error');
+          return of(EMPTY_PAGE);
+        }),
       )),
     ),
     { initialValue: EMPTY_PAGE },

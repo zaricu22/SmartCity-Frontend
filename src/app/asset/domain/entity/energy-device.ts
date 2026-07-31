@@ -7,11 +7,15 @@ import { Energy } from '../value-object/energy';
 
 export class EnergyDevice {
   private readonly _id: string;
+  private readonly _name: string;
   private readonly _type: DeviceType;
   private readonly _deviceRatedCapacity: Energy;
   private _productionRate: Energy;
 
-  constructor(id: string, type: DeviceType, deviceRatedCapacity: Energy) {
+  constructor(id: string, name: string, type: DeviceType, deviceRatedCapacity: Energy) {
+    if (!name || name.trim() === '') {
+      throw new ValidationException('Naziv je obavezan!', ErrorCode.DEVICE_NAME_EMPTY);
+    }
     if (!type) {
       throw new ValidationException('Tip je obavezan!', ErrorCode.DEVICE_TYPE_REQUIRED);
     }
@@ -20,12 +24,14 @@ export class EnergyDevice {
     }
 
     this._id = id;
+    this._name = name;
     this._type = type;
     this._deviceRatedCapacity = deviceRatedCapacity;
     this._productionRate = new Energy(0, EnergyUnit.kW);
   }
 
   get id(): string { return this._id; }
+  get name(): string { return this._name; }
   get type(): DeviceType { return this._type; }
   get deviceRatedCapacity(): Energy { return this._deviceRatedCapacity; }
   get productionRate(): Energy { return this._productionRate; }

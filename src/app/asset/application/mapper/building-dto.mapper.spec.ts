@@ -21,12 +21,13 @@ describe('BuildingDtoMapper', () => {
 
     it('should map devices correctly', () => {
       const building = new PublicBuilding('b-1', 'City Hall', 'Zone A');
-      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
+      building.addDevice(new EnergyDevice('d-1', 'Roof Panel', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
       building.pullEvents();
       const dto = BuildingDtoMapper.toDto(building);
 
       expect(dto.devices.length).toBe(1);
       expect(dto.devices[0].id).toBe('d-1');
+      expect(dto.devices[0].name).toBe('Roof Panel');
       expect(dto.devices[0].type).toBe(DeviceType.SOLAR);
       expect(dto.devices[0].ratedCapacityValue).toBe(100);
       expect(dto.devices[0].ratedCapacityUnit).toBe(EnergyUnit.kW);
@@ -34,7 +35,7 @@ describe('BuildingDtoMapper', () => {
 
     it('should map current consumption', () => {
       const building = new PublicBuilding('b-1', 'City Hall', 'Zone A');
-      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
+      building.addDevice(new EnergyDevice('d-1', 'Roof Panel', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
       building.pullEvents();
       building.changeConsumption(new Energy(50, EnergyUnit.kW));
       building.pullEvents();

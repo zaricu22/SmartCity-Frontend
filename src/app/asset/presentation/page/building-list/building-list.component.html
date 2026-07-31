@@ -19,6 +19,13 @@
     </select>
   </div>
 
+  @if (errorMessage(); as msg) {
+    <div class="building-list-page__error">
+      <svg lucideTriangleAlert class="building-list-page__error-icon"></svg>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
   @if (isLoading()) {
     <p class="building-list-page__loading">
       <span class="building-list-page__spinner"></span>
