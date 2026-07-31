@@ -56,12 +56,13 @@
   text-align: center;
 }
 
-/* Turn the plain energy value into a circular badge — only in this context,
-   building-card keeps the compact inline look (see its own .css file). */
+/* Turn the plain energy value into a circular progress ring — only in this context,
+   building-card keeps the compact inline look (see its own .css file). The ring itself
+   (track + progress arc) is drawn by EnergyDisplayComponent's SVG once `percent` is bound;
+   no --energy-display-border here since the SVG track replaces the old static border. */
 .building-detail-page__consumption app-energy-display {
   --energy-display-diameter: 140px;
   --energy-display-radius: 50%;
-  --energy-display-border: 8px solid var(--color-accent-soft);
   --energy-display-bg: var(--color-surface);
   --energy-display-font-size: var(--font-size-2xl);
   --energy-display-font-weight: 700;

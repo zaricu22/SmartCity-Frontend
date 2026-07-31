@@ -1,1 +1,12 @@
+@if (percent() !== undefined) {
+  <svg class="energy-display__ring" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <circle class="energy-display__ring-track" cx="50" cy="50" r="42" />
+    <circle
+      class="energy-display__ring-progress"
+      cx="50" cy="50" r="42"
+      [style.stroke-dasharray]="ringCircumference"
+      [style.stroke-dashoffset]="ringOffset()"
+    />
+  </svg>
+}
 <span class="energy-display">{{ value() | energy: unit() }}</span>

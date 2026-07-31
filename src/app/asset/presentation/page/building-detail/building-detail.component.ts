@@ -21,6 +21,7 @@ import type { DeviceAddedEvent } from '../../../domain/event/device-added.event'
 import type { DeviceRemovedEvent } from '../../../domain/event/device-removed.event';
 import type { ConsumptionChangedEvent } from '../../../domain/event/consumption-changed.event';
 import type { ProductionChangedEvent } from '../../../domain/event/production-changed.event';
+import { toKW } from '../../../domain/shared/enums/energy-unit.enum';
 
 @Component({
   selector: 'app-building-detail',
@@ -70,6 +71,27 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
 
   readonly building = toSignal(this.building$, { initialValue: null });
   readonly hasDevices = computed(() => (this.building()?.devices.length ?? 0) > 0);
+
+  // Sum of all device rated capacities in kW — same total-capacity figure the domain
+  // aggregate itself enforces (PublicBuilding.calculateTotalCapacity(), the check behind
+  // BuildingTotalCapacityExceededException) — so the ring genuinely shows "how close to
+  // the limit," not an arbitrary number.
+  private readonly totalCapacityKw = computed(() =>
+    (this.building()?.devices ?? []).reduce(
+      (sum, d) => sum + toKW(d.ratedCapacityUnit, d.ratedCapacityValue),
+      0,
+    ),
+  );
+
+  // Percent of total device capacity currently consumed — feeds EnergyDisplayComponent's
+  // progress ring. Not clamped here; EnergyDisplayComponent clamps for display, since
+  // consumption can exceed capacity if devices are removed after consumption was set.
+  readonly consumptionPercent = computed(() => {
+    const building = this.building();
+    const totalKw = this.totalCapacityKw();
+    if (!building || totalKw <= 0) return 0;
+    return (toKW(building.consumptionUnit, building.consumptionValue) / totalKw) * 100;
+  });
 
   constructor(
     private readonly facade: PublicBuildingFacade,
