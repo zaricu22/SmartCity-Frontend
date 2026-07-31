@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, OnInit, inject, input, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 
@@ -14,9 +14,14 @@ export interface ChangeConsumptionDialogResult {
   templateUrl: './change-consumption-dialog.component.html',
   styleUrl: './change-consumption-dialog.component.css',
 })
-export class ChangeConsumptionDialogComponent {
+export class ChangeConsumptionDialogComponent implements OnInit {
   readonly confirmed = output<ChangeConsumptionDialogResult>();
   readonly cancelled = output<void>();
+
+  // Building's current consumption — pre-fills the form so the user edits from the
+  // real value instead of starting from a misleading default of 0.
+  readonly initialValue = input.required<number>();
+  readonly initialUnit = input.required<EnergyUnit>();
 
   readonly energyUnits = Object.values(EnergyUnit);
 
@@ -24,6 +29,13 @@ export class ChangeConsumptionDialogComponent {
     consumptionValue: [0,           [Validators.required, Validators.min(0)]],
     consumptionUnit:  [EnergyUnit.kW, [Validators.required]],
   });
+
+  ngOnInit(): void {
+    this.form.patchValue({
+      consumptionValue: this.initialValue(),
+      consumptionUnit: this.initialUnit(),
+    });
+  }
 
   submit(): void {
     if (this.form.invalid) return;

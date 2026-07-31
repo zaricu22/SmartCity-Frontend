@@ -16,12 +16,29 @@ describe('ChangeConsumptionDialogComponent', () => {
 
     fixture = TestBed.createComponent(ChangeConsumptionDialogComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('initialValue', 50);
+    fixture.componentRef.setInput('initialUnit', EnergyUnit.kW);
     fixture.detectChanges();
 
     confirmSpy = jest.fn();
     cancelSpy  = jest.fn();
     component.confirmed.subscribe(confirmSpy);
     component.cancelled.subscribe(cancelSpy);
+  });
+
+  it('should pre-fill the form with the current consumption value and unit', () => {
+    expect(component.form.value.consumptionValue).toBe(50);
+    expect(component.form.value.consumptionUnit).toBe(EnergyUnit.kW);
+  });
+
+  it('should reflect a different initial value/unit passed in', () => {
+    const otherFixture = TestBed.createComponent(ChangeConsumptionDialogComponent);
+    otherFixture.componentRef.setInput('initialValue', 320);
+    otherFixture.componentRef.setInput('initialUnit', EnergyUnit.MW);
+    otherFixture.detectChanges();
+
+    expect(otherFixture.componentInstance.form.value.consumptionValue).toBe(320);
+    expect(otherFixture.componentInstance.form.value.consumptionUnit).toBe(EnergyUnit.MW);
   });
 
   it('should emit confirm with current form values on submit', () => {

@@ -73,6 +73,42 @@ describe('BuildingDetailComponent', () => {
     expect(component.hasDevices()).toBe(true);
   });
 
+  describe('consumptionPercent', () => {
+    it('should compute consumption as a percent of total device capacity', () => {
+      // stubBuilding: consumptionValue 50 kW; stubDevice: ratedCapacityValue 100 kW
+      expect(component.consumptionPercent()).toBeCloseTo(50);
+    });
+
+    it('should convert mismatched units to kW before dividing', () => {
+      facade.getById.mockReturnValue(of({
+        ...stubBuilding,
+        consumptionValue: 0.5,
+        consumptionUnit: EnergyUnit.MW, // 500 kW
+        devices: [{ ...stubDevice, ratedCapacityValue: 1, ratedCapacityUnit: EnergyUnit.MW }], // 1000 kW
+      }));
+      component.load();
+      fixture.detectChanges();
+
+      expect(component.consumptionPercent()).toBeCloseTo(50);
+    });
+
+    it('should return 0 when the building has no devices (zero total capacity)', () => {
+      facade.getById.mockReturnValue(of({ ...stubBuilding, devices: [] }));
+      component.load();
+      fixture.detectChanges();
+
+      expect(component.consumptionPercent()).toBe(0);
+    });
+
+    it('should return 0 if read while the building has not loaded yet', () => {
+      facade.getById.mockReturnValue(EMPTY);
+      const freshFixture = TestBed.createComponent(BuildingDetailComponent);
+      freshFixture.detectChanges();
+
+      expect(freshFixture.componentInstance.consumptionPercent()).toBe(0);
+    });
+  });
+
   it('should show add device dialog when button is clicked', () => {
     expect(fixture.nativeElement.querySelector('app-add-device-dialog')).toBeNull();
     fixture.nativeElement.querySelector('.building-detail-page__devices button').click();

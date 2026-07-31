@@ -27,7 +27,7 @@
             Change
           </button>
         </div>
-        <app-energy-display [value]="b.consumptionValue" [unit]="b.consumptionUnit" />
+        <app-energy-display [value]="b.consumptionValue" [unit]="b.consumptionUnit" [percent]="consumptionPercent()" />
       </section>
 
       <section class="building-detail-page__card building-detail-page__devices">
@@ -55,6 +55,8 @@
 
     @if (showChangeConsumptionDialog) {
       <app-change-consumption-dialog
+        [initialValue]="b.consumptionValue"
+        [initialUnit]="b.consumptionUnit"
         (confirmed)="onChangeConsumption($event)"
         (cancelled)="showChangeConsumptionDialog = false"
       />
