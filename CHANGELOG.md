@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.10.1...v1.11.0) (2026-07-31)
+
+
+### Features
+
+* **asset:** add toast notifications for CRUD actions and live WS updates ([#69](https://github.com/zaricu22/SmartCity-Frontend/issues/69)) ([2838a6e](https://github.com/zaricu22/SmartCity-Frontend/commit/2838a6e16c63b964f878bd9bd4a73f45184e3c0a))
+
 ## [1.10.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.10.0...v1.10.1) (2026-07-30)
 
 
