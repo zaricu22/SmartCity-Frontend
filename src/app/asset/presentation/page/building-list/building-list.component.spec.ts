@@ -110,7 +110,7 @@ describe('BuildingListComponent', () => {
   it('should reload the current page when a BUILDING_DELETED event arrives', () => {
     const eventBus = TestBed.inject(EventBusService);
 
-    eventBus.publish({ type: 'BUILDING_DELETED', buildingId: 'b-1' });
+    eventBus.publish({ type: 'BUILDING_DELETED', buildingId: 'b-1', name: 'City Hall' });
 
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_DELETED
   });

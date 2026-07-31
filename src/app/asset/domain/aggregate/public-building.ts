@@ -74,12 +74,13 @@ export class PublicBuilding {
     const index = this._devices.findIndex(d => d.id === deviceId);
     if (index === -1) throw new DeviceNotFoundException();
 
-    this._devices.splice(index, 1);
+    const [removed] = this._devices.splice(index, 1);
 
     this._domainEvents.push({
       type: 'DEVICE_REMOVED',
       buildingId: this._id,
       deviceId,
+      deviceType: removed.type,
     } satisfies DeviceRemovedEvent);
   }
 

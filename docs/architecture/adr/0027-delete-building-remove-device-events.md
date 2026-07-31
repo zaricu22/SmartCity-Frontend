@@ -1,6 +1,6 @@
 # ADR-0027: Delete Building / Remove Device — Domain Events and Real-Time Wiring
 
-**Status:** Accepted (2026-07-31)
+**Status:** Amended (2026-07-31)
 **Date:** 2026-07-31
 
 ## Context
@@ -87,5 +87,41 @@ next explicit action (e.g. `findById` 404s, surfacing `errorMessage`).
   backend's WS push arrives. Not addressed here, consistent with the existing accepted gap.
 - A building-detail page left open on a building deleted by another user does not
   proactively redirect — it silently goes stale until the next reload or navigation.
+
+## Amendment (2026-07-31): payloads enriched with `name`/`deviceType`
+
+Initial toasts for WS-received deletions were generic ("A building was deleted.", "A device
+was removed.") because `BuildingDeletedEvent`/`BuildingDeletedMessage` only carried
+`buildingId`, and `DeviceRemovedEvent`/`DeviceRemovedMessage` only carried `buildingId` +
+`deviceId` — unlike `BuildingCreatedEvent`/`DeviceAddedEvent`, which carry `name`/
+`deviceType` and already produced specific toasts. The gap wasn't necessary: the backend's
+`PublicBuildingAppService.delete()` already calls `repository.findById(buildingId)` to
+check existence before deleting, and `.removeDevice()` already loads the full aggregate
+(with the target device's type) before removing it — both discarded data they already had
+in hand.
+
+Closed on both sides (backend edit explicitly authorized by the user for this task,
+overriding the frontend-only-scope default — see [[feedback-frontend-only-scope]]):
+
+- **Backend:** `BuildingDeletedEvent` gained `name`; `DeviceRemovedEvent` gained
+  `deviceType`. `PublicBuildingAppService.delete()` now loads the aggregate (previously
+  just an `isEmpty()` check) purely to read `building.getName()` before publishing the
+  event — the delete call itself is still fire-and-forget, unchanged. `PublicBuilding
+  .removeDevice()` (aggregate) captures `device.getType()` before removing it from the
+  list. `BuildingDeletedMessage`/`DeviceRemovedMessage` and `BuildingWebSocketEventHandler`
+  thread the new fields through to the WS payload; `AuditLogEventHandler`'s log lines were
+  updated to include them too.
+- **Frontend:** `BuildingDeletedEvent`/`DeviceRemovedEvent` (domain), `BuildingDeletedMessage`/
+  `DeviceRemovedMessage` (WS DTOs), and `BuildingWebSocketService`'s bridging/toasts were
+  updated to match. `PublicBuildingAppService.delete()` was changed the same way as its
+  backend counterpart — `findById(id)` first, purely to capture `building.name` for the
+  event, still no aggregate mutation. `PublicBuilding.removeDevice()` (frontend aggregate)
+  now captures the removed device's `type` the same way the backend aggregate does. Toasts
+  became `Building "${name}" was deleted.` and `A ${deviceType} device was removed.`
+
+No API contract change (still `DELETE /v1/buildings/{id}` and `DELETE
+/v1/buildings/{buildingId}/devices/{deviceId}`, both 204) — only the domain event and WS
+message payloads gained fields, so this is additive and backward compatible with any other
+consumer of those two REST endpoints.
 
 **Related:** ADR-0005, ADR-0006, ADR-0025, ADR-0026.

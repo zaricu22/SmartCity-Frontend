@@ -27,6 +27,7 @@ export interface BuildingCreatedMessage {
 
 export interface BuildingDeletedMessage {
   buildingId: string;
+  name: string;
 }
 
 export interface ConsumptionUpdateMessage {
@@ -46,6 +47,7 @@ export interface DeviceAddedMessage {
 export interface DeviceRemovedMessage {
   buildingId: string;
   deviceId: string;
+  deviceType: DeviceType;
 }
 
 export interface ProductionUpdateMessage {
@@ -117,8 +119,9 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
       const event: BuildingDeletedEvent = {
         type: 'BUILDING_DELETED',
         buildingId: msg.buildingId,
+        name: msg.name,
       };
-      this.toastService.show('A building was deleted.', 'info');
+      this.toastService.show(`Building "${msg.name}" was deleted.`, 'info');
       this.eventBus.publish(event);
     });
 
@@ -149,8 +152,9 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         type: 'DEVICE_REMOVED',
         buildingId: msg.buildingId,
         deviceId: msg.deviceId,
+        deviceType: msg.deviceType,
       };
-      this.toastService.show('A device was removed.', 'info');
+      this.toastService.show(`A ${msg.deviceType} device was removed.`, 'info');
       this.eventBus.publish(event);
     });
 

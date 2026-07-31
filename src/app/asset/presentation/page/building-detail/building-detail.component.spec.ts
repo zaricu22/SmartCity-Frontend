@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { EMPTY, of, throwError } from 'rxjs';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { BuildingDetailComponent } from './building-detail.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
@@ -197,6 +197,19 @@ describe('BuildingDetailComponent', () => {
 
       expect(showSpy).toHaveBeenCalledWith('Server error', 'error');
     });
+
+    it('should fall back to a generic name in the confirm prompt when the building has not loaded yet', () => {
+      facade.getById.mockReturnValue(EMPTY);
+      const freshFixture = TestBed.createComponent(BuildingDetailComponent);
+      freshFixture.detectChanges(); // ngOnInit → load() → getById() never emits, so building() stays null
+
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      const confirmSpy = jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(false));
+
+      freshFixture.componentInstance.onDeleteBuilding();
+
+      expect(confirmSpy).toHaveBeenCalledWith('Delete "this building"? This cannot be undone.');
+    });
   });
 
   describe('onRemoveDevice()', () => {
@@ -238,7 +251,7 @@ describe('BuildingDetailComponent', () => {
     it('should reload when DEVICE_REMOVED event arrives for this building', () => {
       const eventBus = TestBed.inject(EventBusService);
 
-      eventBus.publish({ type: 'DEVICE_REMOVED', buildingId: 'b-1', deviceId: 'd-1' } as any);
+      eventBus.publish({ type: 'DEVICE_REMOVED', buildingId: 'b-1', deviceId: 'd-1', deviceType: 'SOLAR' } as any);
 
       expect(facade.getById).toHaveBeenCalledTimes(2);
     });

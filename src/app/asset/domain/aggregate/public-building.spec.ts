@@ -113,6 +113,7 @@ describe('PublicBuilding', () => {
       expect(events[0].type).toBe('DEVICE_REMOVED');
       expect((events[0] as any).buildingId).toBe('b-1');
       expect((events[0] as any).deviceId).toBe('d-1');
+      expect((events[0] as any).deviceType).toBe(DeviceType.SOLAR);
     });
 
     it('should only remove the matching device when multiple exist', () => {

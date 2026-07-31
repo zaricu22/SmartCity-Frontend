@@ -67,21 +67,25 @@ describe('PublicBuildingAppService', () => {
   });
 
   describe('delete()', () => {
-    it('should delete via repository', (done) => {
+    it('should look up the building and delete via repository', (done) => {
+      repository.findById.mockReturnValue(of(makeBuilding()));
       repository.delete.mockReturnValue(of(void 0));
 
       service.delete('b-1').subscribe(() => {
+        expect(repository.findById).toHaveBeenCalledWith('b-1');
         expect(repository.delete).toHaveBeenCalledWith('b-1');
         done();
       });
     });
 
-    it('should publish BuildingDeletedEvent on the EventBus after delete succeeds', (done) => {
+    it('should publish BuildingDeletedEvent with the building name on the EventBus after delete succeeds', (done) => {
+      repository.findById.mockReturnValue(of(makeBuilding()));
       repository.delete.mockReturnValue(of(void 0));
       const eventBus = TestBed.inject(EventBusService);
 
       eventBus.on<BuildingDeletedEvent>('BUILDING_DELETED').subscribe(event => {
         expect(event.buildingId).toBe('b-1');
+        expect(event.name).toBe('City Hall');
         done();
       });
 
@@ -139,6 +143,7 @@ describe('PublicBuildingAppService', () => {
       eventBus.on<DeviceRemovedEvent>('DEVICE_REMOVED').subscribe(event => {
         expect(event.buildingId).toBe('b-1');
         expect(event.deviceId).toBe('d-1');
+        expect(event.deviceType).toBe(DeviceType.SOLAR);
         done();
       });
 

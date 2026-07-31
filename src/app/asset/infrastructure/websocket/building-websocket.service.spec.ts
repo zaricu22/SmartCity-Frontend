@@ -143,13 +143,13 @@ describe('BuildingWebSocketService', () => {
     service.connect();
 
     eventBus.on<BuildingDeletedEvent>('BUILDING_DELETED').subscribe(event => {
-      expect(event).toEqual({ type: 'BUILDING_DELETED', buildingId: 'b-gone' });
-      expect(showSpy).toHaveBeenCalledWith('A building was deleted.', 'info');
+      expect(event).toEqual({ type: 'BUILDING_DELETED', buildingId: 'b-gone', name: 'Old Library' });
+      expect(showSpy).toHaveBeenCalledWith('Building "Old Library" was deleted.', 'info');
       done();
     });
 
     const buildingDeletedHandler = mockInstances[0].subscribe.mock.calls[1][1];
-    buildingDeletedHandler({ body: JSON.stringify({ buildingId: 'b-gone' }) });
+    buildingDeletedHandler({ body: JSON.stringify({ buildingId: 'b-gone', name: 'Old Library' }) });
   });
 
   it('bridges an incoming consumption message onto the EventBus and shows an info toast', done => {
@@ -202,14 +202,19 @@ describe('BuildingWebSocketService', () => {
     service.connect(BUILDING_ID);
 
     eventBus.on<DeviceRemovedEvent>('DEVICE_REMOVED').subscribe(event => {
-      expect(event).toEqual({ type: 'DEVICE_REMOVED', buildingId: BUILDING_ID, deviceId: 'd-2' });
-      expect(showSpy).toHaveBeenCalledWith('A device was removed.', 'info');
+      expect(event).toEqual({
+        type: 'DEVICE_REMOVED',
+        buildingId: BUILDING_ID,
+        deviceId: 'd-2',
+        deviceType: DeviceType.BATTERY,
+      });
+      expect(showSpy).toHaveBeenCalledWith(`A ${DeviceType.BATTERY} device was removed.`, 'info');
       done();
     });
 
     const deviceRemovedHandler = mockInstances[0].subscribe.mock.calls[4][1];
     deviceRemovedHandler({
-      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-2' }),
+      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-2', deviceType: DeviceType.BATTERY }),
     });
   });
 

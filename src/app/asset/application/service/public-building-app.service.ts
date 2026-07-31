@@ -28,11 +28,16 @@ export class PublicBuildingAppService {
   }
 
   delete(id: string): Observable<void> {
-    // No aggregate to load/mutate here — mirrors the backend, which only checks existence
-    // and deletes, without reconstituting the whole aggregate for a fire-and-forget removal.
-    const event: BuildingDeletedEvent = { type: 'BUILDING_DELETED', buildingId: id };
-    return this.repository.delete(id).pipe(
-      tap(() => this.eventBus.publish(event)),
+    // Loads the aggregate only to capture its name for BuildingDeletedEvent — mirrors the
+    // backend, which does the same findById-before-delete purely to enrich the event, not
+    // to mutate anything (delete itself is still a fire-and-forget repository call).
+    return this.repository.findById(id).pipe(
+      switchMap(building => {
+        const event: BuildingDeletedEvent = { type: 'BUILDING_DELETED', buildingId: id, name: building.name };
+        return this.repository.delete(id).pipe(
+          tap(() => this.eventBus.publish(event)),
+        );
+      }),
     );
   }
 
