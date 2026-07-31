@@ -107,6 +107,14 @@ describe('BuildingListComponent', () => {
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_CREATED
   });
 
+  it('should reload the current page when a BUILDING_DELETED event arrives', () => {
+    const eventBus = TestBed.inject(EventBusService);
+
+    eventBus.publish({ type: 'BUILDING_DELETED', buildingId: 'b-1', name: 'City Hall' });
+
+    expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_DELETED
+  });
+
   it('should navigate to page 0 when creating a building while on a later page', () => {
     const eventBus = TestBed.inject(EventBusService);
     facade.getAll.mockReturnValue(of({ ...stubPage, page: 2 }));

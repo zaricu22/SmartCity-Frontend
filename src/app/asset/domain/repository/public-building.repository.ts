@@ -12,6 +12,7 @@ export abstract class PublicBuildingRepository {
   abstract save(building: PublicBuilding): Observable<void>;
   abstract delete(id: string): Observable<void>;
   abstract addDevice(buildingId: string, device: EnergyDevice): Observable<void>;
+  abstract removeDevice(buildingId: string, deviceId: string): Observable<void>;
   abstract changeConsumption(buildingId: string, consumption: Energy): Observable<void>;
   abstract changeProduction(buildingId: string, deviceId: string, production: Energy): Observable<void>;
 }

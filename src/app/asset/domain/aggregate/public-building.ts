@@ -2,6 +2,7 @@ import { EnergyDevice } from '../entity/energy-device';
 import { BuildingCreatedEvent } from '../event/building-created.event';
 import { ConsumptionChangedEvent } from '../event/consumption-changed.event';
 import { DeviceAddedEvent } from '../event/device-added.event';
+import { DeviceRemovedEvent } from '../event/device-removed.event';
 import { ProductionChangedEvent } from '../event/production-changed.event';
 import { BuildingTotalCapacityExceededException } from '../exception/building-total-capacity-exceeded.exception';
 import { DeviceAlreadyExistsException } from '../exception/device-already-exists.exception';
@@ -17,7 +18,7 @@ export class PublicBuilding {
   private readonly _location: string;
   private _consumption: Energy;
   private readonly _devices: EnergyDevice[];
-  private readonly _domainEvents: (BuildingCreatedEvent | DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] = [];
+  private readonly _domainEvents: (BuildingCreatedEvent | DeviceAddedEvent | DeviceRemovedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] = [];
 
   constructor(id: string, name: string, location: string) {
     if (!name || name.trim() === '') {
@@ -48,7 +49,7 @@ export class PublicBuilding {
   // Defensive copy — callers cannot mutate the aggregate's internal device list.
   get devices(): readonly EnergyDevice[] { return [...this._devices]; }
 
-  pullEvents(): (BuildingCreatedEvent | DeviceAddedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] {
+  pullEvents(): (BuildingCreatedEvent | DeviceAddedEvent | DeviceRemovedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] {
     const events = [...this._domainEvents];
     this._domainEvents.length = 0; // mutates in place — preserves the readonly array reference
     return events;
@@ -67,6 +68,20 @@ export class PublicBuilding {
       deviceId: newDevice.id,
       deviceType: newDevice.type,
     } satisfies DeviceAddedEvent);
+  }
+
+  removeDevice(deviceId: string): void {
+    const index = this._devices.findIndex(d => d.id === deviceId);
+    if (index === -1) throw new DeviceNotFoundException();
+
+    const [removed] = this._devices.splice(index, 1);
+
+    this._domainEvents.push({
+      type: 'DEVICE_REMOVED',
+      buildingId: this._id,
+      deviceId,
+      deviceType: removed.type,
+    } satisfies DeviceRemovedEvent);
   }
 
   changeConsumption(newConsumptionRate: Energy): void {

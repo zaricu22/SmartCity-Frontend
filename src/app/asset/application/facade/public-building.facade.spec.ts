@@ -23,7 +23,9 @@ describe('PublicBuildingFacade', () => {
   beforeEach(() => {
     appService = {
       create: jest.fn(),
+      delete: jest.fn(),
       addDevice: jest.fn(),
+      removeDevice: jest.fn(),
       changeConsumption: jest.fn(),
       changeProduction: jest.fn(),
     } as unknown as jest.Mocked<PublicBuildingAppService>;
@@ -78,11 +80,27 @@ describe('PublicBuildingFacade', () => {
     });
   });
 
+  it('delete() delegates to appService', (done) => {
+    appService.delete.mockReturnValue(of(void 0));
+    facade.delete('b-1').subscribe(() => {
+      expect(appService.delete).toHaveBeenCalledWith('b-1');
+      done();
+    });
+  });
+
   it('addDevice() delegates to appService', (done) => {
     appService.addDevice.mockReturnValue(of(void 0));
     const cmd = { buildingId: 'b-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW };
     facade.addDevice(cmd).subscribe(() => {
       expect(appService.addDevice).toHaveBeenCalledWith(cmd);
+      done();
+    });
+  });
+
+  it('removeDevice() delegates to appService', (done) => {
+    appService.removeDevice.mockReturnValue(of(void 0));
+    facade.removeDevice('b-1', 'd-1').subscribe(() => {
+      expect(appService.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
       done();
     });
   });

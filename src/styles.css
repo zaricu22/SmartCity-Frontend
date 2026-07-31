@@ -158,6 +158,20 @@ a {
   color: var(--color-accent-hover);
 }
 
+.btn--danger {
+  background-color: var(--color-error);
+  color: var(--color-surface);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.btn--icon-only {
+  padding: var(--space-2);
+  flex-shrink: 0;
+}
+
 .btn__icon {
   width: 16px;
   height: 16px;
