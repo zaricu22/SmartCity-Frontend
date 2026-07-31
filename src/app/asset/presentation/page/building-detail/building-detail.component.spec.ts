@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { EMPTY, of, throwError } from 'rxjs';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { BuildingDetailComponent } from './building-detail.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
@@ -9,6 +9,7 @@ import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 import { ToastService } from '../../../../shared/presentation/service/toast.service';
+import { ConfirmDialogService } from '../../../../shared/presentation/service/confirm-dialog.service';
 
 describe('BuildingDetailComponent', () => {
   let fixture: ComponentFixture<BuildingDetailComponent>;
@@ -27,7 +28,9 @@ describe('BuildingDetailComponent', () => {
   beforeEach(async () => {
     facade = {
       getById: jest.fn(),
+      delete: jest.fn(),
       addDevice: jest.fn(),
+      removeDevice: jest.fn(),
       changeConsumption: jest.fn(),
       getAll: jest.fn(),
       create: jest.fn(),
@@ -155,5 +158,102 @@ describe('BuildingDetailComponent', () => {
     expect(component.hasUnsavedChanges()).toBe(false);
     component.showAddDeviceDialog = true;
     expect(component.hasUnsavedChanges()).toBe(true);
+  });
+
+  describe('onDeleteBuilding()', () => {
+    it('should delete the building, show a toast, and navigate to the list when confirmed', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.delete.mockReturnValue(of(void 0));
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+      const router = TestBed.inject(Router);
+      const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+      component.onDeleteBuilding();
+
+      expect(facade.delete).toHaveBeenCalledWith('b-1');
+      expect(showSpy).toHaveBeenCalledWith('Building "City Hall" deleted.', 'success');
+      expect(navigateSpy).toHaveBeenCalledWith(['/assets']);
+    });
+
+    it('should not delete when the confirmation is declined', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(false));
+
+      component.onDeleteBuilding();
+
+      expect(facade.delete).not.toHaveBeenCalled();
+    });
+
+    it('should show an error toast when delete fails', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.delete.mockReturnValue(throwError(() => new Error('Server error')));
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+
+      component.onDeleteBuilding();
+
+      expect(showSpy).toHaveBeenCalledWith('Server error', 'error');
+    });
+
+    it('should fall back to a generic name in the confirm prompt when the building has not loaded yet', () => {
+      facade.getById.mockReturnValue(EMPTY);
+      const freshFixture = TestBed.createComponent(BuildingDetailComponent);
+      freshFixture.detectChanges(); // ngOnInit → load() → getById() never emits, so building() stays null
+
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      const confirmSpy = jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(false));
+
+      freshFixture.componentInstance.onDeleteBuilding();
+
+      expect(confirmSpy).toHaveBeenCalledWith('Delete "this building"? This cannot be undone.');
+    });
+  });
+
+  describe('onRemoveDevice()', () => {
+    it('should remove the device and show a toast when confirmed', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.removeDevice.mockReturnValue(of(void 0));
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+
+      component.onRemoveDevice('d-1');
+
+      expect(facade.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
+      expect(showSpy).toHaveBeenCalledWith('Device removed.', 'success');
+    });
+
+    it('should not remove the device when the confirmation is declined', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(false));
+
+      component.onRemoveDevice('d-1');
+
+      expect(facade.removeDevice).not.toHaveBeenCalled();
+    });
+
+    it('should show an error toast and set errorMessage when removal fails', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.removeDevice.mockReturnValue(throwError(() => new Error('Device not found')));
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+
+      component.onRemoveDevice('d-1');
+
+      expect(showSpy).toHaveBeenCalledWith('Device not found', 'error');
+      expect(component.errorMessage()).toBe('Device not found');
+    });
+
+    it('should reload when DEVICE_REMOVED event arrives for this building', () => {
+      const eventBus = TestBed.inject(EventBusService);
+
+      eventBus.publish({ type: 'DEVICE_REMOVED', buildingId: 'b-1', deviceId: 'd-1', deviceType: 'SOLAR' } as any);
+
+      expect(facade.getById).toHaveBeenCalledTimes(2);
+    });
   });
 });

@@ -89,6 +89,44 @@ describe('PublicBuilding', () => {
     });
   });
 
+  describe('removeDevice()', () => {
+    it('should remove a device', () => {
+      const b = makeBuilding();
+      b.addDevice(makeDevice('d-1', 100));
+      b.pullEvents();
+      b.removeDevice('d-1');
+      expect(b.devices.length).toBe(0);
+    });
+
+    it('should throw DeviceNotFoundException for unknown deviceId', () => {
+      const b = makeBuilding();
+      expect(() => b.removeDevice('unknown')).toThrow(DeviceNotFoundException);
+    });
+
+    it('should emit DeviceRemovedEvent', () => {
+      const b = makeBuilding();
+      b.addDevice(makeDevice('d-1', 100));
+      b.pullEvents();
+      b.removeDevice('d-1');
+      const events = b.pullEvents();
+      expect(events.length).toBe(1);
+      expect(events[0].type).toBe('DEVICE_REMOVED');
+      expect((events[0] as any).buildingId).toBe('b-1');
+      expect((events[0] as any).deviceId).toBe('d-1');
+      expect((events[0] as any).deviceType).toBe(DeviceType.SOLAR);
+    });
+
+    it('should only remove the matching device when multiple exist', () => {
+      const b = makeBuilding();
+      b.addDevice(makeDevice('d-1', 100));
+      b.addDevice(makeDevice('d-2', 50));
+      b.pullEvents();
+      b.removeDevice('d-1');
+      expect(b.devices.length).toBe(1);
+      expect(b.devices[0].id).toBe('d-2');
+    });
+  });
+
   describe('changeConsumption()', () => {
     it('should update consumption within total capacity', () => {
       const b = makeBuilding();

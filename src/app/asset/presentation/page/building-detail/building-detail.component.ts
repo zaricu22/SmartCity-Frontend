@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, EMPTY, switchMap, tap, catchError, filter } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { LucideTriangleAlert, LucidePencil, LucidePlus } from '@lucide/angular';
+import { LucideTriangleAlert, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { ApplicationException } from '../../../application/exception/application.exception';
 import { DeviceListComponent } from '../../component/device-list/device-list.component';
@@ -13,10 +13,12 @@ import { ChangeConsumptionDialogComponent } from '../../dialog/change-consumptio
 import { AddDeviceCommand } from '../../../application/command/add-device.command';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 import { ToastService } from '../../../../shared/presentation/service/toast.service';
+import { ConfirmDialogService } from '../../../../shared/presentation/service/confirm-dialog.service';
 import type { AddDeviceDialogResult } from '../../dialog/add-device-dialog/add-device-dialog.component';
 import type { ChangeConsumptionDialogResult } from '../../dialog/change-consumption-dialog/change-consumption-dialog.component';
 import type { HasUnsavedChanges } from '../../../../shared/infrastructure/guard/unsaved-changes.guard';
 import type { DeviceAddedEvent } from '../../../domain/event/device-added.event';
+import type { DeviceRemovedEvent } from '../../../domain/event/device-removed.event';
 import type { ConsumptionChangedEvent } from '../../../domain/event/consumption-changed.event';
 import type { ProductionChangedEvent } from '../../../domain/event/production-changed.event';
 
@@ -33,6 +35,7 @@ import type { ProductionChangedEvent } from '../../../domain/event/production-ch
     LucideTriangleAlert,
     LucidePencil,
     LucidePlus,
+    LucideTrash2,
   ],
   templateUrl: './building-detail.component.html',
   styleUrl: './building-detail.component.css',
@@ -41,6 +44,8 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly eventBus = inject(EventBusService);
   private readonly toastService = inject(ToastService);
+  private readonly confirmDialogService = inject(ConfirmDialogService);
+  private readonly router = inject(Router);
 
   // TODO: plain booleans with OnPush — Angular does not detect these changes automatically; migrate to signal<boolean>(false)
   showAddDeviceDialog = false;
@@ -123,6 +128,40 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       });
   }
 
+  onDeleteBuilding(): void {
+    const name = this.building()?.name ?? 'this building';
+    this.confirmDialogService.confirm(`Delete "${name}"? This cannot be undone.`)
+      .pipe(
+        filter(confirmed => confirmed),
+        switchMap(() => this.facade.delete(this.buildingId)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.show(`Building "${name}" deleted.`, 'success');
+          this.router.navigate(['/assets']);
+        },
+        error: (err: ApplicationException) => this.toastService.show(err.message, 'error'),
+      });
+  }
+
+  onRemoveDevice(deviceId: string): void {
+    this.confirmDialogService.confirm('Remove this device? This cannot be undone.')
+      .pipe(
+        filter(confirmed => confirmed),
+        switchMap(() => this.facade.removeDevice(this.buildingId, deviceId)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        // reload is driven by the DEVICE_REMOVED event published after save
+        next: () => this.toastService.show('Device removed.', 'success'),
+        error: (err: ApplicationException) => {
+          this.errorMessage.set(err.message);
+          this.toastService.show(err.message, 'error');
+        },
+      });
+  }
+
   hasUnsavedChanges(): boolean {
     return this.showAddDeviceDialog || this.showChangeConsumptionDialog;
   }
@@ -135,6 +174,10 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       e.buildingId === this.buildingId;
 
     this.eventBus.on<DeviceAddedEvent>('DEVICE_ADDED')
+      .pipe(filter(forThisBuilding), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.load());
+
+    this.eventBus.on<DeviceRemovedEvent>('DEVICE_REMOVED')
       .pipe(filter(forThisBuilding), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.load());
 

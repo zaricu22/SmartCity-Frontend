@@ -12,6 +12,14 @@
       <span class="device-list__type">{{ device.type }}</span>
       <span class="device-list__capacity">Capacity: {{ device.ratedCapacityValue | energy: device.ratedCapacityUnit }}</span>
       <span class="device-list__production">Production: {{ device.productionRateValue | energy: device.productionRateUnit }}</span>
+      <button
+        type="button"
+        class="btn btn--danger btn--icon-only"
+        title="Remove device"
+        (click)="removeDevice.emit(device.id)"
+      >
+        <svg lucideTrash2 class="btn__icon"></svg>
+      </button>
     </li>
   } @empty {
     <li class="device-list__empty">No devices added yet.</li>

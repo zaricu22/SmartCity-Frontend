@@ -8,8 +8,14 @@
 @if (building(); as b) {
   <div class="building-detail-page">
     <header class="building-detail-page__header">
-      <h1>{{ b.name }}</h1>
-      <p class="building-detail-page__location">{{ b.location }}</p>
+      <div>
+        <h1>{{ b.name }}</h1>
+        <p class="building-detail-page__location">{{ b.location }}</p>
+      </div>
+      <button class="btn btn--danger" (click)="onDeleteBuilding()">
+        <svg lucideTrash2 class="btn__icon"></svg>
+        Delete Building
+      </button>
     </header>
 
     <div class="building-detail-page__grid">
@@ -33,7 +39,7 @@
           </button>
         </div>
         @if (hasDevices()) {
-          <app-device-list [devices]="b.devices" />
+          <app-device-list [devices]="b.devices" (removeDevice)="onRemoveDevice($event)" />
         } @else {
           <p class="building-detail-page__no-devices">No devices yet.</p>
         }

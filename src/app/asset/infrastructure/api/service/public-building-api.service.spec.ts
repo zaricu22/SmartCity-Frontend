@@ -126,6 +126,16 @@ describe('PublicBuildingApiService', () => {
     });
   });
 
+  describe('removeDevice()', () => {
+    it('should DELETE /v1/buildings/:buildingId/devices/:deviceId', (done) => {
+      service.removeDevice('b-1', 'd-1').subscribe(() => done());
+
+      const req = http.expectOne(`${BASE}/b-1/devices/d-1`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
+    });
+  });
+
   describe('changeConsumption()', () => {
     it('should PATCH /v1/buildings/:id/consumption', (done) => {
       const consumption = new Energy(80, EnergyUnit.kW);
