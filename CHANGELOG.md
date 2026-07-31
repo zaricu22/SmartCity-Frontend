@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.12.0...v1.13.0) (2026-07-31)
+
+
+### Features
+
+* named energy devices, plus fix building-list stuck-loading bug ([#73](https://github.com/zaricu22/SmartCity-Frontend/issues/73)) ([888c06a](https://github.com/zaricu22/SmartCity-Frontend/commit/888c06adf64bc4ace14600d12add23687e24f26b))
+
 # [1.12.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.11.0...v1.12.0) (2026-07-31)
 
 
