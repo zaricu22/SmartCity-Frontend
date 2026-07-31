@@ -126,8 +126,9 @@ connection-lifecycle bug it surfaced and fixed.
   header...", "Invalid or expired token", "Revoked token"), but would need sanitizing if
   the backend ever put anything more sensitive in that header.
 
-**Not yet done:**
-- Local dev `environment.ts` `apiBaseUrl` (`http://localhost:8080`) is missing the
-  backend's `server.servlet.contextPath=/SmartCityREST`, active in all Spring profiles
-  including `dev` — a pre-existing gap that predates this ADR and affects every HTTP call
-  against a locally-run backend, not just this WebSocket connection.
+**Fixed (2026-07-31):** Local dev `environment.ts` `apiBaseUrl` was `http://localhost:8080`,
+missing the backend's `server.servlet.contextPath=/SmartCityREST` (active in all Spring
+profiles including `dev`) — a pre-existing gap that predated this ADR and affected every
+HTTP call against a locally-run backend, not just the WebSocket connection.
+`environment.prod.ts` already carried the correct `/SmartCityREST` suffix; `environment.ts`
+and the `setup:env` npm script that regenerates it (`package.json`) were updated to match.
