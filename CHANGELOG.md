@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.11.0...v1.12.0) (2026-07-31)
+
+
+### Features
+
+* delete building / remove device, wired end-to-end with real-time sync ([#71](https://github.com/zaricu22/SmartCity-Frontend/issues/71)) ([9b7c1bf](https://github.com/zaricu22/SmartCity-Frontend/commit/9b7c1bf12cc8cf550e7ccd3339b4f8ec799a5b30))
+
 # [1.11.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.10.1...v1.11.0) (2026-07-31)
 
 
