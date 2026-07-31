@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.13.0...v1.14.0) (2026-07-31)
+
+
+### Features
+
+* **asset:** add consumption progress ring and pre-fill change-consumption dialog ([#75](https://github.com/zaricu22/SmartCity-Frontend/issues/75)) ([8a8cd33](https://github.com/zaricu22/SmartCity-Frontend/commit/8a8cd33bef86a4ffb7b24ea927534059639f1d9a))
+
 # [1.13.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.12.0...v1.13.0) (2026-07-31)
 
 
