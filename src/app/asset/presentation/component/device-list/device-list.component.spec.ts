@@ -8,8 +8,8 @@ describe('DeviceListComponent', () => {
   let fixture: ComponentFixture<DeviceListComponent>;
 
   const stubDevices: EnergyDeviceDto[] = [
-    { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
-    { id: 'd-2', type: DeviceType.PUMP,  ratedCapacityValue: 50,  ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+    { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+    { id: 'd-2', name: 'Water Pump', type: DeviceType.PUMP,  ratedCapacityValue: 50,  ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
   ];
 
   beforeEach(async () => {
@@ -36,6 +36,12 @@ describe('DeviceListComponent', () => {
     fixture.componentRef.setInput('devices', stubDevices);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('SOLAR');
+  });
+
+  it('should display device name', () => {
+    fixture.componentRef.setInput('devices', stubDevices);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Roof Panel');
   });
 
   it('should emit removeDevice with the device id when the remove button is clicked', () => {

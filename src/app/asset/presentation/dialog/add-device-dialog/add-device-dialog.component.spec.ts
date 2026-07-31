@@ -25,25 +25,32 @@ describe('AddDeviceDialogComponent', () => {
   });
 
   it('should disable submit button when capacity is 0', () => {
-    // default ratedCapacityValue is 0, which fails Validators.min(0.01)
+    // default ratedCapacityValue is 0, which fails Validators.min(0.01); name is also empty
     const submitBtn = fixture.nativeElement.querySelector('button:last-of-type');
     expect(submitBtn.disabled).toBe(true);
   });
 
-  it('should enable submit button when capacity is positive', () => {
+  it('should disable submit button when name is empty', () => {
     component.form.patchValue({ ratedCapacityValue: 100 });
+    fixture.detectChanges();
+    const submitBtn = fixture.nativeElement.querySelector('button:last-of-type');
+    expect(submitBtn.disabled).toBe(true);
+  });
+
+  it('should enable submit button when name and capacity are both valid', () => {
+    component.form.patchValue({ name: 'Roof Panel', ratedCapacityValue: 100 });
     fixture.detectChanges();
     const submitBtn = fixture.nativeElement.querySelector('button:last-of-type');
     expect(submitBtn.disabled).toBe(false);
   });
 
   it('should emit confirm without buildingId on submit', () => {
-    component.form.patchValue({ type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW });
+    component.form.patchValue({ name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW });
     component.submit();
 
     expect(confirmSpy).toHaveBeenCalledTimes(1);
     expect(confirmSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW }),
+      expect.objectContaining({ name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.MW }),
     );
     const emitted: AddDeviceDialogResult = confirmSpy.mock.lastCall[0];
     expect((emitted as any).buildingId).toBeUndefined();
@@ -56,7 +63,13 @@ describe('AddDeviceDialogComponent', () => {
   });
 
   it('should not emit when capacity is negative', () => {
-    component.form.patchValue({ ratedCapacityValue: -5 });
+    component.form.patchValue({ name: 'Roof Panel', ratedCapacityValue: -5 });
+    component.submit();
+    expect(confirmSpy).not.toHaveBeenCalled();
+  });
+
+  it('should not emit when name is empty', () => {
+    component.form.patchValue({ ratedCapacityValue: 100 });
     component.submit();
     expect(confirmSpy).not.toHaveBeenCalled();
   });

@@ -10,7 +10,7 @@ describe('SubsidyEligibilitySpecification', () => {
 
   const makeBuilding = (location: string) => new PublicBuilding('b-1', 'Hall', location);
   const makeDevice = (id: string) =>
-    new EnergyDevice(id, DeviceType.SOLAR, new Energy(200, EnergyUnit.kW));
+    new EnergyDevice(id, 'Test Device', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW));
 
   const eligibleBuilding = (): PublicBuilding => {
     const b = makeBuilding('Zone A - Downtown');

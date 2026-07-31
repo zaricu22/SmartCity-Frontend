@@ -102,6 +102,7 @@ describe('PublicBuildingAppService', () => {
 
       service.addDevice({
         buildingId: 'b-1',
+        name: 'Roof Panel',
         type: DeviceType.SOLAR,
         ratedCapacityValue: 100,
         ratedCapacityUnit: EnergyUnit.kW,
@@ -117,7 +118,7 @@ describe('PublicBuildingAppService', () => {
   describe('removeDevice()', () => {
     it('should fetch building, remove device, and persist via repository', (done) => {
       const building = makeBuilding();
-      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
+      building.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
       building.pullEvents();
 
       repository.findById.mockReturnValue(of(building));
@@ -133,7 +134,7 @@ describe('PublicBuildingAppService', () => {
 
     it('should publish DeviceRemovedEvent on the EventBus after removal succeeds', (done) => {
       const building = makeBuilding();
-      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
+      building.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
       building.pullEvents();
 
       repository.findById.mockReturnValue(of(building));
@@ -143,6 +144,7 @@ describe('PublicBuildingAppService', () => {
       eventBus.on<DeviceRemovedEvent>('DEVICE_REMOVED').subscribe(event => {
         expect(event.buildingId).toBe('b-1');
         expect(event.deviceId).toBe('d-1');
+        expect(event.deviceName).toBe('Test Device');
         expect(event.deviceType).toBe(DeviceType.SOLAR);
         done();
       });
@@ -154,7 +156,7 @@ describe('PublicBuildingAppService', () => {
   describe('changeConsumption()', () => {
     it('should fetch building, update consumption, and persist via repository', (done) => {
       const building = makeBuilding();
-      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
+      building.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
       building.pullEvents();
 
       repository.findById.mockReturnValue(of(building));
@@ -171,7 +173,7 @@ describe('PublicBuildingAppService', () => {
   describe('changeProduction()', () => {
     it('should fetch building, update device production, and persist via repository', (done) => {
       const building = makeBuilding();
-      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
+      building.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
       building.pullEvents();
 
       repository.findById.mockReturnValue(of(building));

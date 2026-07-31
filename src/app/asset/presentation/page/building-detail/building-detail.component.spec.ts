@@ -17,7 +17,7 @@ describe('BuildingDetailComponent', () => {
   let facade: jest.Mocked<PublicBuildingFacade>;
 
   const stubDevice: EnergyDeviceDto = {
-    id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW,
+    id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW,
     productionRateValue: 0, productionRateUnit: EnergyUnit.kW,
   };
   const stubBuilding: PublicBuildingDto = {
@@ -86,9 +86,9 @@ describe('BuildingDetailComponent', () => {
     component.showAddDeviceDialog = true;
     fixture.detectChanges();
 
-    const result = { type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW };
+    const result = { name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW };
     component.onAddDevice(result);
-    eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-test', deviceType: DeviceType.BATTERY } as any);
+    eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-test', deviceName: 'Backup Battery', deviceType: DeviceType.BATTERY } as any);
 
     expect(facade.addDevice).toHaveBeenCalledWith({ ...result, buildingId: 'b-1' });
     expect(component.showAddDeviceDialog).toBe(false);
@@ -117,9 +117,9 @@ describe('BuildingDetailComponent', () => {
     const toastService = TestBed.inject(ToastService);
     const showSpy = jest.spyOn(toastService, 'show');
 
-    component.onAddDevice({ type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW });
+    component.onAddDevice({ name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW });
 
-    expect(showSpy).toHaveBeenCalledWith(`${DeviceType.BATTERY} device added.`, 'success');
+    expect(showSpy).toHaveBeenCalledWith(`Device "Backup Battery" (${DeviceType.BATTERY}) added.`, 'success');
   });
 
   it('should show an error toast when adding a device fails', () => {
@@ -127,7 +127,7 @@ describe('BuildingDetailComponent', () => {
     const toastService = TestBed.inject(ToastService);
     const showSpy = jest.spyOn(toastService, 'show');
 
-    component.onAddDevice({ type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW });
+    component.onAddDevice({ name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW });
 
     expect(showSpy).toHaveBeenCalledWith('Capacity exceeded', 'error');
     expect(component.errorMessage()).toBe('Capacity exceeded');
@@ -223,7 +223,19 @@ describe('BuildingDetailComponent', () => {
       component.onRemoveDevice('d-1');
 
       expect(facade.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
-      expect(showSpy).toHaveBeenCalledWith('Device removed.', 'success');
+      expect(showSpy).toHaveBeenCalledWith('Device "Roof Panel" removed.', 'success');
+    });
+
+    it('should fall back to a generic name in the toast when the device is not in the loaded building', () => {
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.removeDevice.mockReturnValue(of(void 0));
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+
+      component.onRemoveDevice('unknown-device-id');
+
+      expect(showSpy).toHaveBeenCalledWith('Device "Device" removed.', 'success');
     });
 
     it('should not remove the device when the confirmation is declined', () => {
@@ -251,7 +263,7 @@ describe('BuildingDetailComponent', () => {
     it('should reload when DEVICE_REMOVED event arrives for this building', () => {
       const eventBus = TestBed.inject(EventBusService);
 
-      eventBus.publish({ type: 'DEVICE_REMOVED', buildingId: 'b-1', deviceId: 'd-1', deviceType: 'SOLAR' } as any);
+      eventBus.publish({ type: 'DEVICE_REMOVED', buildingId: 'b-1', deviceId: 'd-1', deviceName: 'Roof Panel', deviceType: 'SOLAR' } as any);
 
       expect(facade.getById).toHaveBeenCalledTimes(2);
     });

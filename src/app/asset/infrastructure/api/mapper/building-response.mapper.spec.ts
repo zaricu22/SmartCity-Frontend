@@ -12,8 +12,8 @@ describe('BuildingResponseMapper', () => {
     consumptionValue: 50,
     consumptionUnit: EnergyUnit.kW,
     devices: [
-      { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
-      { id: 'd-2', type: DeviceType.PUMP, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+      { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+      { id: 'd-2', name: 'Water Pump', type: DeviceType.PUMP, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
     ],
   };
 
@@ -29,6 +29,7 @@ describe('BuildingResponseMapper', () => {
       const building = BuildingResponseMapper.toDomain(buildingResponse);
       expect(building.devices.length).toBe(2);
       expect(building.devices[0].id).toBe('d-1');
+      expect(building.devices[0].name).toBe('Roof Panel');
       expect(building.devices[0].type).toBe(DeviceType.SOLAR);
       expect(building.devices[0].deviceRatedCapacity.value).toBe(100);
       expect(building.devices[1].id).toBe('d-2');
@@ -55,7 +56,7 @@ describe('BuildingResponseMapper', () => {
       const response: PublicBuildingResponse = {
         ...buildingResponse,
         devices: [
-          { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 75, productionRateUnit: EnergyUnit.kW },
+          { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 75, productionRateUnit: EnergyUnit.kW },
         ],
       };
       const building = BuildingResponseMapper.toDomain(response);

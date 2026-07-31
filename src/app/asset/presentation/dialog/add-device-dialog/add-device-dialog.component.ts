@@ -22,6 +22,7 @@ export class AddDeviceDialogComponent {
   readonly energyUnits = Object.values(EnergyUnit);
 
   form = inject(FormBuilder).nonNullable.group({
+    name:               ['',                [Validators.required]],
     type:               [DeviceType.SOLAR,  [Validators.required]],
     ratedCapacityValue: [0,                 [Validators.required, Validators.min(0.01)]],
     ratedCapacityUnit:  [EnergyUnit.kW,     [Validators.required]],

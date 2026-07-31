@@ -61,6 +61,7 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
 
   addDevice(buildingId: string, device: EnergyDevice): Observable<void> {
     const request: AddDeviceRequest = {
+      name: device.name,
       type: device.type,
       ratedCapacityValue: device.deviceRatedCapacity.value,
       ratedCapacityUnit: device.deviceRatedCapacity.unit,

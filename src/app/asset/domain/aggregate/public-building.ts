@@ -66,6 +66,7 @@ export class PublicBuilding {
       type: 'DEVICE_ADDED',
       buildingId: this._id,
       deviceId: newDevice.id,
+      deviceName: newDevice.name,
       deviceType: newDevice.type,
     } satisfies DeviceAddedEvent);
   }
@@ -80,6 +81,7 @@ export class PublicBuilding {
       type: 'DEVICE_REMOVED',
       buildingId: this._id,
       deviceId,
+      deviceName: removed.name,
       deviceType: removed.type,
     } satisfies DeviceRemovedEvent);
   }
