@@ -32,7 +32,7 @@ describe('BuildingDetailComponent (integration)', () => {
     consumptionValue: 50,
     consumptionUnit: EnergyUnit.kW,
     devices: [
-      { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+      { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
     ],
   };
 
@@ -111,6 +111,7 @@ describe('BuildingDetailComponent (integration)', () => {
     fixture.detectChanges();
 
     fixture.componentInstance.onAddDevice({
+      name: 'Backup Battery',
       type: DeviceType.BATTERY,
       ratedCapacityValue: 200,
       ratedCapacityUnit: EnergyUnit.kW,
@@ -121,6 +122,7 @@ describe('BuildingDetailComponent (integration)', () => {
     tick();
     const addReq = http.expectOne(`${BASE}/${BUILDING_ID}/devices`);
     expect(addReq.request.method).toBe('POST');
+    expect(addReq.request.body.name).toBe('Backup Battery');
     expect(addReq.request.body.type).toBe(DeviceType.BATTERY);
     addReq.flush(null);
 

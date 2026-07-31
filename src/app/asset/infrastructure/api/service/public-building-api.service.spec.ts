@@ -25,7 +25,7 @@ describe('PublicBuildingApiService', () => {
     consumptionValue: 0,
     consumptionUnit: EnergyUnit.kW,
     devices: [
-      { id: 'd-1', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+      { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
     ],
   };
 
@@ -115,13 +115,18 @@ describe('PublicBuildingApiService', () => {
 
   describe('addDevice()', () => {
     it('should POST /v1/buildings/:id/devices', (done) => {
-      const device = new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW));
+      const device = new EnergyDevice('d-1', 'Roof Panel', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW));
 
       service.addDevice('b-1', device).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1/devices`);
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW });
+      expect(req.request.body).toEqual({
+        name: 'Roof Panel',
+        type: DeviceType.SOLAR,
+        ratedCapacityValue: 100,
+        ratedCapacityUnit: EnergyUnit.kW,
+      });
       req.flush(null);
     });
   });

@@ -9,6 +9,7 @@
           @default { <svg lucideCpu></svg> }
         }
       </span>
+      <span class="device-list__name">{{ device.name }}</span>
       <span class="device-list__type">{{ device.type }}</span>
       <span class="device-list__capacity">Capacity: {{ device.ratedCapacityValue | energy: device.ratedCapacityUnit }}</span>
       <span class="device-list__production">Production: {{ device.productionRateValue | energy: device.productionRateUnit }}</span>

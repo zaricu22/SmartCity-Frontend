@@ -41,12 +41,14 @@ export interface ConsumptionUpdateMessage {
 export interface DeviceAddedMessage {
   buildingId: string;
   deviceId: string;
+  deviceName: string;
   deviceType: DeviceType;
 }
 
 export interface DeviceRemovedMessage {
   buildingId: string;
   deviceId: string;
+  deviceName: string;
   deviceType: DeviceType;
 }
 
@@ -141,9 +143,10 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         type: 'DEVICE_ADDED',
         buildingId: msg.buildingId,
         deviceId: msg.deviceId,
+        deviceName: msg.deviceName,
         deviceType: msg.deviceType,
       };
-      this.toastService.show(`A ${msg.deviceType} device was added.`, 'info');
+      this.toastService.show(`Device "${msg.deviceName}" (${msg.deviceType}) was added.`, 'info');
       this.eventBus.publish(event);
     });
 
@@ -152,9 +155,10 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         type: 'DEVICE_REMOVED',
         buildingId: msg.buildingId,
         deviceId: msg.deviceId,
+        deviceName: msg.deviceName,
         deviceType: msg.deviceType,
       };
-      this.toastService.show(`A ${msg.deviceType} device was removed.`, 'info');
+      this.toastService.show(`Device "${msg.deviceName}" was removed.`, 'info');
       this.eventBus.publish(event);
     });
 

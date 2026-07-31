@@ -12,7 +12,7 @@ export class BuildingResponseMapper {
     const building = new PublicBuilding(response.id, response.name, response.location);
 
     response.devices.forEach(d => {
-      const device = new EnergyDevice(d.id, d.type, new Energy(d.ratedCapacityValue, d.ratedCapacityUnit));
+      const device = new EnergyDevice(d.id, d.name, d.type, new Energy(d.ratedCapacityValue, d.ratedCapacityUnit));
       // Constructor initialises productionRate to Energy(0, kW) — skip zero to avoid a redundant
       // changeProduction() call and domain validation firing during reconstruction.
       if (d.productionRateValue > 0) {

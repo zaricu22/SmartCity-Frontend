@@ -5,6 +5,7 @@ import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 // Returned by PublicBuildingQueryService — contains no web or infrastructure types.
 export interface EnergyDeviceDto {
   readonly id: string;
+  readonly name: string;
   readonly type: DeviceType;
   readonly ratedCapacityValue: number;
   readonly ratedCapacityUnit: EnergyUnit;

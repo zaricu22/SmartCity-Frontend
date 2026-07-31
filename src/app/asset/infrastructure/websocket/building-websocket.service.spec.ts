@@ -185,15 +185,16 @@ describe('BuildingWebSocketService', () => {
         type: 'DEVICE_ADDED',
         buildingId: BUILDING_ID,
         deviceId: 'd-1',
+        deviceName: 'Roof Panel',
         deviceType: DeviceType.SOLAR,
       });
-      expect(showSpy).toHaveBeenCalledWith(`A ${DeviceType.SOLAR} device was added.`, 'info');
+      expect(showSpy).toHaveBeenCalledWith(`Device "Roof Panel" (${DeviceType.SOLAR}) was added.`, 'info');
       done();
     });
 
     const deviceAddedHandler = mockInstances[0].subscribe.mock.calls[3][1];
     deviceAddedHandler({
-      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-1', deviceType: DeviceType.SOLAR }),
+      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-1', deviceName: 'Roof Panel', deviceType: DeviceType.SOLAR }),
     });
   });
 
@@ -206,15 +207,16 @@ describe('BuildingWebSocketService', () => {
         type: 'DEVICE_REMOVED',
         buildingId: BUILDING_ID,
         deviceId: 'd-2',
+        deviceName: 'Backup Battery',
         deviceType: DeviceType.BATTERY,
       });
-      expect(showSpy).toHaveBeenCalledWith(`A ${DeviceType.BATTERY} device was removed.`, 'info');
+      expect(showSpy).toHaveBeenCalledWith('Device "Backup Battery" was removed.', 'info');
       done();
     });
 
     const deviceRemovedHandler = mockInstances[0].subscribe.mock.calls[4][1];
     deviceRemovedHandler({
-      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-2', deviceType: DeviceType.BATTERY }),
+      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-2', deviceName: 'Backup Battery', deviceType: DeviceType.BATTERY }),
     });
   });
 

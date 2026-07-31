@@ -103,7 +103,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
         // reload is driven by the DEVICE_ADDED event published after save
         next: () => {
           this.showAddDeviceDialog = false;
-          this.toastService.show(`${result.type} device added.`, 'success');
+          this.toastService.show(`Device "${result.name}" (${result.type}) added.`, 'success');
         },
         error: (err: ApplicationException) => {
           this.errorMessage.set(err.message);
@@ -146,6 +146,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   }
 
   onRemoveDevice(deviceId: string): void {
+    const deviceName = this.building()?.devices.find(d => d.id === deviceId)?.name ?? 'Device';
     this.confirmDialogService.confirm('Remove this device? This cannot be undone.')
       .pipe(
         filter(confirmed => confirmed),
@@ -154,7 +155,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       )
       .subscribe({
         // reload is driven by the DEVICE_REMOVED event published after save
-        next: () => this.toastService.show('Device removed.', 'success'),
+        next: () => this.toastService.show(`Device "${deviceName}" removed.`, 'success'),
         error: (err: ApplicationException) => {
           this.errorMessage.set(err.message);
           this.toastService.show(err.message, 'error');
