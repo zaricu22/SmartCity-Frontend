@@ -73,6 +73,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
       this.route.queryParamMap.pipe(map(params => parseParams(params))),
       merge(
         this.eventBus.on('BUILDING_CREATED'),
+        this.eventBus.on('BUILDING_DELETED'),
         this.eventBus.on('DEVICE_ADDED'),
         this.eventBus.on('CONSUMPTION_CHANGED'),
         this.eventBus.on('PRODUCTION_CHANGED'),

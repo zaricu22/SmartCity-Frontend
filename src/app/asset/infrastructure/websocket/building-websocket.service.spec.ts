@@ -8,7 +8,9 @@ import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../shared/infrastructu
 import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 import type { BuildingCreatedEvent } from '../../domain/event/building-created.event';
+import type { BuildingDeletedEvent } from '../../domain/event/building-deleted.event';
 import type { DeviceAddedEvent } from '../../domain/event/device-added.event';
+import type { DeviceRemovedEvent } from '../../domain/event/device-removed.event';
 import type { ConsumptionChangedEvent } from '../../domain/event/consumption-changed.event';
 import type { ProductionChangedEvent } from '../../domain/event/production-changed.event';
 
@@ -90,7 +92,7 @@ describe('BuildingWebSocketService', () => {
     );
   });
 
-  it('subscribes to /topic/buildings plus the 3 per-building topics when a buildingId is passed', () => {
+  it('subscribes to /topic/buildings, /topic/buildings/deleted, plus the 4 per-building topics when a buildingId is passed', () => {
     service.connect(BUILDING_ID);
 
     const client = mockInstances[0];
@@ -98,19 +100,21 @@ describe('BuildingWebSocketService', () => {
 
     expect(topics).toEqual([
       '/topic/buildings',
+      '/topic/buildings/deleted',
       `/topic/buildings/${BUILDING_ID}/consumption`,
       `/topic/buildings/${BUILDING_ID}/devices`,
+      `/topic/buildings/${BUILDING_ID}/devices/removed`,
       `/topic/buildings/${BUILDING_ID}/production`,
     ]);
   });
 
-  it('subscribes only to /topic/buildings when no buildingId is passed', () => {
+  it('subscribes only to /topic/buildings and /topic/buildings/deleted when no buildingId is passed', () => {
     service.connect();
 
     const client = mockInstances[0];
     const topics = client.subscribe.mock.calls.map(call => call[0]);
 
-    expect(topics).toEqual(['/topic/buildings']);
+    expect(topics).toEqual(['/topic/buildings', '/topic/buildings/deleted']);
   });
 
   it('bridges an incoming building-created message onto the EventBus and shows an info toast', done => {
@@ -134,6 +138,20 @@ describe('BuildingWebSocketService', () => {
     });
   });
 
+  it('bridges an incoming building-deleted message onto the EventBus and shows an info toast', done => {
+    const showSpy = jest.spyOn(toastService, 'show');
+    service.connect();
+
+    eventBus.on<BuildingDeletedEvent>('BUILDING_DELETED').subscribe(event => {
+      expect(event).toEqual({ type: 'BUILDING_DELETED', buildingId: 'b-gone' });
+      expect(showSpy).toHaveBeenCalledWith('A building was deleted.', 'info');
+      done();
+    });
+
+    const buildingDeletedHandler = mockInstances[0].subscribe.mock.calls[1][1];
+    buildingDeletedHandler({ body: JSON.stringify({ buildingId: 'b-gone' }) });
+  });
+
   it('bridges an incoming consumption message onto the EventBus and shows an info toast', done => {
     const showSpy = jest.spyOn(toastService, 'show');
     service.connect(BUILDING_ID);
@@ -146,7 +164,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
-    const consumptionHandler = mockInstances[0].subscribe.mock.calls[1][1];
+    const consumptionHandler = mockInstances[0].subscribe.mock.calls[2][1];
     consumptionHandler({
       body: JSON.stringify({
         buildingId: BUILDING_ID,
@@ -173,9 +191,25 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
-    const deviceAddedHandler = mockInstances[0].subscribe.mock.calls[2][1];
+    const deviceAddedHandler = mockInstances[0].subscribe.mock.calls[3][1];
     deviceAddedHandler({
       body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-1', deviceType: DeviceType.SOLAR }),
+    });
+  });
+
+  it('bridges an incoming device-removed message onto the EventBus and shows an info toast', done => {
+    const showSpy = jest.spyOn(toastService, 'show');
+    service.connect(BUILDING_ID);
+
+    eventBus.on<DeviceRemovedEvent>('DEVICE_REMOVED').subscribe(event => {
+      expect(event).toEqual({ type: 'DEVICE_REMOVED', buildingId: BUILDING_ID, deviceId: 'd-2' });
+      expect(showSpy).toHaveBeenCalledWith('A device was removed.', 'info');
+      done();
+    });
+
+    const deviceRemovedHandler = mockInstances[0].subscribe.mock.calls[4][1];
+    deviceRemovedHandler({
+      body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-2' }),
     });
   });
 
@@ -192,7 +226,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
-    const productionHandler = mockInstances[0].subscribe.mock.calls[3][1];
+    const productionHandler = mockInstances[0].subscribe.mock.calls[5][1];
     productionHandler({
       body: JSON.stringify({
         buildingId: BUILDING_ID,

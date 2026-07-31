@@ -9,8 +9,10 @@ import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EventBusService } from '../../../shared/infrastructure/messaging/event-bus.service';
 import { Energy } from '../../domain/value-object/energy';
 import { BuildingCreatedEvent } from '../../domain/event/building-created.event';
+import { BuildingDeletedEvent } from '../../domain/event/building-deleted.event';
 import { ConsumptionChangedEvent } from '../../domain/event/consumption-changed.event';
 import { DeviceAddedEvent } from '../../domain/event/device-added.event';
+import { DeviceRemovedEvent } from '../../domain/event/device-removed.event';
 import { ProductionChangedEvent } from '../../domain/event/production-changed.event';
 import { AuthService } from '../../../auth/infrastructure/service/auth.service';
 import { API_BASE_URL } from '../../../shared/infrastructure/api/api.config';
@@ -21,6 +23,10 @@ export interface BuildingCreatedMessage {
   buildingId: string;
   name: string;
   location: string;
+}
+
+export interface BuildingDeletedMessage {
+  buildingId: string;
 }
 
 export interface ConsumptionUpdateMessage {
@@ -35,6 +41,11 @@ export interface DeviceAddedMessage {
   buildingId: string;
   deviceId: string;
   deviceType: DeviceType;
+}
+
+export interface DeviceRemovedMessage {
+  buildingId: string;
+  deviceId: string;
 }
 
 export interface ProductionUpdateMessage {
@@ -55,11 +66,14 @@ export interface ProductionUpdateMessage {
  * call pair rather than relying on this service's own destruction.
  *
  * Topics (STOMP):
- *   /topic/buildings                           — building creation (collection-level;
- *                                                 always subscribed, no buildingId needed)
- *   /topic/buildings/{buildingId}/consumption  — consumption change updates (per building)
- *   /topic/buildings/{buildingId}/devices      — device addition updates (per building)
- *   /topic/buildings/{buildingId}/production   — device production change updates (per building)
+ *   /topic/buildings                              — building creation (collection-level;
+ *                                                    always subscribed, no buildingId needed)
+ *   /topic/buildings/deleted                      — building deletion (collection-level;
+ *                                                    always subscribed, no buildingId needed)
+ *   /topic/buildings/{buildingId}/consumption     — consumption change updates (per building)
+ *   /topic/buildings/{buildingId}/devices         — device addition updates (per building)
+ *   /topic/buildings/{buildingId}/devices/removed — device removal updates (per building)
+ *   /topic/buildings/{buildingId}/production      — device production change updates (per building)
  */
 @Injectable()
 export class BuildingWebSocketService extends BuildingRealtimeGateway {
@@ -67,8 +81,10 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly buildingCreated$ = new Subject<BuildingCreatedMessage>();
+  private readonly buildingDeleted$ = new Subject<BuildingDeletedMessage>();
   private readonly consumptionUpdates$ = new Subject<ConsumptionUpdateMessage>();
   private readonly deviceAdded$ = new Subject<DeviceAddedMessage>();
+  private readonly deviceRemoved$ = new Subject<DeviceRemovedMessage>();
   private readonly productionUpdates$ = new Subject<ProductionUpdateMessage>();
 
   private client: Client | null = null;
@@ -97,6 +113,15 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
       this.eventBus.publish(event);
     });
 
+    this.buildingDeleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(msg => {
+      const event: BuildingDeletedEvent = {
+        type: 'BUILDING_DELETED',
+        buildingId: msg.buildingId,
+      };
+      this.toastService.show('A building was deleted.', 'info');
+      this.eventBus.publish(event);
+    });
+
     this.consumptionUpdates$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(msg => {
       const event: ConsumptionChangedEvent = {
         type: 'CONSUMPTION_CHANGED',
@@ -116,6 +141,16 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         deviceType: msg.deviceType,
       };
       this.toastService.show(`A ${msg.deviceType} device was added.`, 'info');
+      this.eventBus.publish(event);
+    });
+
+    this.deviceRemoved$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(msg => {
+      const event: DeviceRemovedEvent = {
+        type: 'DEVICE_REMOVED',
+        buildingId: msg.buildingId,
+        deviceId: msg.deviceId,
+      };
+      this.toastService.show('A device was removed.', 'info');
       this.eventBus.publish(event);
     });
 
@@ -171,6 +206,10 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         this.buildingCreated$.next(JSON.parse(message.body));
       });
 
+      this.client?.subscribe('/topic/buildings/deleted', message => {
+        this.buildingDeleted$.next(JSON.parse(message.body));
+      });
+
       if (!buildingId) return;
 
       this.client?.subscribe(`/topic/buildings/${buildingId}/consumption`, message => {
@@ -179,6 +218,10 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
 
       this.client?.subscribe(`/topic/buildings/${buildingId}/devices`, message => {
         this.deviceAdded$.next(JSON.parse(message.body));
+      });
+
+      this.client?.subscribe(`/topic/buildings/${buildingId}/devices/removed`, message => {
+        this.deviceRemoved$.next(JSON.parse(message.body));
       });
 
       this.client?.subscribe(`/topic/buildings/${buildingId}/production`, message => {

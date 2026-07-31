@@ -68,6 +68,10 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
     return this.http.post<void>(`${this.base}/${buildingId}/devices`, request);
   }
 
+  removeDevice(buildingId: string, deviceId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${buildingId}/devices/${deviceId}`);
+  }
+
   changeConsumption(buildingId: string, consumption: Energy): Observable<void> {
     const request: ChangeConsumptionRequest = {
       consumptionValue: consumption.value,

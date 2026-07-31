@@ -9,6 +9,8 @@ import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 import { EventBusService } from '../../../shared/infrastructure/messaging/event-bus.service';
 import type { BuildingCreatedEvent } from '../../domain/event/building-created.event';
+import type { BuildingDeletedEvent } from '../../domain/event/building-deleted.event';
+import type { DeviceRemovedEvent } from '../../domain/event/device-removed.event';
 
 describe('PublicBuildingAppService', () => {
   let service: PublicBuildingAppService;
@@ -23,6 +25,7 @@ describe('PublicBuildingAppService', () => {
       save: jest.fn(),
       delete: jest.fn(),
       addDevice: jest.fn(),
+      removeDevice: jest.fn(),
       changeConsumption: jest.fn(),
       changeProduction: jest.fn(),
     } as unknown as jest.Mocked<PublicBuildingRepository>;
@@ -63,6 +66,29 @@ describe('PublicBuildingAppService', () => {
     });
   });
 
+  describe('delete()', () => {
+    it('should delete via repository', (done) => {
+      repository.delete.mockReturnValue(of(void 0));
+
+      service.delete('b-1').subscribe(() => {
+        expect(repository.delete).toHaveBeenCalledWith('b-1');
+        done();
+      });
+    });
+
+    it('should publish BuildingDeletedEvent on the EventBus after delete succeeds', (done) => {
+      repository.delete.mockReturnValue(of(void 0));
+      const eventBus = TestBed.inject(EventBusService);
+
+      eventBus.on<BuildingDeletedEvent>('BUILDING_DELETED').subscribe(event => {
+        expect(event.buildingId).toBe('b-1');
+        done();
+      });
+
+      service.delete('b-1').subscribe();
+    });
+  });
+
   describe('addDevice()', () => {
     it('should fetch building, add device, and persist via repository', (done) => {
       const building = makeBuilding();
@@ -81,6 +107,42 @@ describe('PublicBuildingAppService', () => {
         expect(repository.addDevice).toHaveBeenCalledWith('b-1', expect.any(EnergyDevice));
         done();
       });
+    });
+  });
+
+  describe('removeDevice()', () => {
+    it('should fetch building, remove device, and persist via repository', (done) => {
+      const building = makeBuilding();
+      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
+      building.pullEvents();
+
+      repository.findById.mockReturnValue(of(building));
+      repository.removeDevice.mockReturnValue(of(void 0));
+
+      service.removeDevice('b-1', 'd-1').subscribe(() => {
+        expect(repository.findById).toHaveBeenCalledWith('b-1');
+        expect(building.devices.length).toBe(0);
+        expect(repository.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
+        done();
+      });
+    });
+
+    it('should publish DeviceRemovedEvent on the EventBus after removal succeeds', (done) => {
+      const building = makeBuilding();
+      building.addDevice(new EnergyDevice('d-1', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
+      building.pullEvents();
+
+      repository.findById.mockReturnValue(of(building));
+      repository.removeDevice.mockReturnValue(of(void 0));
+      const eventBus = TestBed.inject(EventBusService);
+
+      eventBus.on<DeviceRemovedEvent>('DEVICE_REMOVED').subscribe(event => {
+        expect(event.buildingId).toBe('b-1');
+        expect(event.deviceId).toBe('d-1');
+        done();
+      });
+
+      service.removeDevice('b-1', 'd-1').subscribe();
     });
   });
 

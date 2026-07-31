@@ -9,6 +9,7 @@ import { ChangeProductionCommand } from '../command/change-production.command';
 import { CreateBuildingCommand } from '../command/create-building.command';
 import { PublicBuilding } from '../../domain/aggregate/public-building';
 import { EventBusService } from '../../../shared/infrastructure/messaging/event-bus.service';
+import { BuildingDeletedEvent } from '../../domain/event/building-deleted.event';
 
 @Injectable()
 export class PublicBuildingAppService {
@@ -23,6 +24,27 @@ export class PublicBuildingAppService {
     return this.repository.save(building).pipe(
       tap(() => building.pullEvents().forEach(e => this.eventBus.publish(e))),
       switchMap(() => [id]),
+    );
+  }
+
+  delete(id: string): Observable<void> {
+    // No aggregate to load/mutate here — mirrors the backend, which only checks existence
+    // and deletes, without reconstituting the whole aggregate for a fire-and-forget removal.
+    const event: BuildingDeletedEvent = { type: 'BUILDING_DELETED', buildingId: id };
+    return this.repository.delete(id).pipe(
+      tap(() => this.eventBus.publish(event)),
+    );
+  }
+
+  removeDevice(buildingId: string, deviceId: string): Observable<void> {
+    // Same pattern as addDevice: load for domain validation, persist via granular endpoint, emit events after.
+    return this.repository.findById(buildingId).pipe(
+      tap(building => building.removeDevice(deviceId)),
+      switchMap(building =>
+        this.repository.removeDevice(buildingId, deviceId).pipe(
+          tap(() => building.pullEvents().forEach(e => this.eventBus.publish(e))),
+        ),
+      ),
     );
   }
 

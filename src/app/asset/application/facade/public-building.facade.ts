@@ -50,8 +50,16 @@ export class PublicBuildingFacade {
     return this.appService.create(cmd).pipe(catchError(this.handleError('Failed to create building.')));
   }
 
+  delete(id: string): Observable<void> {
+    return this.appService.delete(id).pipe(catchError(this.handleError('Failed to delete building.')));
+  }
+
   addDevice(cmd: AddDeviceCommand): Observable<void> {
     return this.appService.addDevice(cmd).pipe(catchError(this.handleError('Failed to add device.')));
+  }
+
+  removeDevice(buildingId: string, deviceId: string): Observable<void> {
+    return this.appService.removeDevice(buildingId, deviceId).pipe(catchError(this.handleError('Failed to remove device.')));
   }
 
   changeConsumption(buildingId: string, cmd: ChangeConsumptionCommand): Observable<void> {

@@ -38,4 +38,17 @@ describe('DeviceListComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('SOLAR');
   });
 
+  it('should emit removeDevice with the device id when the remove button is clicked', () => {
+    fixture.componentRef.setInput('devices', stubDevices);
+    fixture.detectChanges();
+
+    const emitSpy = jest.fn();
+    fixture.componentInstance.removeDevice.subscribe(emitSpy);
+
+    const buttons = fixture.nativeElement.querySelectorAll('.device-list__item button');
+    buttons[0].click();
+
+    expect(emitSpy).toHaveBeenCalledWith('d-1');
+  });
+
 });
