@@ -93,6 +93,7 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         name: msg.name,
         location: msg.location,
       };
+      this.toastService.show(`Building "${msg.name}" was added.`, 'info');
       this.eventBus.publish(event);
     });
 
@@ -103,6 +104,7 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         oldConsumption: new Energy(msg.oldValue, msg.oldUnit),
         newConsumption: new Energy(msg.newValue, msg.newUnit),
       };
+      this.toastService.show('Consumption was updated.', 'info');
       this.eventBus.publish(event);
     });
 
@@ -113,6 +115,7 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         deviceId: msg.deviceId,
         deviceType: msg.deviceType,
       };
+      this.toastService.show(`A ${msg.deviceType} device was added.`, 'info');
       this.eventBus.publish(event);
     });
 
@@ -124,6 +127,7 @@ export class BuildingWebSocketService extends BuildingRealtimeGateway {
         oldProduction: new Energy(msg.oldValue, msg.oldUnit),
         newProduction: new Energy(msg.newValue, msg.newUnit),
       };
+      this.toastService.show('Device production was updated.', 'info');
       this.eventBus.publish(event);
     });
   }

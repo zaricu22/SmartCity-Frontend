@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { BuildingDetailComponent } from './building-detail.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
@@ -8,6 +8,7 @@ import { EnergyDeviceDto } from '../../../application/dto/energy-device.dto';
 import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
+import { ToastService } from '../../../../shared/presentation/service/toast.service';
 
 describe('BuildingDetailComponent', () => {
   let fixture: ComponentFixture<BuildingDetailComponent>;
@@ -106,6 +107,48 @@ describe('BuildingDetailComponent', () => {
     });
     expect(component.showChangeConsumptionDialog).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
+  });
+
+  it('should show a success toast when a device is added', () => {
+    facade.addDevice.mockReturnValue(of(void 0));
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+
+    component.onAddDevice({ type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW });
+
+    expect(showSpy).toHaveBeenCalledWith(`${DeviceType.BATTERY} device added.`, 'success');
+  });
+
+  it('should show an error toast when adding a device fails', () => {
+    facade.addDevice.mockReturnValue(throwError(() => new Error('Capacity exceeded')));
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+
+    component.onAddDevice({ type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW });
+
+    expect(showSpy).toHaveBeenCalledWith('Capacity exceeded', 'error');
+    expect(component.errorMessage()).toBe('Capacity exceeded');
+  });
+
+  it('should show a success toast when consumption is changed', () => {
+    facade.changeConsumption.mockReturnValue(of(void 0));
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+
+    component.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
+
+    expect(showSpy).toHaveBeenCalledWith('Consumption updated.', 'success');
+  });
+
+  it('should show an error toast when changing consumption fails', () => {
+    facade.changeConsumption.mockReturnValue(throwError(() => new Error('Server error')));
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+
+    component.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
+
+    expect(showSpy).toHaveBeenCalledWith('Server error', 'error');
+    expect(component.errorMessage()).toBe('Server error');
   });
 
   it('should report unsaved changes when a dialog is open', () => {

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -131,6 +131,9 @@ describe('BuildingDetailComponent (integration)', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.showAddDeviceDialog).toBe(false);
+
+    // ToastService's auto-dismiss timer() leaves a periodic task in the fakeAsync queue — discard it
+    discardPeriodicTasks();
   }));
 
   it('should PATCH to /v1/buildings/:id/consumption on changeConsumption', fakeAsync(() => {
@@ -154,5 +157,8 @@ describe('BuildingDetailComponent (integration)', () => {
     flushGetBuilding();
     tick();
     fixture.detectChanges();
+
+    // ToastService's auto-dismiss timer() leaves a periodic task in the fakeAsync queue — discard it
+    discardPeriodicTasks();
   }));
 });

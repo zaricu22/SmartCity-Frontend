@@ -6,6 +6,7 @@ import { BuildingListComponent } from './building-list.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
+import { ToastService } from '../../../../shared/presentation/service/toast.service';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import type { Page } from '../../../shared/page';
@@ -134,6 +135,26 @@ describe('BuildingListComponent', () => {
 
     expect(component.isSaving()).toBe(false);
     expect(component.showCreateDialog).toBe(true);
+  });
+
+  it('should show a success toast when a building is created', () => {
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+    facade.create.mockReturnValue(of('new-id'));
+
+    component.onCreate({ name: 'School', location: 'Zone C' });
+
+    expect(showSpy).toHaveBeenCalledWith('Building "School" created.', 'success');
+  });
+
+  it('should show an error toast when create fails', () => {
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+    facade.create.mockReturnValue(throwError(() => new Error('Server error')));
+
+    component.onCreate({ name: 'School', location: 'Zone C' });
+
+    expect(showSpy).toHaveBeenCalledWith('Server error', 'error');
   });
 
   it('should navigate to the given page keeping existing query params', () => {
