@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.14.0...v1.14.1) (2026-08-06)
+
+
+### Bug Fixes
+
+* **shared:** restore red delete/remove buttons on confirm dialogs ([3415379](https://github.com/zaricu22/SmartCity-Frontend/commit/3415379d0f60b8e1bfc2f518c801d8c5ee217086))
+
 # [1.14.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.13.0...v1.14.0) (2026-07-31)
 
 
