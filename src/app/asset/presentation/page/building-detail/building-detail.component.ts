@@ -49,9 +49,8 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   private readonly confirmDialogService = inject(ConfirmDialogService);
   private readonly router = inject(Router);
 
-  // TODO: plain booleans with OnPush — Angular does not detect these changes automatically; migrate to signal<boolean>(false)
-  showAddDeviceDialog = false;
-  showChangeConsumptionDialog = false;
+  showAddDeviceDialog = signal(false);
+  showChangeConsumptionDialog = signal(false);
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
@@ -128,7 +127,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       .subscribe({
         // reload is driven by the DEVICE_ADDED event published after save
         next: () => {
-          this.showAddDeviceDialog = false;
+          this.showAddDeviceDialog.set(false);
           this.toastService.show(`Device "${result.name}" (${result.type}) added.`, 'success');
         },
         error: (err: ApplicationException) => this.handleMutationError(err),
@@ -142,7 +141,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
       .subscribe({
         // reload is driven by the CONSUMPTION_CHANGED event published after save
         next: () => {
-          this.showChangeConsumptionDialog = false;
+          this.showChangeConsumptionDialog.set(false);
           this.toastService.show('Consumption updated.', 'success');
         },
         error: (err: ApplicationException) => this.handleMutationError(err),
@@ -193,7 +192,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   }
 
   hasUnsavedChanges(): boolean {
-    return this.showAddDeviceDialog || this.showChangeConsumptionDialog;
+    return this.showAddDeviceDialog() || this.showChangeConsumptionDialog();
   }
 
   // Subscribe to domain events for this specific building.
