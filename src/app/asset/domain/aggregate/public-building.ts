@@ -18,6 +18,9 @@ export class PublicBuilding {
   private readonly _location: string;
   private _consumption: Energy;
   private readonly _devices: EnergyDevice[];
+  // Mirrors the backend's optimistic-lock version. Defaults to 0 for a not-yet-persisted
+  // building (never compared against anything until reconstructed from a fetched response).
+  private _version = 0;
   private readonly _domainEvents: (BuildingCreatedEvent | DeviceAddedEvent | DeviceRemovedEvent | ConsumptionChangedEvent | ProductionChangedEvent)[] = [];
 
   constructor(id: string, name: string, location: string) {
@@ -46,6 +49,7 @@ export class PublicBuilding {
   get name(): string { return this._name; }
   get location(): string { return this._location; }
   get consumption(): Energy { return this._consumption; }
+  get version(): number { return this._version; }
   // Defensive copy — callers cannot mutate the aggregate's internal device list.
   get devices(): readonly EnergyDevice[] { return [...this._devices]; }
 

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { PublicBuildingFacade } from './public-building.facade';
 import { PublicBuildingAppService } from '../service/public-building-app.service';
 import { PublicBuildingQueryService } from '../service/public-building-query.service';
@@ -8,6 +8,10 @@ import { BuildingRealtimeGateway } from '../../domain/gateway/building-realtime.
 import { DeviceType } from '../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../domain/shared/enums/energy-unit.enum';
 import { PublicBuildingDto } from '../dto/public-building.dto';
+import { ApplicationException } from '../exception/application.exception';
+import { AppHttpError } from '../../../shared/infrastructure/error/app-http-error';
+import { DomainException } from '../../domain/exception/domain.exception';
+import { ErrorCode } from '../../domain/shared/enums/error-code.enum';
 
 describe('PublicBuildingFacade', () => {
   let facade: PublicBuildingFacade;
@@ -17,7 +21,7 @@ describe('PublicBuildingFacade', () => {
 
   const stubDto: PublicBuildingDto = {
     id: 'b-1', name: 'Hall', location: 'Zone A',
-    consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [],
+    consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [], version: 3,
   };
 
   beforeEach(() => {
@@ -82,8 +86,8 @@ describe('PublicBuildingFacade', () => {
 
   it('delete() delegates to appService', (done) => {
     appService.delete.mockReturnValue(of(void 0));
-    facade.delete('b-1').subscribe(() => {
-      expect(appService.delete).toHaveBeenCalledWith('b-1');
+    facade.delete('b-1', 3).subscribe(() => {
+      expect(appService.delete).toHaveBeenCalledWith('b-1', 3);
       done();
     });
   });
@@ -99,15 +103,15 @@ describe('PublicBuildingFacade', () => {
 
   it('removeDevice() delegates to appService', (done) => {
     appService.removeDevice.mockReturnValue(of(void 0));
-    facade.removeDevice('b-1', 'd-1').subscribe(() => {
-      expect(appService.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
+    facade.removeDevice('b-1', 'd-1', 3).subscribe(() => {
+      expect(appService.removeDevice).toHaveBeenCalledWith('b-1', 'd-1', 3);
       done();
     });
   });
 
   it('changeConsumption() delegates to appService', (done) => {
     appService.changeConsumption.mockReturnValue(of(void 0));
-    const cmd = { consumptionValue: 50, consumptionUnit: EnergyUnit.kW };
+    const cmd = { consumptionValue: 50, consumptionUnit: EnergyUnit.kW, version: 3 };
     facade.changeConsumption('b-1', cmd).subscribe(() => {
       expect(appService.changeConsumption).toHaveBeenCalledWith('b-1', cmd);
       done();
@@ -116,7 +120,7 @@ describe('PublicBuildingFacade', () => {
 
   it('changeProduction() delegates to appService', (done) => {
     appService.changeProduction.mockReturnValue(of(void 0));
-    const cmd = { productionValue: 30, productionUnit: EnergyUnit.kW };
+    const cmd = { productionValue: 30, productionUnit: EnergyUnit.kW, version: 3 };
     facade.changeProduction('b-1', 'd-1', cmd).subscribe(() => {
       expect(appService.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', cmd);
       done();
@@ -131,5 +135,61 @@ describe('PublicBuildingFacade', () => {
   it('disconnectRealtime() delegates to realtimeGateway', () => {
     facade.disconnectRealtime();
     expect(realtimeGateway.disconnect).toHaveBeenCalled();
+  });
+
+  describe('error handling', () => {
+    it('preserves the domain errorCode when appService throws a DomainException', (done) => {
+      appService.delete.mockReturnValue(throwError(() => new DomainException('Capacity exceeded', ErrorCode.TOTAL_CAPACITY_EXCEEDED)));
+
+      facade.delete('b-1', 3).subscribe({
+        error: (err: ApplicationException) => {
+          expect(err.message).toBe('Capacity exceeded');
+          expect(err.errorCode).toBe(ErrorCode.TOTAL_CAPACITY_EXCEEDED);
+          done();
+        },
+      });
+    });
+
+    it('preserves the HTTP errorCode (e.g. CONCURRENT_MODIFICATION) when appService throws an AppHttpError', (done) => {
+      appService.delete.mockReturnValue(
+        throwError(() => new AppHttpError(409, 'CONCURRENT_MODIFICATION', 'The resource was modified by another request. Please retry.')),
+      );
+
+      facade.delete('b-1', 3).subscribe({
+        error: (err: ApplicationException) => {
+          expect(err.message).toBe('The resource was modified by another request. Please retry.');
+          expect(err.errorCode).toBe('CONCURRENT_MODIFICATION');
+          done();
+        },
+      });
+    });
+
+    it('falls back to the operation-specific message when AppHttpError has no userMessage', (done) => {
+      // ?? only falls back on null/undefined, not falsy values like '' — AppHttpError.userMessage
+      // is typed as a required string, so this state needs an unsafe cast to construct at all.
+      appService.delete.mockReturnValue(
+        throwError(() => new AppHttpError(500, 'SERVER_ERROR', undefined as unknown as string)),
+      );
+
+      facade.delete('b-1', 3).subscribe({
+        error: (err: ApplicationException) => {
+          expect(err.message).toBe('Failed to delete building.');
+          expect(err.errorCode).toBe('SERVER_ERROR');
+          done();
+        },
+      });
+    });
+
+    it('falls back to the operation-specific message for an unrecognized error', (done) => {
+      appService.delete.mockReturnValue(throwError(() => new Error('boom')));
+
+      facade.delete('b-1', 3).subscribe({
+        error: (err: ApplicationException) => {
+          expect(err.message).toBe('Failed to delete building.');
+          expect(err.errorCode).toBeUndefined();
+          done();
+        },
+      });
+    });
   });
 });

@@ -27,26 +27,28 @@ export class PublicBuildingAppService {
     );
   }
 
-  delete(id: string): Observable<void> {
+  delete(id: string, version: number): Observable<void> {
     // Loads the aggregate only to capture its name for BuildingDeletedEvent — mirrors the
     // backend, which does the same findById-before-delete purely to enrich the event, not
     // to mutate anything (delete itself is still a fire-and-forget repository call).
+    // `version` is the caller's last-read version, not the one just fetched here — it must
+    // flow in from outside so the backend can detect edits made after the caller last read it.
     return this.repository.findById(id).pipe(
       switchMap(building => {
         const event: BuildingDeletedEvent = { type: 'BUILDING_DELETED', buildingId: id, name: building.name };
-        return this.repository.delete(id).pipe(
+        return this.repository.delete(id, version).pipe(
           tap(() => this.eventBus.publish(event)),
         );
       }),
     );
   }
 
-  removeDevice(buildingId: string, deviceId: string): Observable<void> {
+  removeDevice(buildingId: string, deviceId: string, version: number): Observable<void> {
     // Same pattern as addDevice: load for domain validation, persist via granular endpoint, emit events after.
     return this.repository.findById(buildingId).pipe(
       tap(building => building.removeDevice(deviceId)),
       switchMap(building =>
-        this.repository.removeDevice(buildingId, deviceId).pipe(
+        this.repository.removeDevice(buildingId, deviceId, version).pipe(
           tap(() => building.pullEvents().forEach(e => this.eventBus.publish(e))),
         ),
       ),
@@ -66,7 +68,7 @@ export class PublicBuildingAppService {
     return this.repository.findById(cmd.buildingId).pipe(
       tap(building => building.addDevice(device)),
       switchMap(building =>
-        this.repository.addDevice(cmd.buildingId, device).pipe(
+        this.repository.addDevice(cmd.buildingId, device, cmd.version).pipe(
           tap(() => building.pullEvents().forEach(e => this.eventBus.publish(e))),
         ),
       ),
@@ -79,7 +81,7 @@ export class PublicBuildingAppService {
     return this.repository.findById(buildingId).pipe(
       tap(building => building.changeConsumption(consumption)),
       switchMap(building =>
-        this.repository.changeConsumption(buildingId, consumption).pipe(
+        this.repository.changeConsumption(buildingId, consumption, cmd.version).pipe(
           tap(() => building.pullEvents().forEach(e => this.eventBus.publish(e))),
         ),
       ),
@@ -92,7 +94,7 @@ export class PublicBuildingAppService {
     return this.repository.findById(buildingId).pipe(
       tap(building => building.changeDeviceProduction(deviceId, production)),
       switchMap(building =>
-        this.repository.changeProduction(buildingId, deviceId, production).pipe(
+        this.repository.changeProduction(buildingId, deviceId, production, cmd.version).pipe(
           tap(() => building.pullEvents().forEach(e => this.eventBus.publish(e))),
         ),
       ),

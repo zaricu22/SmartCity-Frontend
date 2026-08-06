@@ -18,8 +18,8 @@ describe('BuildingListComponent', () => {
   let router: Router;
 
   const stubBuildings: PublicBuildingDto[] = [
-    { id: 'b-1', name: 'City Hall', location: 'Zone A', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [] },
-    { id: 'b-2', name: 'Library',   location: 'Zone B', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [] },
+    { id: 'b-1', name: 'City Hall', location: 'Zone A', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [], version: 3 },
+    { id: 'b-2', name: 'Library',   location: 'Zone B', consumptionValue: 0, consumptionUnit: EnergyUnit.kW, devices: [], version: 3 },
   ];
 
   const stubPage: Page<PublicBuildingDto> = {

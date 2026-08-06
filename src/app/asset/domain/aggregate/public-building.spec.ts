@@ -22,6 +22,7 @@ describe('PublicBuilding', () => {
       expect(b.location).toBe('Zone A - Main St');
       expect(b.devices.length).toBe(0);
       expect(b.consumption.value).toBe(0);
+      expect(b.version).toBe(0);
     });
 
     it('should throw ValidationException when name is empty', () => {
