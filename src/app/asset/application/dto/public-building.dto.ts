@@ -10,4 +10,5 @@ export interface PublicBuildingDto {
   readonly consumptionValue: number;
   readonly consumptionUnit: EnergyUnit;
   readonly devices: EnergyDeviceDto[];
+  readonly version: number;
 }

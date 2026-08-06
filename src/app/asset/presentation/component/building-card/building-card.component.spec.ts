@@ -14,6 +14,7 @@ describe('BuildingCardComponent', () => {
     consumptionValue: 50,
     consumptionUnit: EnergyUnit.kW,
     devices: [],
+    version: 3,
   };
 
   beforeEach(async () => {

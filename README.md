@@ -232,7 +232,13 @@ requests respond normally once it's awake.
 | `POST` | `/v1/buildings` | Create building |
 | `DELETE` | `/v1/buildings/:id` | Delete building |
 | `POST` | `/v1/buildings/:id/devices` | Add energy device |
-| `PUT` | `/v1/buildings/:id/consumption` | Update consumption |
+| `DELETE` | `/v1/buildings/:id/devices/:deviceId` | Remove energy device |
+| `PATCH` | `/v1/buildings/:id/consumption` | Update consumption |
+| `PATCH` | `/v1/buildings/:id/devices/:deviceId/production` | Update device production rate |
+
+Every mutating endpoint above except `POST /v1/buildings` requires `version` in the request
+body — the value last read from a `GET` for that building. A mismatch means someone else
+changed it first and returns `409 CONCURRENT_MODIFICATION` (optimistic locking, ADR-0029).
 
 ---
 

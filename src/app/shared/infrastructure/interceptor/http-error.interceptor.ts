@@ -34,13 +34,14 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) =>
         return throwError(() => new AppHttpError(0, 'TIMEOUT', 'The request timed out. Please try again.'));
       }
       const httpErr = err as HttpErrorResponse;
-      const body = httpErr.error as { code?: string; message?: string } | null;
+      // Backend's ErrorResponse names the field `errorCode` (see ErrorResponse.java) — not `code`.
+      const body = httpErr.error as { errorCode?: string; message?: string } | null;
       const fallback = STATUS_MAP[httpErr.status] ?? (
         httpErr.status >= 500
           ? { code: 'SERVER_ERROR',  userMessage: 'A server error occurred. Please try again later.' }
           : { code: 'UNKNOWN_ERROR', userMessage: 'An unexpected error occurred.' }
       );
-      const code = body?.code ?? fallback.code;
+      const code = body?.errorCode ?? fallback.code;
       const userMessage = body?.message ?? fallback.userMessage;
       return throwError(() => new AppHttpError(httpErr.status, code, userMessage));
     }),

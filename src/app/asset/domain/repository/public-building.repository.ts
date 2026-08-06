@@ -10,9 +10,9 @@ export abstract class PublicBuildingRepository {
   abstract findById(id: string): Observable<PublicBuilding>;
   abstract findAll(req: PageRequest): Observable<Page<PublicBuilding>>;
   abstract save(building: PublicBuilding): Observable<void>;
-  abstract delete(id: string): Observable<void>;
-  abstract addDevice(buildingId: string, device: EnergyDevice): Observable<void>;
-  abstract removeDevice(buildingId: string, deviceId: string): Observable<void>;
-  abstract changeConsumption(buildingId: string, consumption: Energy): Observable<void>;
-  abstract changeProduction(buildingId: string, deviceId: string, production: Energy): Observable<void>;
+  abstract delete(id: string, version: number): Observable<void>;
+  abstract addDevice(buildingId: string, device: EnergyDevice, version: number): Observable<void>;
+  abstract removeDevice(buildingId: string, deviceId: string, version: number): Observable<void>;
+  abstract changeConsumption(buildingId: string, consumption: Energy, version: number): Observable<void>;
+  abstract changeProduction(buildingId: string, deviceId: string, production: Energy, version: number): Observable<void>;
 }

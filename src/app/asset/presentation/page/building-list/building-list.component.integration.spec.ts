@@ -36,6 +36,7 @@ describe('BuildingListComponent (integration)', () => {
       location: 'Zone A - Main St',
       consumptionValue: 50,
       consumptionUnit: EnergyUnit.kW,
+      version: 3,
       devices: [
         { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
       ],
@@ -46,6 +47,7 @@ describe('BuildingListComponent (integration)', () => {
       location: 'Zone B - Oak Ave',
       consumptionValue: 0,
       consumptionUnit: EnergyUnit.kW,
+      version: 3,
       devices: [],
     },
   ];

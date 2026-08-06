@@ -8,4 +8,5 @@ export interface PublicBuildingResponse {
   consumptionValue: number;
   consumptionUnit: EnergyUnit;
   devices: EnergyDeviceResponse[];
+  version: number;
 }

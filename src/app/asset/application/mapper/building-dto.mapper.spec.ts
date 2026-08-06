@@ -17,6 +17,7 @@ describe('BuildingDtoMapper', () => {
       expect(dto.consumptionValue).toBe(0);
       expect(dto.consumptionUnit).toBe(EnergyUnit.kW);
       expect(dto.devices).toEqual([]);
+      expect(dto.version).toBe(0);
     });
 
     it('should map devices correctly', () => {

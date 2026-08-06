@@ -11,6 +11,7 @@ describe('BuildingResponseMapper', () => {
     location: 'Zone A',
     consumptionValue: 50,
     consumptionUnit: EnergyUnit.kW,
+    version: 3,
     devices: [
       { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
       { id: 'd-2', name: 'Water Pump', type: DeviceType.PUMP, ratedCapacityValue: 200, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
@@ -45,6 +46,11 @@ describe('BuildingResponseMapper', () => {
       const response: PublicBuildingResponse = { ...buildingResponse, consumptionValue: 0, devices: [] };
       const building = BuildingResponseMapper.toDomain(response);
       expect(building.consumption.value).toBe(0);
+    });
+
+    it('should map version', () => {
+      const building = BuildingResponseMapper.toDomain(buildingResponse);
+      expect(building.version).toBe(3);
     });
 
     it('should produce no pending domain events after reconstruction', () => {

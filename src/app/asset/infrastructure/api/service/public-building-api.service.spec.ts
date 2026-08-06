@@ -24,6 +24,7 @@ describe('PublicBuildingApiService', () => {
     location: 'Zone A',
     consumptionValue: 0,
     consumptionUnit: EnergyUnit.kW,
+    version: 3,
     devices: [
       { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
     ],
@@ -104,11 +105,12 @@ describe('PublicBuildingApiService', () => {
   });
 
   describe('delete()', () => {
-    it('should DELETE /v1/buildings/:id', (done) => {
-      service.delete('b-1').subscribe(() => done());
+    it('should DELETE /v1/buildings/:id with the version in the body', (done) => {
+      service.delete('b-1', 3).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1`);
       expect(req.request.method).toBe('DELETE');
+      expect(req.request.body).toEqual({ version: 3 });
       req.flush(null);
     });
   });
@@ -117,7 +119,7 @@ describe('PublicBuildingApiService', () => {
     it('should POST /v1/buildings/:id/devices', (done) => {
       const device = new EnergyDevice('d-1', 'Roof Panel', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW));
 
-      service.addDevice('b-1', device).subscribe(() => done());
+      service.addDevice('b-1', device, 3).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1/devices`);
       expect(req.request.method).toBe('POST');
@@ -126,17 +128,19 @@ describe('PublicBuildingApiService', () => {
         type: DeviceType.SOLAR,
         ratedCapacityValue: 100,
         ratedCapacityUnit: EnergyUnit.kW,
+        version: 3,
       });
       req.flush(null);
     });
   });
 
   describe('removeDevice()', () => {
-    it('should DELETE /v1/buildings/:buildingId/devices/:deviceId', (done) => {
-      service.removeDevice('b-1', 'd-1').subscribe(() => done());
+    it('should DELETE /v1/buildings/:buildingId/devices/:deviceId with the version in the body', (done) => {
+      service.removeDevice('b-1', 'd-1', 3).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1/devices/d-1`);
       expect(req.request.method).toBe('DELETE');
+      expect(req.request.body).toEqual({ version: 3 });
       req.flush(null);
     });
   });
@@ -145,11 +149,11 @@ describe('PublicBuildingApiService', () => {
     it('should PATCH /v1/buildings/:id/consumption', (done) => {
       const consumption = new Energy(80, EnergyUnit.kW);
 
-      service.changeConsumption('b-1', consumption).subscribe(() => done());
+      service.changeConsumption('b-1', consumption, 3).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1/consumption`);
       expect(req.request.method).toBe('PATCH');
-      expect(req.request.body).toEqual({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
+      expect(req.request.body).toEqual({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW, version: 3 });
       req.flush(null);
     });
   });
@@ -158,11 +162,11 @@ describe('PublicBuildingApiService', () => {
     it('should PATCH /v1/buildings/:buildingId/devices/:deviceId/production', (done) => {
       const production = new Energy(60, EnergyUnit.kW);
 
-      service.changeProduction('b-1', 'd-1', production).subscribe(() => done());
+      service.changeProduction('b-1', 'd-1', production, 3).subscribe(() => done());
 
       const req = http.expectOne(`${BASE}/b-1/devices/d-1/production`);
       expect(req.request.method).toBe('PATCH');
-      expect(req.request.body).toEqual({ productionValue: 60, productionUnit: EnergyUnit.kW });
+      expect(req.request.body).toEqual({ productionValue: 60, productionUnit: EnergyUnit.kW, version: 3 });
       req.flush(null);
     });
   });

@@ -71,9 +71,9 @@ describe('PublicBuildingAppService', () => {
       repository.findById.mockReturnValue(of(makeBuilding()));
       repository.delete.mockReturnValue(of(void 0));
 
-      service.delete('b-1').subscribe(() => {
+      service.delete('b-1', 3).subscribe(() => {
         expect(repository.findById).toHaveBeenCalledWith('b-1');
-        expect(repository.delete).toHaveBeenCalledWith('b-1');
+        expect(repository.delete).toHaveBeenCalledWith('b-1', 3);
         done();
       });
     });
@@ -89,7 +89,7 @@ describe('PublicBuildingAppService', () => {
         done();
       });
 
-      service.delete('b-1').subscribe();
+      service.delete('b-1', 3).subscribe();
     });
   });
 
@@ -106,10 +106,11 @@ describe('PublicBuildingAppService', () => {
         type: DeviceType.SOLAR,
         ratedCapacityValue: 100,
         ratedCapacityUnit: EnergyUnit.kW,
+        version: 3,
       }).subscribe(() => {
         expect(repository.findById).toHaveBeenCalledWith('b-1');
         expect(building.devices.length).toBe(1);
-        expect(repository.addDevice).toHaveBeenCalledWith('b-1', expect.any(EnergyDevice));
+        expect(repository.addDevice).toHaveBeenCalledWith('b-1', expect.any(EnergyDevice), 3);
         done();
       });
     });
@@ -124,10 +125,10 @@ describe('PublicBuildingAppService', () => {
       repository.findById.mockReturnValue(of(building));
       repository.removeDevice.mockReturnValue(of(void 0));
 
-      service.removeDevice('b-1', 'd-1').subscribe(() => {
+      service.removeDevice('b-1', 'd-1', 3).subscribe(() => {
         expect(repository.findById).toHaveBeenCalledWith('b-1');
         expect(building.devices.length).toBe(0);
-        expect(repository.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
+        expect(repository.removeDevice).toHaveBeenCalledWith('b-1', 'd-1', 3);
         done();
       });
     });
@@ -149,7 +150,7 @@ describe('PublicBuildingAppService', () => {
         done();
       });
 
-      service.removeDevice('b-1', 'd-1').subscribe();
+      service.removeDevice('b-1', 'd-1', 3).subscribe();
     });
   });
 
@@ -162,9 +163,9 @@ describe('PublicBuildingAppService', () => {
       repository.findById.mockReturnValue(of(building));
       repository.changeConsumption.mockReturnValue(of(void 0));
 
-      service.changeConsumption('b-1', { consumptionValue: 80, consumptionUnit: EnergyUnit.kW }).subscribe(() => {
+      service.changeConsumption('b-1', { consumptionValue: 80, consumptionUnit: EnergyUnit.kW, version: 3 }).subscribe(() => {
         expect(building.consumption.value).toBe(80);
-        expect(repository.changeConsumption).toHaveBeenCalledWith('b-1', expect.any(Energy));
+        expect(repository.changeConsumption).toHaveBeenCalledWith('b-1', expect.any(Energy), 3);
         done();
       });
     });
@@ -179,9 +180,9 @@ describe('PublicBuildingAppService', () => {
       repository.findById.mockReturnValue(of(building));
       repository.changeProduction.mockReturnValue(of(void 0));
 
-      service.changeProduction('b-1', 'd-1', { productionValue: 60, productionUnit: EnergyUnit.kW }).subscribe(() => {
+      service.changeProduction('b-1', 'd-1', { productionValue: 60, productionUnit: EnergyUnit.kW, version: 3 }).subscribe(() => {
         expect(building.devices[0].productionRate.value).toBe(60);
-        expect(repository.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', expect.any(Energy));
+        expect(repository.changeProduction).toHaveBeenCalledWith('b-1', 'd-1', expect.any(Energy), 3);
         done();
       });
     });

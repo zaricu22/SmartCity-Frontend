@@ -12,6 +12,7 @@ export class BuildingDtoMapper {
       location: building.location,
       consumptionValue: building.consumption.value,
       consumptionUnit: building.consumption.unit,
+      version: building.version,
       devices: building.devices.map(
         (d): EnergyDeviceDto => ({
           id: d.id,

@@ -5,7 +5,7 @@ import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { AddDeviceCommand } from '../../../application/command/add-device.command';
 
-export type AddDeviceDialogResult = Omit<AddDeviceCommand, 'buildingId'>;
+export type AddDeviceDialogResult = Omit<AddDeviceCommand, 'buildingId' | 'version'>;
 
 @Component({
   selector: 'app-add-device-dialog',

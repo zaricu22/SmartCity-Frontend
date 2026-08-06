@@ -3,6 +3,7 @@ import { EMPTY, of, throwError } from 'rxjs';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { BuildingDetailComponent } from './building-detail.component';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
+import { ApplicationException } from '../../../application/exception/application.exception';
 import { PublicBuildingDto } from '../../../application/dto/public-building.dto';
 import { EnergyDeviceDto } from '../../../application/dto/energy-device.dto';
 import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
@@ -22,7 +23,7 @@ describe('BuildingDetailComponent', () => {
   };
   const stubBuilding: PublicBuildingDto = {
     id: 'b-1', name: 'City Hall', location: 'Zone A',
-    consumptionValue: 50, consumptionUnit: EnergyUnit.kW, devices: [stubDevice],
+    consumptionValue: 50, consumptionUnit: EnergyUnit.kW, devices: [stubDevice], version: 3,
   };
 
   beforeEach(async () => {
@@ -126,7 +127,7 @@ describe('BuildingDetailComponent', () => {
     component.onAddDevice(result);
     eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-test', deviceName: 'Backup Battery', deviceType: DeviceType.BATTERY } as any);
 
-    expect(facade.addDevice).toHaveBeenCalledWith({ ...result, buildingId: 'b-1' });
+    expect(facade.addDevice).toHaveBeenCalledWith({ ...result, buildingId: 'b-1', version: 3 });
     expect(component.showAddDeviceDialog).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
   });
@@ -143,6 +144,7 @@ describe('BuildingDetailComponent', () => {
     expect(facade.changeConsumption).toHaveBeenCalledWith('b-1', {
       consumptionValue: 80,
       consumptionUnit: EnergyUnit.kW,
+      version: 3,
     });
     expect(component.showChangeConsumptionDialog).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
@@ -190,6 +192,25 @@ describe('BuildingDetailComponent', () => {
     expect(component.errorMessage()).toBe('Server error');
   });
 
+  it('should reload the building when a mutation fails with CONCURRENT_MODIFICATION', () => {
+    facade.changeConsumption.mockReturnValue(
+      throwError(() => new ApplicationException('The resource was modified by another request. Please retry.', 'CONCURRENT_MODIFICATION')),
+    );
+
+    component.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
+
+    // initial load on init + the reload triggered by the conflict
+    expect(facade.getById).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not reload the building when a mutation fails with a non-conflict error', () => {
+    facade.changeConsumption.mockReturnValue(throwError(() => new ApplicationException('Server error')));
+
+    component.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
+
+    expect(facade.getById).toHaveBeenCalledTimes(1);
+  });
+
   it('should report unsaved changes when a dialog is open', () => {
     expect(component.hasUnsavedChanges()).toBe(false);
     component.showAddDeviceDialog = true;
@@ -208,7 +229,7 @@ describe('BuildingDetailComponent', () => {
 
       component.onDeleteBuilding();
 
-      expect(facade.delete).toHaveBeenCalledWith('b-1');
+      expect(facade.delete).toHaveBeenCalledWith('b-1', 3);
       expect(showSpy).toHaveBeenCalledWith('Building "City Hall" deleted.', 'success');
       expect(navigateSpy).toHaveBeenCalledWith(['/assets']);
     });
@@ -261,7 +282,7 @@ describe('BuildingDetailComponent', () => {
 
       component.onRemoveDevice('d-1');
 
-      expect(facade.removeDevice).toHaveBeenCalledWith('b-1', 'd-1');
+      expect(facade.removeDevice).toHaveBeenCalledWith('b-1', 'd-1', 3);
       expect(showSpy).toHaveBeenCalledWith('Device "Roof Panel" removed.', 'success');
     });
 
