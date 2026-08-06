@@ -152,7 +152,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
 
   onDeleteBuilding(): void {
     const name = this.building()?.name ?? 'this building';
-    this.confirmDialogService.confirm(`Delete "${name}"? This cannot be undone.`)
+    this.confirmDialogService.confirm(`Delete "${name}"? This cannot be undone.`, { confirmLabel: 'Delete', danger: true })
       .pipe(
         filter(confirmed => confirmed),
         switchMap(() => this.facade.delete(this.buildingId)),
@@ -169,7 +169,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
 
   onRemoveDevice(deviceId: string): void {
     const deviceName = this.building()?.devices.find(d => d.id === deviceId)?.name ?? 'Device';
-    this.confirmDialogService.confirm('Remove this device? This cannot be undone.')
+    this.confirmDialogService.confirm('Remove this device? This cannot be undone.', { confirmLabel: 'Remove', danger: true })
       .pipe(
         filter(confirmed => confirmed),
         switchMap(() => this.facade.removeDevice(this.buildingId, deviceId)),
