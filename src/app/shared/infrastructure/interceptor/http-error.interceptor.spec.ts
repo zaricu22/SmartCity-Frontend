@@ -60,12 +60,12 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).status).toBe(418);
   });
 
-  it('should use body.code when the error body contains a code field', () => {
+  it('should use body.errorCode when the error body contains an errorCode field', () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller
       .expectOne('/api/test')
-      .flush({ code: 'CUSTOM_CODE', message: null }, { status: 400, statusText: 'Bad Request' });
+      .flush({ errorCode: 'CUSTOM_CODE', message: null }, { status: 400, statusText: 'Bad Request' });
     expect((error as AppHttpError).code).toBe('CUSTOM_CODE');
   });
 
@@ -74,8 +74,21 @@ describe('httpErrorInterceptor', () => {
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller
       .expectOne('/api/test')
-      .flush({ code: null, message: 'Custom error message' }, { status: 400, statusText: 'Bad Request' });
+      .flush({ errorCode: null, message: 'Custom error message' }, { status: 400, statusText: 'Bad Request' });
     expect((error as AppHttpError).userMessage).toBe('Custom error message');
+  });
+
+  it('should map a CONCURRENT_MODIFICATION 409 to AppHttpError with that specific code', () => {
+    let error: unknown;
+    http.get('/api/test').subscribe({ error: e => (error = e) });
+    controller
+      .expectOne('/api/test')
+      .flush(
+        { errorCode: 'CONCURRENT_MODIFICATION', message: 'The resource was modified by another request. Please retry.' },
+        { status: 409, statusText: 'Conflict' },
+      );
+    expect((error as AppHttpError).code).toBe('CONCURRENT_MODIFICATION');
+    expect((error as AppHttpError).userMessage).toBe('The resource was modified by another request. Please retry.');
   });
 
   it('should emit AppHttpError with code TIMEOUT when the request exceeds 30 seconds', fakeAsync(() => {

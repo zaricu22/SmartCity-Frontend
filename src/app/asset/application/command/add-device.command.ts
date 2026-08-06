@@ -7,4 +7,5 @@ export interface AddDeviceCommand {
   readonly type: DeviceType;
   readonly ratedCapacityValue: number;
   readonly ratedCapacityUnit: EnergyUnit;
+  readonly version: number;
 }

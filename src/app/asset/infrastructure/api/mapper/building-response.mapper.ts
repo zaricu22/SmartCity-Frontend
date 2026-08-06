@@ -33,6 +33,11 @@ export class BuildingResponseMapper {
       (building as any)['_consumption'] = new Energy(response.consumptionValue, response.consumptionUnit);
     }
 
+    // Same raw-cast reconstruction technique as consumption above — the version isn't part
+    // of the constructor's public contract since it's only meaningful for entities that have
+    // round-tripped through the backend.
+    (building as any)['_version'] = response.version;
+
     return building;
   }
 

@@ -30,7 +30,9 @@ export class PublicBuildingFacade {
         return throwError(() => new ApplicationException(err.message, err.errorCode));
       }
       if (err instanceof AppHttpError) {
-        return throwError(() => new ApplicationException(err.userMessage ?? fallback));
+        // Preserve the HTTP error code too — e.g. CONCURRENT_MODIFICATION lets the UI
+        // react to an optimistic-lock conflict instead of just showing a generic message.
+        return throwError(() => new ApplicationException(err.userMessage ?? fallback, err.code));
       }
       return throwError(() => new ApplicationException(fallback));
     };
@@ -50,16 +52,16 @@ export class PublicBuildingFacade {
     return this.appService.create(cmd).pipe(catchError(this.handleError('Failed to create building.')));
   }
 
-  delete(id: string): Observable<void> {
-    return this.appService.delete(id).pipe(catchError(this.handleError('Failed to delete building.')));
+  delete(id: string, version: number): Observable<void> {
+    return this.appService.delete(id, version).pipe(catchError(this.handleError('Failed to delete building.')));
   }
 
   addDevice(cmd: AddDeviceCommand): Observable<void> {
     return this.appService.addDevice(cmd).pipe(catchError(this.handleError('Failed to add device.')));
   }
 
-  removeDevice(buildingId: string, deviceId: string): Observable<void> {
-    return this.appService.removeDevice(buildingId, deviceId).pipe(catchError(this.handleError('Failed to remove device.')));
+  removeDevice(buildingId: string, deviceId: string, version: number): Observable<void> {
+    return this.appService.removeDevice(buildingId, deviceId, version).pipe(catchError(this.handleError('Failed to remove device.')));
   }
 
   changeConsumption(buildingId: string, cmd: ChangeConsumptionCommand): Observable<void> {

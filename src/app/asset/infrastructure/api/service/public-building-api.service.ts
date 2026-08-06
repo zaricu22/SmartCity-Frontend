@@ -14,6 +14,8 @@ import { CreateBuildingRequest } from '../request/create-building.request';
 import { AddDeviceRequest } from '../request/add-device.request';
 import { ChangeConsumptionRequest } from '../request/change-consumption.request';
 import { ChangeProductionRequest } from '../request/change-production.request';
+import { DeleteBuildingRequest } from '../request/delete-building.request';
+import { RemoveDeviceRequest } from '../request/remove-device.request';
 import { API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
 
 // Infrastructure implementation of the domain repository — depends on HttpClient
@@ -55,36 +57,41 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
     return this.http.post<void>(this.base, request);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}`);
+  delete(id: string, version: number): Observable<void> {
+    const request: DeleteBuildingRequest = { version };
+    return this.http.delete<void>(`${this.base}/${id}`, { body: request });
   }
 
-  addDevice(buildingId: string, device: EnergyDevice): Observable<void> {
+  addDevice(buildingId: string, device: EnergyDevice, version: number): Observable<void> {
     const request: AddDeviceRequest = {
       name: device.name,
       type: device.type,
       ratedCapacityValue: device.deviceRatedCapacity.value,
       ratedCapacityUnit: device.deviceRatedCapacity.unit,
+      version,
     };
     return this.http.post<void>(`${this.base}/${buildingId}/devices`, request);
   }
 
-  removeDevice(buildingId: string, deviceId: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${buildingId}/devices/${deviceId}`);
+  removeDevice(buildingId: string, deviceId: string, version: number): Observable<void> {
+    const request: RemoveDeviceRequest = { version };
+    return this.http.delete<void>(`${this.base}/${buildingId}/devices/${deviceId}`, { body: request });
   }
 
-  changeConsumption(buildingId: string, consumption: Energy): Observable<void> {
+  changeConsumption(buildingId: string, consumption: Energy, version: number): Observable<void> {
     const request: ChangeConsumptionRequest = {
       consumptionValue: consumption.value,
       consumptionUnit: consumption.unit,
+      version,
     };
     return this.http.patch<void>(`${this.base}/${buildingId}/consumption`, request);
   }
 
-  changeProduction(buildingId: string, deviceId: string, production: Energy): Observable<void> {
+  changeProduction(buildingId: string, deviceId: string, production: Energy, version: number): Observable<void> {
     const request: ChangeProductionRequest = {
       productionValue: production.value,
       productionUnit: production.unit,
+      version,
     };
     return this.http.patch<void>(`${this.base}/${buildingId}/devices/${deviceId}/production`, request);
   }

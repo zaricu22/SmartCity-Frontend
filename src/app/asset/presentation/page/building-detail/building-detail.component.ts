@@ -11,6 +11,7 @@ import { EnergyDisplayComponent } from '../../component/energy-display/energy-di
 import { AddDeviceDialogComponent } from '../../dialog/add-device-dialog/add-device-dialog.component';
 import { ChangeConsumptionDialogComponent } from '../../dialog/change-consumption-dialog/change-consumption-dialog.component';
 import { AddDeviceCommand } from '../../../application/command/add-device.command';
+import { ChangeConsumptionCommand } from '../../../application/command/change-consumption.command';
 import { EventBusService } from '../../../../shared/infrastructure/messaging/event-bus.service';
 import { ToastService } from '../../../../shared/presentation/service/toast.service';
 import { ConfirmDialogService } from '../../../../shared/presentation/service/confirm-dialog.service';
@@ -118,7 +119,10 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   }
 
   onAddDevice(result: AddDeviceDialogResult): void {
-    const cmd: AddDeviceCommand = { ...result, buildingId: this.buildingId };
+    // version is the one the client last read (from the loaded building signal), not
+    // re-fetched here — the backend compares it against the current DB state to detect
+    // edits made by someone else since this page was loaded.
+    const cmd: AddDeviceCommand = { ...result, buildingId: this.buildingId, version: this.building()!.version };
     this.facade.addDevice(cmd)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -127,15 +131,13 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
           this.showAddDeviceDialog = false;
           this.toastService.show(`Device "${result.name}" (${result.type}) added.`, 'success');
         },
-        error: (err: ApplicationException) => {
-          this.errorMessage.set(err.message);
-          this.toastService.show(err.message, 'error');
-        },
+        error: (err: ApplicationException) => this.handleMutationError(err),
       });
   }
 
   onChangeConsumption(result: ChangeConsumptionDialogResult): void {
-    this.facade.changeConsumption(this.buildingId, result)
+    const cmd: ChangeConsumptionCommand = { ...result, version: this.building()!.version };
+    this.facade.changeConsumption(this.buildingId, cmd)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         // reload is driven by the CONSUMPTION_CHANGED event published after save
@@ -143,10 +145,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
           this.showChangeConsumptionDialog = false;
           this.toastService.show('Consumption updated.', 'success');
         },
-        error: (err: ApplicationException) => {
-          this.errorMessage.set(err.message);
-          this.toastService.show(err.message, 'error');
-        },
+        error: (err: ApplicationException) => this.handleMutationError(err),
       });
   }
 
@@ -155,7 +154,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
     this.confirmDialogService.confirm(`Delete "${name}"? This cannot be undone.`, { confirmLabel: 'Delete', danger: true })
       .pipe(
         filter(confirmed => confirmed),
-        switchMap(() => this.facade.delete(this.buildingId)),
+        switchMap(() => this.facade.delete(this.buildingId, this.building()!.version)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -163,7 +162,7 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
           this.toastService.show(`Building "${name}" deleted.`, 'success');
           this.router.navigate(['/assets']);
         },
-        error: (err: ApplicationException) => this.toastService.show(err.message, 'error'),
+        error: (err: ApplicationException) => this.handleMutationError(err),
       });
   }
 
@@ -172,17 +171,25 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
     this.confirmDialogService.confirm('Remove this device? This cannot be undone.', { confirmLabel: 'Remove', danger: true })
       .pipe(
         filter(confirmed => confirmed),
-        switchMap(() => this.facade.removeDevice(this.buildingId, deviceId)),
+        switchMap(() => this.facade.removeDevice(this.buildingId, deviceId, this.building()!.version)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         // reload is driven by the DEVICE_REMOVED event published after save
         next: () => this.toastService.show(`Device "${deviceName}" removed.`, 'success'),
-        error: (err: ApplicationException) => {
-          this.errorMessage.set(err.message);
-          this.toastService.show(err.message, 'error');
-        },
+        error: (err: ApplicationException) => this.handleMutationError(err),
       });
+  }
+
+  // Shared by every mutation handler: shows the error, and — specifically for an
+  // optimistic-lock conflict — reloads the building so the next attempt carries the
+  // current version instead of retrying with the same stale one.
+  private handleMutationError(err: ApplicationException): void {
+    this.errorMessage.set(err.message);
+    this.toastService.show(err.message, 'error');
+    if (err.errorCode === 'CONCURRENT_MODIFICATION') {
+      this.load();
+    }
   }
 
   hasUnsavedChanges(): boolean {

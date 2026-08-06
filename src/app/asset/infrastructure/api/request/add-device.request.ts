@@ -6,4 +6,5 @@ export interface AddDeviceRequest {
   type: DeviceType;
   ratedCapacityValue: number;
   ratedCapacityUnit: EnergyUnit;
+  version: number;
 }
