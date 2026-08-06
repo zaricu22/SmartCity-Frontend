@@ -4,7 +4,12 @@
       <p>{{ pending()!.message }}</p>
       <div class="dialog__actions">
         <button class="btn btn--secondary" (click)="respond(false)">Cancel</button>
-        <button class="btn btn--primary" (click)="respond(true)">Leave</button>
+        <button
+          class="btn"
+          [class.btn--danger]="pending()!.danger"
+          [class.btn--primary]="!pending()!.danger"
+          (click)="respond(true)"
+        >{{ pending()!.confirmLabel }}</button>
       </div>
     </div>
   </div>

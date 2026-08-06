@@ -244,7 +244,10 @@ describe('BuildingDetailComponent', () => {
 
       freshFixture.componentInstance.onDeleteBuilding();
 
-      expect(confirmSpy).toHaveBeenCalledWith('Delete "this building"? This cannot be undone.');
+      expect(confirmSpy).toHaveBeenCalledWith(
+        'Delete "this building"? This cannot be undone.',
+        { confirmLabel: 'Delete', danger: true },
+      );
     });
   });
 

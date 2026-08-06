@@ -54,6 +54,26 @@ describe('ConfirmDialogComponent', () => {
     expect(component.pending()).toBeNull();
   });
 
+  it('should default to a "Leave" label with the primary style when no options are given', () => {
+    service.confirm('You have unsaved changes. Leave the page?').subscribe();
+    fixture.detectChanges();
+
+    const buttons = fixture.nativeElement.querySelectorAll('.dialog__actions button');
+    expect(buttons[1].textContent.trim()).toBe('Leave');
+    expect(buttons[1].classList.contains('btn--primary')).toBe(true);
+    expect(buttons[1].classList.contains('btn--danger')).toBe(false);
+  });
+
+  it('should render a custom label with the danger style for a destructive confirmation', () => {
+    service.confirm('Delete "City Hall"? This cannot be undone.', { confirmLabel: 'Delete', danger: true }).subscribe();
+    fixture.detectChanges();
+
+    const buttons = fixture.nativeElement.querySelectorAll('.dialog__actions button');
+    expect(buttons[1].textContent.trim()).toBe('Delete');
+    expect(buttons[1].classList.contains('btn--danger')).toBe(true);
+    expect(buttons[1].classList.contains('btn--primary')).toBe(false);
+  });
+
   it('should handle a second confirm request after the first is resolved', () => {
     service.confirm('First').subscribe();
     fixture.detectChanges();
