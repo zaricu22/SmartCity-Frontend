@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.14.1...v1.15.0) (2026-08-06)
+
+
+### Features
+
+* **asset/db:** thread optimistic-locking version through building writes ([#78](https://github.com/zaricu22/SmartCity-Frontend/issues/78)) ([befadc1](https://github.com/zaricu22/SmartCity-Frontend/commit/befadc1b5adce81f203d8f9e600fed4d5936f8d2))
+
 ## [1.14.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.14.0...v1.14.1) (2026-08-06)
 
 
