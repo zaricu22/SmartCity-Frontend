@@ -191,4 +191,25 @@ describe('BuildingListComponent (integration)', () => {
 
     discardPeriodicTasks();
   }));
+
+  it('should GET with name/location params after a debounced filter change, and show the filtered empty state', fakeAsync(() => {
+    fixture.detectChanges();
+    http.expectOne(r => r.url === BASE).flush(pageOf(buildingResponses));
+    tick();
+    fixture.detectChanges();
+
+    fixture.componentInstance.searchForm.controls.name.setValue('Nonexistent');
+    tick(300);
+    fixture.detectChanges();
+
+    const filteredReq = http.expectOne(r => r.url === BASE);
+    expect(filteredReq.request.params.get('name')).toBe('Nonexistent');
+    expect(filteredReq.request.params.get('page')).toBe('0');
+    filteredReq.flush(pageOf([]));
+    tick();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('No buildings match your search.');
+    expect(fixture.nativeElement.querySelector('.building-list-page__clear')).not.toBeNull();
+  }));
 });

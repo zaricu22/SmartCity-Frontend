@@ -4,6 +4,10 @@ export interface PageRequest {
   readonly sort: string;
   readonly direction: 'asc' | 'desc';
   readonly eligible?: boolean;
+  // Case-insensitive "contains" match, combined with AND — not applied when eligible=true
+  // (backend uses a separate subsidy-eligibility query path for that case).
+  readonly name?: string;
+  readonly location?: string;
 }
 
 export const DEFAULT_PAGE_REQUEST: PageRequest = {

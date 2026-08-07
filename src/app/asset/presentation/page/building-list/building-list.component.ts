@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ParamMap } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
-import { catchError, map, switchMap, tap, throttleTime } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, tap, throttleTime } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { LucidePlus, LucideBuilding2, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert } from '@lucide/angular';
+import { LucidePlus, LucideBuilding2, LucideChevronLeft, LucideChevronRight, LucideTriangleAlert, LucideX } from '@lucide/angular';
 import { PublicBuildingFacade } from '../../../application/facade/public-building.facade';
 import { BuildingCardComponent } from '../../component/building-card/building-card.component';
 import { CreateBuildingDialogComponent } from '../../dialog/create-building-dialog/create-building-dialog.component';
@@ -33,6 +34,8 @@ function parseParams(params: ParamMap): PageRequest {
     size: Number(params.get('size') ?? DEFAULT_PAGE_REQUEST.size),
     sort: params.get('sort') ?? DEFAULT_PAGE_REQUEST.sort,
     direction: (params.get('dir') ?? DEFAULT_PAGE_REQUEST.direction) as 'asc' | 'desc',
+    name: params.get('name') ?? undefined,
+    location: params.get('location') ?? undefined,
   };
 }
 
@@ -41,6 +44,7 @@ function parseParams(params: ParamMap): PageRequest {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ReactiveFormsModule,
     BuildingCardComponent,
     CreateBuildingDialogComponent,
     EmptyStateComponent,
@@ -49,6 +53,7 @@ function parseParams(params: ParamMap): PageRequest {
     LucideChevronLeft,
     LucideChevronRight,
     LucideTriangleAlert,
+    LucideX,
   ],
   templateUrl: './building-list.component.html',
   styleUrl: './building-list.component.css',
@@ -114,12 +119,42 @@ export class BuildingListComponent implements HasUnsavedChanges {
     { initialValue: `${DEFAULT_PAGE_REQUEST.sort},${DEFAULT_PAGE_REQUEST.direction}` },
   );
 
+  // URL is the source of truth for filters too, same as page/sort — pre-filled from the
+  // current query params so a shared/bookmarked/refreshed filtered link restores correctly.
+  readonly searchForm = inject(FormBuilder).nonNullable.group({
+    name: [this.route.snapshot.queryParamMap.get('name') ?? ''],
+    location: [this.route.snapshot.queryParamMap.get('location') ?? ''],
+  });
+
+  readonly hasActiveFilters = toSignal(
+    this.route.queryParamMap.pipe(map(p => !!p.get('name') || !!p.get('location'))),
+    {
+      initialValue: !!this.route.snapshot.queryParamMap.get('name')
+        || !!this.route.snapshot.queryParamMap.get('location'),
+    },
+  );
+
   private readonly createAction$ = new Subject<CreateBuildingDialogResult>();
 
   constructor() {
     this.createAction$
       .pipe(throttleTime(2000), takeUntilDestroyed(this.destroyRef))
       .subscribe(result => this.submitCreate(result));
+
+    // Debounced so filtering doesn't fire a request per keystroke; distinctUntilChanged
+    // guards against a no-op emission (e.g. focus/blur without an actual value change).
+    this.searchForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged((a, b) => a.name === b.name && a.location === b.location),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        // getRawValue(), not the emitted (partial-typed) value — always the full,
+        // non-optional { name, location } regardless of what valueChanges itself carries.
+        const { name, location } = this.searchForm.getRawValue();
+        this.navigateWithFilters(name, location);
+      });
 
     // Service is shared across the whole /assets subtree (route-level provider), not
     // per-page — this component owns its own connect()/disconnect() pair, same as
@@ -141,6 +176,24 @@ export class BuildingListComponent implements HasUnsavedChanges {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { sort, dir, page: 0 },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  // Resets the form immediately without waiting for the debounced valueChanges subscription
+  // to also fire — emitEvent: false avoids double-navigating.
+  onClearFilters(): void {
+    this.searchForm.reset({ name: '', location: '' }, { emitEvent: false });
+    this.navigateWithFilters('', '');
+  }
+
+  private navigateWithFilters(name: string, location: string): void {
+    // A page changed while filtering would otherwise request a page number that may not
+    // exist in the new (smaller) filtered result set — reset to page 0 on every filter change.
+    // null removes the param from the URL entirely rather than leaving an empty ?name=.
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { name: name.trim() || null, location: location.trim() || null, page: 0 },
       queryParamsHandling: 'merge',
     });
   }
