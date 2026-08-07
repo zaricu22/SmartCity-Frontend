@@ -75,6 +75,17 @@
   padding: var(--space-4) 0;
 }
 
+/* Reserves space before the deferred device list resolves, avoiding a layout jump. */
+.building-detail-page__devices-placeholder {
+  min-height: 80px;
+}
+
+.building-detail-page__devices-loading {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-4) 0;
+}
+
 .building-detail-page__error {
   display: flex;
   align-items: center;
