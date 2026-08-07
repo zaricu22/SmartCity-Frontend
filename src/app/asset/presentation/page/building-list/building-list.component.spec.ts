@@ -1,5 +1,5 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { Router, provideRouter } from '@angular/router';
 import { BuildingListComponent } from './building-list.component';
@@ -220,5 +220,74 @@ describe('BuildingListComponent', () => {
   it('should return true from hasUnsavedChanges when dialog is open', () => {
     component.showCreateDialog.set(true);
     expect(component.hasUnsavedChanges()).toBe(true);
+  });
+
+  describe('search filters', () => {
+    it('should debounce filter changes instead of navigating per keystroke', fakeAsync(() => {
+      const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+      component.searchForm.controls.name.setValue('H');
+      tick(100);
+      component.searchForm.controls.name.setValue('Ha');
+      tick(100);
+      component.searchForm.controls.name.setValue('Hall');
+      // Still within 300ms of the last keystroke — nothing should have navigated yet
+      expect(navigateSpy).not.toHaveBeenCalled();
+
+      tick(300);
+
+      expect(navigateSpy).toHaveBeenCalledTimes(1);
+      expect(navigateSpy).toHaveBeenCalledWith([], {
+        relativeTo: expect.anything(),
+        queryParams: { name: 'Hall', location: null, page: 0 },
+        queryParamsHandling: 'merge',
+      });
+    }));
+
+    it('should not navigate again when the emitted value is unchanged', fakeAsync(() => {
+      const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+      component.searchForm.controls.name.setValue('Hall');
+      tick(300);
+      expect(navigateSpy).toHaveBeenCalledTimes(1);
+
+      component.searchForm.controls.name.setValue('Hall');
+      tick(300);
+      expect(navigateSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should trim and reset to page 0 on filter change', fakeAsync(() => {
+      const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+      component.searchForm.controls.location.setValue('  Zone A  ');
+      tick(300);
+
+      expect(navigateSpy).toHaveBeenCalledWith([], {
+        relativeTo: expect.anything(),
+        queryParams: { name: null, location: 'Zone A', page: 0 },
+        queryParamsHandling: 'merge',
+      });
+    }));
+
+    it('should clear both fields and navigate immediately without waiting for the debounce', fakeAsync(() => {
+      const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+      component.searchForm.setValue({ name: 'Hall', location: 'Zone A' });
+      tick(300);
+      navigateSpy.mockClear();
+
+      component.onClearFilters();
+
+      expect(component.searchForm.getRawValue()).toEqual({ name: '', location: '' });
+      expect(navigateSpy).toHaveBeenCalledWith([], {
+        relativeTo: expect.anything(),
+        queryParams: { name: null, location: null, page: 0 },
+        queryParamsHandling: 'merge',
+      });
+
+      // The reset itself must not also trigger a second, debounced navigation
+      navigateSpy.mockClear();
+      tick(300);
+      expect(navigateSpy).not.toHaveBeenCalled();
+    }));
   });
 });

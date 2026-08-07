@@ -46,6 +46,14 @@ export class PublicBuildingApiService extends PublicBuildingRepository {
     if (req.eligible !== undefined) {
       params = params.set('eligible', String(req.eligible));
     }
+    // Backend already treats blank as "no filter" too — trimming here is belt-and-suspenders,
+    // not strictly required, but avoids sending a param the user visibly cleared.
+    if (req.name?.trim()) {
+      params = params.set('name', req.name.trim());
+    }
+    if (req.location?.trim()) {
+      params = params.set('location', req.location.trim());
+    }
 
     return this.http
       .get<PageResponse<PublicBuildingResponse>>(this.base, { params })
