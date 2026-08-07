@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.15.1...v1.16.0) (2026-08-07)
+
+
+### Features
+
+* **asset:** add name/location search to building list ([#96](https://github.com/zaricu22/SmartCity-Frontend/issues/96)) ([63285fe](https://github.com/zaricu22/SmartCity-Frontend/commit/63285fe9ba913a3d0e4b403d0b780d881d52107a))
+
 ## [1.15.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.15.0...v1.15.1) (2026-08-07)
 
 
