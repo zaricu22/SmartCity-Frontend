@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # No dependabot.yml existed before — keep behavior unchanged (security PRs only).
+    open-pull-requests-limit: 0
+    ignore:
+      # Pinned at ^18.2.21; some fixes need a 3-4 major jump that'd desync from
+      # @angular/core and break the build. Dev-only, so accepted until a planned upgrade.
+      - dependency-name: "@angular/cli"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/build-angular"
+        update-types: ["version-update:semver-major"]
+
+  # Keeps CI workflow action versions (actions/checkout, codeql-action, etc.) patched.
+  # No breaking-build risk like the npm entry above — each action is independent, so
+  # plain defaults, matching SmartCity-Backend's config.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
