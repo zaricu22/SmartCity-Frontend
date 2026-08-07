@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.15.0...v1.15.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **asset:** register real HTTP interceptor chain in integration specs ([#94](https://github.com/zaricu22/SmartCity-Frontend/issues/94)) ([4d7869b](https://github.com/zaricu22/SmartCity-Frontend/commit/4d7869ba51c9bac9ec4215832cebdf14290694bb))
+
 # [1.15.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.14.1...v1.15.0) (2026-08-06)
 
 
