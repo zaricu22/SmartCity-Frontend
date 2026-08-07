@@ -46,7 +46,7 @@ jobs:
       # init must run before npm ci so CodeQL can instrument the dependency installation.
       # analyze must run last; for interpreted languages (JS/TS) no autobuild step is needed.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
 
@@ -61,7 +61,7 @@ jobs:
         run: npm ci
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript-typescript"
 
