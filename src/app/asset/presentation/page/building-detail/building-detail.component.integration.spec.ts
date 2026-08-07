@@ -1,11 +1,16 @@
 import { ComponentFixture, DeferBlockState, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 
 import { BuildingDetailComponent } from './building-detail.component';
 import { ASSET_PROVIDERS } from '../../../asset.providers';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
+import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
+import { ToastService } from '../../../../shared/presentation/service/toast.service';
+import { requestIdInterceptor } from '../../../../shared/infrastructure/interceptor/request-id.interceptor';
+import { authInterceptor } from '../../../../auth/infrastructure/interceptor/auth.interceptor';
+import { httpErrorInterceptor } from '../../../../shared/infrastructure/interceptor/http-error.interceptor';
 import { PublicBuildingResponse } from '../../../infrastructure/api/response/public-building.response';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
@@ -46,7 +51,8 @@ describe('BuildingDetailComponent (integration)', () => {
       providers: [
         ...ASSET_PROVIDERS,
         { provide: API_BASE_URL, useValue: DEFAULT_API_BASE_URL },
-        provideHttpClient(),
+        { provide: AuthService, useValue: { getToken: jest.fn().mockReturnValue(null) } },
+        provideHttpClient(withInterceptors([requestIdInterceptor, authInterceptor, httpErrorInterceptor])),
         provideHttpClientTesting(),
         provideRouter([]),
         {
@@ -142,6 +148,52 @@ describe('BuildingDetailComponent (integration)', () => {
     expect(fixture.componentInstance.showAddDeviceDialog()).toBe(false);
 
     // ToastService's auto-dismiss timer() leaves a periodic task in the fakeAsync queue — discard it
+    discardPeriodicTasks();
+  }));
+
+  it('should surface the backend message and keep the dialog open on a duplicate-device 409', fakeAsync(() => {
+    fixture.detectChanges();
+    flushGetBuilding();
+    tick();
+    fixture.detectChanges();
+
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+    fixture.componentInstance.showAddDeviceDialog.set(true);
+
+    // Same name+type as the existing 'Roof Panel'/SOLAR device from buildingResponse.
+    // EnergyDevice.equals() is ID-based and addDevice() always generates a fresh UUID, so
+    // the client-side pre-check in PublicBuilding.addDevice() cannot catch this locally
+    // (same gap the backend's own equals()-based check had before it was fixed to match on
+    // name+type) — the request must reach the server, whose check now actually fires.
+    fixture.componentInstance.onAddDevice({
+      name: 'Roof Panel',
+      type: DeviceType.SOLAR,
+      ratedCapacityValue: 50,
+      ratedCapacityUnit: EnergyUnit.kW,
+    });
+
+    // addDevice first fetches the building (findById), then POSTs the device
+    flushGetBuilding();
+    tick();
+    const addReq = http.expectOne(`${BASE}/${BUILDING_ID}/devices`);
+    addReq.flush(
+      {
+        errorCode: 'DEVICE_ALREADY_EXISTS',
+        message: 'Device already exists in this building!',
+        status: 409,
+        timestamp: new Date().toISOString(),
+        requestId: 'test-request-id',
+      },
+      { status: 409, statusText: 'Conflict' },
+    );
+    tick();
+    fixture.detectChanges();
+
+    expect(showSpy).toHaveBeenCalledWith('Device already exists in this building!', 'error');
+    // Dialog stays open (unlike the success path) so the user can retry
+    expect(fixture.componentInstance.showAddDeviceDialog()).toBe(true);
+
     discardPeriodicTasks();
   }));
 
