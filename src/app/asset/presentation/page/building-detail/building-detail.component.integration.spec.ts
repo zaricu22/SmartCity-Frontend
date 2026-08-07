@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, DeferBlockState, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -73,10 +73,16 @@ describe('BuildingDetailComponent (integration)', () => {
     expect(text).toContain('Zone A - Main St');
   }));
 
-  it('should render device list from the HTTP response', fakeAsync(() => {
+  it('should render device list from the HTTP response', fakeAsync(async () => {
     fixture.detectChanges();
     flushGetBuilding();
     tick();
+    fixture.detectChanges();
+
+    // Device list is behind @defer (on viewport) — resolve it explicitly rather than
+    // relying on IntersectionObserver, which jsdom doesn't implement.
+    const [deviceListBlock] = await fixture.getDeferBlocks();
+    await deviceListBlock.render(DeferBlockState.Complete);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelectorAll('.device-list__item').length).toBe(1);
