@@ -1,6 +1,6 @@
 @if (errorMessage()) {
   <div class="building-detail-page__error">
-    <svg lucideTriangleAlert class="building-detail-page__error-icon"></svg>
+    <svg lucideTriangleAlert class="building-detail-page__error-icon" ></svg> 
     <span>{{ errorMessage() }}</span>
   </div>
 }
@@ -22,7 +22,7 @@
       <section class="building-detail-page__card building-detail-page__consumption">
         <div class="building-detail-page__section-header">
           <h2>Consumption</h2>
-          <button class="btn btn--secondary" (click)="showChangeConsumptionDialog = true">
+          <button class="btn btn--secondary" (click)="showChangeConsumptionDialog.set(true)">
             <svg lucidePencil class="btn__icon"></svg>
             Change
           </button>
@@ -33,7 +33,7 @@
       <section class="building-detail-page__card building-detail-page__devices">
         <div class="building-detail-page__section-header">
           <h2>Devices</h2>
-          <button class="btn btn--primary" (click)="showAddDeviceDialog = true">
+          <button class="btn btn--primary" (click)="showAddDeviceDialog.set(true)">
             <svg lucidePlus class="btn__icon"></svg>
             Add Device
           </button>
@@ -46,19 +46,19 @@
       </section>
     </div>
 
-    @if (showAddDeviceDialog) {
+    @if (showAddDeviceDialog()) {
       <app-add-device-dialog
         (confirmed)="onAddDevice($event)"
-        (cancelled)="showAddDeviceDialog = false"
+        (cancelled)="showAddDeviceDialog.set(false)"
       />
     }
 
-    @if (showChangeConsumptionDialog) {
+    @if (showChangeConsumptionDialog()) {
       <app-change-consumption-dialog
         [initialValue]="b.consumptionValue"
         [initialUnit]="b.consumptionUnit"
         (confirmed)="onChangeConsumption($event)"
-        (cancelled)="showChangeConsumptionDialog = false"
+        (cancelled)="showChangeConsumptionDialog.set(false)"
       />
     }
   </div>

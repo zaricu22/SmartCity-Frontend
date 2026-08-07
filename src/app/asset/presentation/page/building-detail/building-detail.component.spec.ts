@@ -120,7 +120,7 @@ describe('BuildingDetailComponent', () => {
   it('should call facade.addDevice and reload when DEVICE_ADDED event arrives', () => {
     facade.addDevice.mockReturnValue(of(void 0));
     const eventBus = TestBed.inject(EventBusService);
-    component.showAddDeviceDialog = true;
+    component.showAddDeviceDialog.set(true);
     fixture.detectChanges();
 
     const result = { name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW };
@@ -128,14 +128,14 @@ describe('BuildingDetailComponent', () => {
     eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-test', deviceName: 'Backup Battery', deviceType: DeviceType.BATTERY } as any);
 
     expect(facade.addDevice).toHaveBeenCalledWith({ ...result, buildingId: 'b-1', version: 3 });
-    expect(component.showAddDeviceDialog).toBe(false);
+    expect(component.showAddDeviceDialog()).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
   });
 
   it('should call facade.changeConsumption and reload when CONSUMPTION_CHANGED event arrives', () => {
     facade.changeConsumption.mockReturnValue(of(void 0));
     const eventBus = TestBed.inject(EventBusService);
-    component.showChangeConsumptionDialog = true;
+    component.showChangeConsumptionDialog.set(true);
     fixture.detectChanges();
 
     component.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
@@ -146,7 +146,7 @@ describe('BuildingDetailComponent', () => {
       consumptionUnit: EnergyUnit.kW,
       version: 3,
     });
-    expect(component.showChangeConsumptionDialog).toBe(false);
+    expect(component.showChangeConsumptionDialog()).toBe(false);
     expect(facade.getById).toHaveBeenCalledTimes(2);
   });
 
@@ -213,7 +213,7 @@ describe('BuildingDetailComponent', () => {
 
   it('should report unsaved changes when a dialog is open', () => {
     expect(component.hasUnsavedChanges()).toBe(false);
-    component.showAddDeviceDialog = true;
+    component.showAddDeviceDialog.set(true);
     expect(component.hasUnsavedChanges()).toBe(true);
   });
 
