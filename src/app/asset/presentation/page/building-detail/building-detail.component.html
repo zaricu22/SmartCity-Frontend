@@ -1,7 +1,8 @@
-@if (errorMessage()) {
+@let error = errorMessage();
+@if (error) {
   <div class="building-detail-page__error">
-    <svg lucideTriangleAlert class="building-detail-page__error-icon" ></svg> 
-    <span>{{ errorMessage() }}</span>
+    <svg lucideTriangleAlert class="building-detail-page__error-icon"></svg>
+    <span>{{ error }}</span>
   </div>
 }
 

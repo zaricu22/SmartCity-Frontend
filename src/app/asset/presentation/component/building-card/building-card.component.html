@@ -1,11 +1,12 @@
-<a class="building-card" [routerLink]="['/assets', building().id]">
+@let b = building();
+<a class="building-card" [routerLink]="['/assets', b.id]">
   <div class="building-card__band"></div>
   <div class="building-card__body">
-    <h3 class="building-card__name">{{ building().name }}</h3>
-    <p class="building-card__location">{{ building().location }}</p>
+    <h3 class="building-card__name">{{ b.name }}</h3>
+    <p class="building-card__location">{{ b.location }}</p>
     <p class="building-card__consumption">
       <svg lucideZap class="building-card__consumption-icon"></svg>
-      <app-energy-display [value]="building().consumptionValue" [unit]="building().consumptionUnit" />
+      <app-energy-display [value]="b.consumptionValue" [unit]="b.consumptionUnit" />
     </p>
     <p class="building-card__devices">{{ deviceSummary() }}</p>
   </div>

@@ -11,11 +11,12 @@
 
   <div class="building-list-page__toolbar">
     <label class="building-list-page__sort-label" for="sort-select">Sort by</label>
+    @let key = sortKey();
     <select id="sort-select" class="building-list-page__sort" (change)="onSortChange($any($event.target).value)">
-      <option value="name,asc"      [selected]="sortKey() === 'name,asc'">Name A–Z</option>
-      <option value="name,desc"     [selected]="sortKey() === 'name,desc'">Name Z–A</option>
-      <option value="location,asc"  [selected]="sortKey() === 'location,asc'">Location A–Z</option>
-      <option value="location,desc" [selected]="sortKey() === 'location,desc'">Location Z–A</option>
+      <option value="name,asc"      [selected]="key === 'name,asc'">Name A–Z</option>
+      <option value="name,desc"     [selected]="key === 'name,desc'">Name Z–A</option>
+      <option value="location,asc"  [selected]="key === 'location,asc'">Location A–Z</option>
+      <option value="location,desc" [selected]="key === 'location,desc'">Location Z–A</option>
     </select>
   </div>
 
