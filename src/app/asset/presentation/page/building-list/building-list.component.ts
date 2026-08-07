@@ -62,8 +62,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
   private readonly toastService = inject(ToastService);
   protected readonly auth = inject(AuthService);
 
-  // TODO: plain boolean with OnPush — Angular does not detect this change automatically; migrate to signal<boolean>(false)
-  showCreateDialog = false;
+  showCreateDialog = signal(false);
   isLoading = signal(true);
   isSaving = signal(false);
   errorMessage = signal<string | null>(null);
@@ -151,7 +150,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
   }
 
   hasUnsavedChanges(): boolean {
-    return this.showCreateDialog;
+    return this.showCreateDialog();
   }
 
   private submitCreate(result: CreateBuildingDialogResult): void {
@@ -160,7 +159,7 @@ export class BuildingListComponent implements HasUnsavedChanges {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.showCreateDialog = false;
+          this.showCreateDialog.set(false);
           this.isSaving.set(false);
           this.toastService.show(`Building "${result.name}" created.`, 'success');
           // Navigate to page 0 so the new building is visible. If already on page 0,

@@ -2,7 +2,7 @@
   <header class="building-list-page__header">
     <h1>Public Buildings</h1>
     @if (auth.hasRole('ADMIN')) {
-      <button class="btn btn--primary" [disabled]="isSaving()" (click)="showCreateDialog = true">
+      <button class="btn btn--primary" [disabled]="isSaving()" (click)="showCreateDialog.set(true)">
         <svg lucidePlus class="btn__icon"></svg>
         New Building
       </button>
@@ -63,10 +63,10 @@
     </app-empty-state>
   }
 
-  @if (showCreateDialog) {
+  @if (showCreateDialog()) {
     <app-create-building-dialog
       (confirmed)="onCreate($event)"
-      (cancelled)="showCreateDialog = false"
+      (cancelled)="showCreateDialog.set(false)"
     />
   }
 </div>

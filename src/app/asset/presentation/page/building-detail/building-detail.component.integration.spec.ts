@@ -133,7 +133,7 @@ describe('BuildingDetailComponent (integration)', () => {
     tick();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.showAddDeviceDialog).toBe(false);
+    expect(fixture.componentInstance.showAddDeviceDialog()).toBe(false);
 
     // ToastService's auto-dismiss timer() leaves a periodic task in the fakeAsync queue — discard it
     discardPeriodicTasks();

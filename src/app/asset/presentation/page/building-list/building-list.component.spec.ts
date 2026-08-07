@@ -94,7 +94,7 @@ describe('BuildingListComponent', () => {
   it('should call facade.create and reload when BUILDING_CREATED event arrives', () => {
     facade.create.mockReturnValue(of('new-id'));
     const eventBus = TestBed.inject(EventBusService);
-    component.showCreateDialog = true;
+    component.showCreateDialog.set(true);
     fixture.detectChanges();
 
     component.onCreate({ name: 'School', location: 'Zone C' });
@@ -103,7 +103,7 @@ describe('BuildingListComponent', () => {
     eventBus.publish({ type: 'BUILDING_CREATED', buildingId: 'new-id', name: 'School', location: 'Zone C' });
 
     expect(facade.create).toHaveBeenCalledWith({ name: 'School', location: 'Zone C' });
-    expect(component.showCreateDialog).toBe(false);
+    expect(component.showCreateDialog()).toBe(false);
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_CREATED
   });
 
@@ -160,12 +160,12 @@ describe('BuildingListComponent', () => {
 
   it('should reset isSaving to false and keep dialog open on create error', () => {
     facade.create.mockReturnValue(throwError(() => new Error('Server error')));
-    component.showCreateDialog = true;
+    component.showCreateDialog.set(true);
 
     component.onCreate({ name: 'School', location: 'Zone C' });
 
     expect(component.isSaving()).toBe(false);
-    expect(component.showCreateDialog).toBe(true);
+    expect(component.showCreateDialog()).toBe(true);
   });
 
   it('should show a success toast when a building is created', () => {
@@ -213,12 +213,12 @@ describe('BuildingListComponent', () => {
   });
 
   it('should return false from hasUnsavedChanges when dialog is closed', () => {
-    component.showCreateDialog = false;
+    component.showCreateDialog.set(false);
     expect(component.hasUnsavedChanges()).toBe(false);
   });
 
   it('should return true from hasUnsavedChanges when dialog is open', () => {
-    component.showCreateDialog = true;
+    component.showCreateDialog.set(true);
     expect(component.hasUnsavedChanges()).toBe(true);
   });
 });
