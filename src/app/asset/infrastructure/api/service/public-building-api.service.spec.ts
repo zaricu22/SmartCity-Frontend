@@ -88,6 +88,33 @@ describe('PublicBuildingApiService', () => {
       expect(req.request.params.get('eligible')).toBe('true');
       req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
     });
+
+    it('should include name and location when provided', (done) => {
+      service.findAll({ ...DEFAULT_PAGE_REQUEST, name: 'Hall', location: 'Zone A' }).subscribe(() => done());
+
+      const req = http.expectOne(r => r.url === BASE);
+      expect(req.request.params.get('name')).toBe('Hall');
+      expect(req.request.params.get('location')).toBe('Zone A');
+      req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
+    });
+
+    it('should trim name and location before sending', (done) => {
+      service.findAll({ ...DEFAULT_PAGE_REQUEST, name: '  Hall  ', location: '  Zone A  ' }).subscribe(() => done());
+
+      const req = http.expectOne(r => r.url === BASE);
+      expect(req.request.params.get('name')).toBe('Hall');
+      expect(req.request.params.get('location')).toBe('Zone A');
+      req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
+    });
+
+    it('should omit name and location when blank or undefined', (done) => {
+      service.findAll({ ...DEFAULT_PAGE_REQUEST, name: '   ', location: undefined }).subscribe(() => done());
+
+      const req = http.expectOne(r => r.url === BASE);
+      expect(req.request.params.has('name')).toBe(false);
+      expect(req.request.params.has('location')).toBe(false);
+      req.flush({ content: [buildingResponse], totalElements: 1, totalPages: 1, pageNumber: 0, pageSize: 10 });
+    });
   });
 
   describe('save()', () => {

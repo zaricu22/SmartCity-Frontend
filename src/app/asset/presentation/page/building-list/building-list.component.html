@@ -10,6 +10,33 @@
   </header>
 
   <div class="building-list-page__toolbar">
+    <form [formGroup]="searchForm" class="building-list-page__search">
+      <label class="building-list-page__search-label" for="search-name">Name</label>
+      <input
+        id="search-name"
+        class="building-list-page__search-input"
+        type="text"
+        formControlName="name"
+        placeholder="Search by name…"
+      />
+
+      <label class="building-list-page__search-label" for="search-location">Location</label>
+      <input
+        id="search-location"
+        class="building-list-page__search-input"
+        type="text"
+        formControlName="location"
+        placeholder="Search by location…"
+      />
+
+      @if (hasActiveFilters()) {
+        <button type="button" class="btn btn--secondary building-list-page__clear" (click)="onClearFilters()">
+          <svg lucideX class="btn__icon"></svg>
+          Clear
+        </button>
+      }
+    </form>
+
     <label class="building-list-page__sort-label" for="sort-select">Sort by</label>
     @let key = sortKey();
     <select id="sort-select" class="building-list-page__sort" (change)="onSortChange($any($event.target).value)">
@@ -57,8 +84,13 @@
       <ng-template #emptyTpl>
         <div class="building-list-page__empty">
           <svg lucideBuilding2 class="building-list-page__empty-icon"></svg>
-          <p>No buildings found.</p>
-          <p class="building-list-page__empty-hint">Click "New Building" to create one.</p>
+          @if (hasActiveFilters()) {
+            <p>No buildings match your search.</p>
+            <p class="building-list-page__empty-hint">Try a different name or location, or clear the filters.</p>
+          } @else {
+            <p>No buildings found.</p>
+            <p class="building-list-page__empty-hint">Click "New Building" to create one.</p>
+          }
         </div>
       </ng-template>
     </app-empty-state>
