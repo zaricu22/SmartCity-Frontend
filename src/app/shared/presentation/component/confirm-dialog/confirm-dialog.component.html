@@ -1,15 +1,16 @@
-@if (pending()) {
+@let request = pending();
+@if (request) {
   <div class="dialog-backdrop" role="dialog" aria-modal="true">
     <div class="dialog confirm-dialog">
-      <p>{{ pending()!.message }}</p>
+      <p>{{ request.message }}</p>
       <div class="dialog__actions">
         <button class="btn btn--secondary" (click)="respond(false)">Cancel</button>
         <button
           class="btn"
-          [class.btn--danger]="pending()!.danger"
-          [class.btn--primary]="!pending()!.danger"
+          [class.btn--danger]="request.danger"
+          [class.btn--primary]="!request.danger"
           (click)="respond(true)"
-        >{{ pending()!.confirmLabel }}</button>
+        >{{ request.confirmLabel }}</button>
       </div>
     </div>
   </div>

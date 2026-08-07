@@ -45,8 +45,9 @@
           }
         </div>
 
-        <button type="submit" class="btn btn--primary register-page__submit" [disabled]="form.invalid || isLoading()">
-          {{ isLoading() ? 'Creating account…' : 'Create account' }}
+        @let loading = isLoading();
+        <button type="submit" class="btn btn--primary register-page__submit" [disabled]="form.invalid || loading">
+          {{ loading ? 'Creating account…' : 'Create account' }}
         </button>
       </form>
 

@@ -31,8 +31,9 @@
           }
         </div>
 
-        <button type="submit" class="btn btn--primary login-page__submit" [disabled]="form.invalid || isLoading()">
-          {{ isLoading() ? 'Signing in…' : 'Sign in' }}
+        @let loading = isLoading();
+        <button type="submit" class="btn btn--primary login-page__submit" [disabled]="form.invalid || loading">
+          {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>
 
