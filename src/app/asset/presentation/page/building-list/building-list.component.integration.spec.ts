@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 
@@ -7,6 +7,10 @@ import { BuildingListComponent } from './building-list.component';
 import { ASSET_PROVIDERS } from '../../../asset.providers';
 import { API_BASE_URL, DEFAULT_API_BASE_URL } from '../../../../shared/infrastructure/api/api.config';
 import { AuthService } from '../../../../auth/infrastructure/service/auth.service';
+import { ToastService } from '../../../../shared/presentation/service/toast.service';
+import { requestIdInterceptor } from '../../../../shared/infrastructure/interceptor/request-id.interceptor';
+import { authInterceptor } from '../../../../auth/infrastructure/interceptor/auth.interceptor';
+import { httpErrorInterceptor } from '../../../../shared/infrastructure/interceptor/http-error.interceptor';
 import { PublicBuildingResponse } from '../../../infrastructure/api/response/public-building.response';
 import { EnergyUnit } from '../../../domain/shared/enums/energy-unit.enum';
 import { DeviceType } from '../../../domain/shared/enums/device-type.enum';
@@ -68,7 +72,7 @@ describe('BuildingListComponent (integration)', () => {
         ...ASSET_PROVIDERS,
         { provide: API_BASE_URL, useValue: DEFAULT_API_BASE_URL },
         { provide: AuthService, useValue: { hasRole: jest.fn().mockReturnValue(true), getToken: jest.fn().mockReturnValue(null) } },
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([requestIdInterceptor, authInterceptor, httpErrorInterceptor])),
         provideHttpClientTesting(),
         provideRouter([{ path: 'assets/:id', component: BuildingListComponent }]),
       ],
@@ -147,6 +151,44 @@ describe('BuildingListComponent (integration)', () => {
     expect(fixture.componentInstance.showCreateDialog()).toBe(false);
 
     // throttleTime(2000) leaves a timer in the fakeAsync queue — discard it
+    discardPeriodicTasks();
+  }));
+
+  it('should surface the backend message and keep the dialog open on a duplicate-building 409', fakeAsync(() => {
+    fixture.detectChanges();
+    http.expectOne(r => r.url === BASE).flush(pageOf(buildingResponses));
+    tick();
+    fixture.detectChanges();
+
+    const toastService = TestBed.inject(ToastService);
+    const showSpy = jest.spyOn(toastService, 'show');
+
+    fixture.nativeElement.querySelector('button').click();
+    fixture.detectChanges();
+
+    fixture.componentInstance.onCreate({ name: 'City Hall', location: 'Zone A - Main St' });
+    fixture.detectChanges();
+
+    // Backend's BuildingAlreadyExistsException -> 409, ErrorCode.BUILDING_ALREADY_EXISTS
+    const createReq = http.expectOne(BASE);
+    createReq.flush(
+      {
+        errorCode: 'BUILDING_ALREADY_EXISTS',
+        message: 'A building with this name and location already exists!',
+        status: 409,
+        timestamp: new Date().toISOString(),
+        requestId: 'test-request-id',
+      },
+      { status: 409, statusText: 'Conflict' },
+    );
+    tick();
+    fixture.detectChanges();
+
+    expect(showSpy).toHaveBeenCalledWith('A building with this name and location already exists!', 'error');
+    // Dialog stays open (unlike the success path) so the user can retry with a different name/location
+    expect(fixture.componentInstance.showCreateDialog()).toBe(true);
+    expect(fixture.componentInstance.isSaving()).toBe(false);
+
     discardPeriodicTasks();
   }));
 });
