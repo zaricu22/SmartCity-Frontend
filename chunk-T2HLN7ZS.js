@@ -1,0 +1,1 @@
+import{ia as n}from"./chunk-AB7EYFOH.js";var i=class e{transform(t,r){return`${t} ${r}`}static \u0275fac=function(r){return new(r||e)};static \u0275pipe=n({name:"energy",type:e,pure:!0,standalone:!0})};export{i as a};
