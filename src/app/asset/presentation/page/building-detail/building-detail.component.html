@@ -40,7 +40,13 @@
           </button>
         </div>
         @if (hasDevices()) {
-          <app-device-list [devices]="b.devices" (removeDevice)="onRemoveDevice($event)" />
+          @defer (on viewport) {
+            <app-device-list [devices]="b.devices" (removeDevice)="onRemoveDevice($event)" />
+          } @placeholder {
+            <div class="building-detail-page__devices-placeholder"></div>
+          } @loading (minimum 100ms) {
+            <p class="building-detail-page__devices-loading">Loading devices…</p>
+          }
         } @else {
           <p class="building-detail-page__no-devices">No devices yet.</p>
         }
