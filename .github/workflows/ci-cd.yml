@@ -3,6 +3,9 @@ name: Frontend CI/CD Pipeline
 
 # 2. The TRIGGER: When should this run?
 on:
+  # Manual trigger — lets any branch be run on demand from the Actions tab, useful for
+  # confirming whether a pipeline issue is branch/PR-specific or repo-wide (Settings/Rulesets).
+  workflow_dispatch:
   push:
     branches: [dev, main]
     paths-ignore:
