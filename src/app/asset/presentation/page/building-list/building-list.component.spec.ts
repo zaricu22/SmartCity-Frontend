@@ -63,7 +63,7 @@ describe('BuildingListComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should load and display buildings via async pipe', () => {
+  it('should load and display the building list on page load', () => {
     expect(facade.getAll).toHaveBeenCalled();
     expect(fixture.nativeElement.querySelectorAll('app-building-card').length).toBe(2);
   });
@@ -91,7 +91,7 @@ describe('BuildingListComponent', () => {
     expect(fixture.nativeElement.querySelector('button')).toBeNull();
   });
 
-  it('should call facade.create and reload when BUILDING_CREATED event arrives', () => {
+  it('should save the new building and refresh the list to include it once creation succeeds', () => {
     facade.create.mockReturnValue(of('new-id'));
     const eventBus = TestBed.inject(EventBusService);
     component.showCreateDialog.set(true);
@@ -107,7 +107,7 @@ describe('BuildingListComponent', () => {
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_CREATED
   });
 
-  it('should reload the current page when a BUILDING_DELETED event arrives', () => {
+  it('should refresh the current page when a building is deleted, e.g. from another tab or by another user', () => {
     const eventBus = TestBed.inject(EventBusService);
 
     eventBus.publish({ type: 'BUILDING_DELETED', buildingId: 'b-1', name: 'City Hall' });
@@ -115,7 +115,7 @@ describe('BuildingListComponent', () => {
     expect(facade.getAll).toHaveBeenCalledTimes(2); // initial load + reload after BUILDING_DELETED
   });
 
-  it('should stop loading, show an error, and keep the stream alive when getAll fails', () => {
+  it('should show an error and recover so a later refresh still works, instead of getting stuck after a failed load', () => {
     const toastService = TestBed.inject(ToastService);
     const showSpy = jest.spyOn(toastService, 'show');
     facade.getAll.mockReturnValue(throwError(() => new Error('Failed to load buildings.')));
@@ -269,7 +269,7 @@ describe('BuildingListComponent', () => {
       });
     }));
 
-    it('should clear both fields and navigate immediately without waiting for the debounce', fakeAsync(() => {
+    it('should reload the list immediately (not after 300ms) when Clear filters is clicked', fakeAsync(() => {
       const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
       component.searchForm.setValue({ name: 'Hall', location: 'Zone A' });
       tick(300);

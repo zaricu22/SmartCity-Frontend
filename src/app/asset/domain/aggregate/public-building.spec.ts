@@ -25,28 +25,28 @@ describe('PublicBuilding', () => {
       expect(b.version).toBe(0);
     });
 
-    it('should throw ValidationException when name is empty', () => {
+    it('rejects creating a building with an empty name', () => {
       let error: unknown;
       try { new PublicBuilding('id', '', 'Zone A'); } catch(e) { error = e; }
       expect(error).toBeInstanceOf(ValidationException);
       expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_NAME_EMPTY);
     });
 
-    it('should throw ValidationException when name is whitespace', () => {
+    it('rejects creating a building whose name is only whitespace', () => {
       let error: unknown;
       try { new PublicBuilding('id', '   ', 'Zone A'); } catch(e) { error = e; }
       expect(error).toBeInstanceOf(ValidationException);
       expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_NAME_EMPTY);
     });
 
-    it('should throw ValidationException when location is empty', () => {
+    it('rejects creating a building with an empty location', () => {
       let error: unknown;
       try { new PublicBuilding('id', 'Hall', ''); } catch(e) { error = e; }
       expect(error).toBeInstanceOf(ValidationException);
       expect((error as ValidationException).errorCode).toBe(ErrorCode.BUILDING_ADDRESS_EMPTY);
     });
 
-    it('should emit BuildingCreatedEvent', () => {
+    it('notifies listeners of the new building id, name, and location right after it is created', () => {
       const b = makeBuilding();
       const events = b.pullEvents();
       expect(events.length).toBe(1);
@@ -64,7 +64,7 @@ describe('PublicBuilding', () => {
       expect(b.devices.length).toBe(1);
     });
 
-    it('should emit DeviceAddedEvent', () => {
+    it('notifies listeners which device was added to the building', () => {
       const b = makeBuilding();
       b.pullEvents(); // drain BUILDING_CREATED from construction
       b.addDevice(makeDevice('d-1', 100));
@@ -73,7 +73,7 @@ describe('PublicBuilding', () => {
       expect((events[0] as any).deviceId).toBe('d-1');
     });
 
-    it('should throw DeviceAlreadyExistsException when adding duplicate id', () => {
+    it('rejects adding a device whose id is already used by another device in the building', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
@@ -99,12 +99,12 @@ describe('PublicBuilding', () => {
       expect(b.devices.length).toBe(0);
     });
 
-    it('should throw DeviceNotFoundException for unknown deviceId', () => {
+    it('rejects removing a device that is not part of the building', () => {
       const b = makeBuilding();
       expect(() => b.removeDevice('unknown')).toThrow(DeviceNotFoundException);
     });
 
-    it('should emit DeviceRemovedEvent', () => {
+    it('notifies listeners which device was removed, including its name and type', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
@@ -145,7 +145,7 @@ describe('PublicBuilding', () => {
       expect(() => b.changeConsumption(new Energy(100, EnergyUnit.kW))).not.toThrow();
     });
 
-    it('should throw BuildingTotalCapacityExceededException when consumption exceeds capacity', () => {
+    it('rejects consumption that goes even 1 kW above the total device capacity, unlike consumption exactly at the limit', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
@@ -160,14 +160,14 @@ describe('PublicBuilding', () => {
       expect(() => b.changeConsumption(new Energy(300, EnergyUnit.kW))).not.toThrow();
     });
 
-    it('should aggregate capacity across different units', () => {
+    it('allows 1000 kW consumption against a single 1 MW device — capacity is unit-converted, not just summed as raw numbers', () => {
       const b = makeBuilding();
       b.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(1, EnergyUnit.MW))); // 1000 kW
       b.pullEvents();
       expect(() => b.changeConsumption(new Energy(1000, EnergyUnit.kW))).not.toThrow();
     });
 
-    it('should emit ConsumptionChangedEvent', () => {
+    it('notifies listeners of the new consumption value after it changes', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
@@ -179,7 +179,7 @@ describe('PublicBuilding', () => {
   });
 
   describe('changeDeviceProduction()', () => {
-    it('should delegate to the correct device', () => {
+    it('updates the production rate of the device matching the given id', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();
@@ -187,12 +187,12 @@ describe('PublicBuilding', () => {
       expect(b.devices[0].productionRate.value).toBe(60);
     });
 
-    it('should throw DeviceNotFoundException for unknown deviceId', () => {
+    it('rejects changing production for a device that is not part of the building', () => {
       const b = makeBuilding();
       expect(() => b.changeDeviceProduction('unknown', new Energy(10, EnergyUnit.kW))).toThrow(DeviceNotFoundException);
     });
 
-    it('should emit ProductionChangedEvent with deviceId, oldProduction and newProduction', () => {
+    it('notifies listeners which device changed production and its old and new values', () => {
       const b = makeBuilding();
       b.addDevice(makeDevice('d-1', 100));
       b.pullEvents();

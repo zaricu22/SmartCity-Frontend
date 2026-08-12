@@ -15,21 +15,21 @@ describe('Energy', () => {
       expect(() => new Energy(0, EnergyUnit.kW)).not.toThrow();
     });
 
-    it('should throw ValidationException for null value', () => {
+    it('rejects an energy amount with no numeric value', () => {
       let error: unknown;
       try { new Energy(null as any, EnergyUnit.kW); } catch(e) { error = e; }
       expect(error).toBeInstanceOf(ValidationException);
       expect((error as ValidationException).errorCode).toBe(ErrorCode.ENERGY_VALUE_REQUIRED);
     });
 
-    it('should throw ValidationException for null unit', () => {
+    it('rejects an energy amount with no unit', () => {
       let error: unknown;
       try { new Energy(10, null as any); } catch(e) { error = e; }
       expect(error).toBeInstanceOf(ValidationException);
       expect((error as ValidationException).errorCode).toBe(ErrorCode.ENERGY_UNIT_REQUIRED);
     });
 
-    it('should throw ValidationException for negative value', () => {
+    it('rejects a negative energy amount', () => {
       let error: unknown;
       try { new Energy(-1, EnergyUnit.kW); } catch(e) { error = e; }
       expect(error).toBeInstanceOf(ValidationException);

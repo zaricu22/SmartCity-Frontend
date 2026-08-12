@@ -29,7 +29,7 @@ describe('httpErrorInterceptor', () => {
     [409, 'CONFLICT'],
     [422, 'UNPROCESSABLE'],
     [429, 'TOO_MANY_REQUESTS'],
-  ])('should map HTTP %i to AppHttpError with code %s', (status, code) => {
+  ])('should surface a %i response from the server as a %s error', (status, code) => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test').flush('Error', { status, statusText: 'Error' });
@@ -38,7 +38,7 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).code).toBe(code);
   });
 
-  it('should map a 500 response to SERVER_ERROR after all retries are exhausted', fakeAsync(() => {
+  it('should give up and report a server error after 2 retries still get a 500 response', fakeAsync(() => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test').flush('Error', { status: 500, statusText: 'Internal Server Error' });
@@ -51,7 +51,7 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).status).toBe(500);
   }));
 
-  it('should map an unknown 4xx (418) to AppHttpError with code UNKNOWN_ERROR', () => {
+  it('should still surface an unrecognized 4xx status (418) as an error, even with no specific handling for it', () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test').flush('Error', { status: 418, statusText: "I'm a teapot" });
@@ -60,7 +60,7 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).status).toBe(418);
   });
 
-  it('should use body.errorCode when the error body contains an errorCode field', () => {
+  it("should use the server's own error code when the response body provides one", () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller
@@ -69,7 +69,7 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).code).toBe('CUSTOM_CODE');
   });
 
-  it('should use body.message when the error body contains a message field', () => {
+  it("should show the server's own error message when the response body provides one", () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller
@@ -78,7 +78,7 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).userMessage).toBe('Custom error message');
   });
 
-  it('should map a CONCURRENT_MODIFICATION 409 to AppHttpError with that specific code', () => {
+  it('should report a conflict when the item was changed by someone else in the meantime (409 response)', () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller
@@ -91,7 +91,7 @@ describe('httpErrorInterceptor', () => {
     expect((error as AppHttpError).userMessage).toBe('The resource was modified by another request. Please retry.');
   });
 
-  it('should emit AppHttpError with code TIMEOUT when the request exceeds 30 seconds', fakeAsync(() => {
+  it('should treat the request as timed out if the server takes more than 30 seconds to respond', fakeAsync(() => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test'); // pending but never flushed — simulates a slow server

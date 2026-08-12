@@ -25,7 +25,7 @@ describe('unsavedChangesGuard', () => {
     expect(confirmDialog.confirm).not.toHaveBeenCalled();
   });
 
-  it('should call ConfirmDialogService when there are unsaved changes', () => {
+  it('should ask the user to confirm before leaving the page when there are unsaved changes', () => {
     TestBed.runInInjectionContext(() =>
       unsavedChangesGuard(makeComponent(true), {} as never, {} as never, {} as never),
     );

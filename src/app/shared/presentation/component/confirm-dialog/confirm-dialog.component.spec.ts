@@ -22,7 +22,7 @@ describe('ConfirmDialogComponent', () => {
     expect(component.pending()).toBeNull();
   });
 
-  it('should set pending signal when a confirm request arrives', () => {
+  it('should show the confirmation dialog when a confirm request arrives', () => {
     service.confirm('Delete this item?').subscribe();
     fixture.detectChanges();
 
@@ -30,7 +30,7 @@ describe('ConfirmDialogComponent', () => {
     expect(component.pending()?.message).toBe('Delete this item?');
   });
 
-  it('should resolve true and clear pending when respond(true) is called', () => {
+  it('should resolve to true and close the dialog when the user confirms', () => {
     let result: boolean | undefined;
     service.confirm('Are you sure?').subscribe(r => (result = r));
     fixture.detectChanges();
@@ -42,7 +42,7 @@ describe('ConfirmDialogComponent', () => {
     expect(component.pending()).toBeNull();
   });
 
-  it('should resolve false and clear pending when respond(false) is called', () => {
+  it('should resolve to false and close the dialog when the user cancels', () => {
     let result: boolean | undefined;
     service.confirm('Are you sure?').subscribe(r => (result = r));
     fixture.detectChanges();

@@ -55,7 +55,7 @@ describe('BuildingDetailComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should load building via toSignal and display it', () => {
+  it("should look up the building by the route's :id and display its name and location", () => {
     expect(facade.getById).toHaveBeenCalledWith('b-1');
     expect(fixture.nativeElement.textContent).toContain('City Hall');
     expect(fixture.nativeElement.textContent).toContain('Zone A');
@@ -70,7 +70,7 @@ describe('BuildingDetailComponent', () => {
     expect(facade.disconnectRealtime).toHaveBeenCalled();
   });
 
-  it('should reflect hasDevices computed signal', () => {
+  it('should report that the building has devices when it has at least one', () => {
     expect(component.hasDevices()).toBe(true);
   });
 
@@ -117,7 +117,7 @@ describe('BuildingDetailComponent', () => {
     expect(fixture.nativeElement.querySelector('app-add-device-dialog')).not.toBeNull();
   });
 
-  it('should call facade.addDevice and reload when DEVICE_ADDED event arrives', () => {
+  it('should save the device, close the dialog, and refresh the building once the addition is confirmed', () => {
     facade.addDevice.mockReturnValue(of(void 0));
     const eventBus = TestBed.inject(EventBusService);
     component.showAddDeviceDialog.set(true);
@@ -132,7 +132,7 @@ describe('BuildingDetailComponent', () => {
     expect(facade.getById).toHaveBeenCalledTimes(2);
   });
 
-  it('should call facade.changeConsumption and reload when CONSUMPTION_CHANGED event arrives', () => {
+  it('should save the new consumption value, close the dialog, and refresh the building once the change is confirmed', () => {
     facade.changeConsumption.mockReturnValue(of(void 0));
     const eventBus = TestBed.inject(EventBusService);
     component.showChangeConsumptionDialog.set(true);
@@ -192,7 +192,7 @@ describe('BuildingDetailComponent', () => {
     expect(component.errorMessage()).toBe('Server error');
   });
 
-  it('should reload the building when a mutation fails with CONCURRENT_MODIFICATION', () => {
+  it('should refresh the building when saving a change fails because someone else edited it first (a version conflict)', () => {
     facade.changeConsumption.mockReturnValue(
       throwError(() => new ApplicationException('The resource was modified by another request. Please retry.', 'CONCURRENT_MODIFICATION')),
     );
@@ -320,7 +320,7 @@ describe('BuildingDetailComponent', () => {
       expect(component.errorMessage()).toBe('Device not found');
     });
 
-    it('should reload when DEVICE_REMOVED event arrives for this building', () => {
+    it("should refresh the building when the server confirms this building's device was removed", () => {
       const eventBus = TestBed.inject(EventBusService);
 
       eventBus.publish({ type: 'DEVICE_REMOVED', buildingId: 'b-1', deviceId: 'd-1', deviceName: 'Roof Panel', deviceType: 'SOLAR' } as any);
