@@ -60,6 +60,8 @@ describe('BuildingListComponent (integration)', () => {
   const pageOf = (content: PublicBuildingResponse[], total = content.length) => ({
     content,
     totalElements: total,
+    // `|| 1` is a fixture convention, not real backend behavior — an empty result set here
+    // reports totalPages: 1 rather than 0, so a reader shouldn't mistake this for the API contract.
     totalPages: Math.ceil(total / 10) || 1,
     pageNumber: 0,
     pageSize: 10,
@@ -128,7 +130,9 @@ describe('BuildingListComponent (integration)', () => {
     tick();
     fixture.detectChanges();
 
-    // Open the dialog
+    // Open the dialog — unscoped `button` selector is safe only because the user is ADMIN, no
+    // filters are active, and there's a single page at this point, so "New Building" is the sole
+    // rendered <button>.
     fixture.nativeElement.querySelector('button').click();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-create-building-dialog')).not.toBeNull();

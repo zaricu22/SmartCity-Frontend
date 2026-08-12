@@ -12,6 +12,8 @@ describe('PublicBuildingQueryService', () => {
 
   const makeBuilding = (id: string, name: string) => new PublicBuilding(id, name, 'Zone A');
 
+  // `|| 1` is a fixture convention, not real backend behavior — an empty result set here
+  // reports totalPages: 1 rather than 0, so a reader shouldn't mistake this for the API contract.
   const pageOf = (buildings: PublicBuilding[]): Page<PublicBuilding> => ({
     content: buildings,
     totalElements: buildings.length,

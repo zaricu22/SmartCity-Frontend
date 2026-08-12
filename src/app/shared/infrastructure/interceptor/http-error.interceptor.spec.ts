@@ -42,6 +42,8 @@ describe('httpErrorInterceptor', () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test').flush('Error', { status: 500, statusText: 'Internal Server Error' });
+    // Delays come from the interceptor's retry({ delay: attempt * 1000 }) backoff: attempt 1 waits
+    // 1000ms, attempt 2 waits 2000ms.
     tick(1000);
     controller.expectOne('/api/test').flush('Error', { status: 500, statusText: 'Internal Server Error' });
     tick(2000);
@@ -95,6 +97,7 @@ describe('httpErrorInterceptor', () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test'); // pending but never flushed — simulates a slow server
+    // Deliberately 1ms past the 30s timeout to prove the comparison is strict, not inclusive.
     tick(30_001);
     expect(error).toBeInstanceOf(AppHttpError);
     expect((error as AppHttpError).code).toBe('TIMEOUT');
@@ -113,6 +116,7 @@ describe('httpErrorInterceptor', () => {
     let error: unknown;
     http.get('/api/test').subscribe({ error: e => (error = e) });
     controller.expectOne('/api/test').error(new ProgressEvent('error'));
+    // Same retry backoff schedule as the 500-response test above (attempt * 1000ms).
     tick(1000);
     controller.expectOne('/api/test').error(new ProgressEvent('error'));
     tick(2000);

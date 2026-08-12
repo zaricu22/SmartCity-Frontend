@@ -57,6 +57,8 @@ describe('AppComponent', () => {
 
   it('does not warn when the backend responds with a real HTTP error status', () => {
     TestBed.createComponent(AppComponent);
+    // Any real HTTP response — even an error like 401 — proves the backend is reachable; only a
+    // connection-level failure (status 0, see the test below) should trigger the warning.
     http.expectOne(PING_URL).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
     expect(toastService.toasts()).toEqual([]);
   });

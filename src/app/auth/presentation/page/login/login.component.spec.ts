@@ -87,6 +87,9 @@ describe('LoginComponent', () => {
   });
 
   it('should set window.location.href to the Google OAuth URL on loginWithGoogle', () => {
+    // A plain `value` descriptor (rather than callback.component.spec.ts's `get:` accessor) is
+    // safe here only because this is the last test in the file that touches window.location —
+    // there's no later test that needs it redefined again.
     const location = { href: '' };
     Object.defineProperty(window, 'location', { configurable: true, value: location });
     component.loginWithGoogle();

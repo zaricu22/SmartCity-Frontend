@@ -58,6 +58,7 @@ describe('ConfirmDialogComponent', () => {
     service.confirm('You have unsaved changes. Leave the page?').subscribe();
     fixture.detectChanges();
 
+    // Dialog template renders Cancel first, then the confirm/action button — index 1 is the latter.
     const buttons = fixture.nativeElement.querySelectorAll('.dialog__actions button');
     expect(buttons[1].textContent.trim()).toBe('Leave');
     expect(buttons[1].classList.contains('btn--primary')).toBe(true);
@@ -68,6 +69,7 @@ describe('ConfirmDialogComponent', () => {
     service.confirm('Delete "City Hall"? This cannot be undone.', { confirmLabel: 'Delete', danger: true }).subscribe();
     fixture.detectChanges();
 
+    // Same DOM order as above — Cancel is index 0, the danger/confirm button is index 1.
     const buttons = fixture.nativeElement.querySelectorAll('.dialog__actions button');
     expect(buttons[1].textContent.trim()).toBe('Delete');
     expect(buttons[1].classList.contains('btn--danger')).toBe(true);

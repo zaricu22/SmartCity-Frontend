@@ -132,6 +132,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
+    // Index 0 = /topic/buildings, the 1st subscribe() call per the topic-order test above (line 95).
     const buildingCreatedHandler = mockInstances[0].subscribe.mock.calls[0][1];
     buildingCreatedHandler({
       body: JSON.stringify({ buildingId: 'b-new', name: 'Library', location: 'Zone B' }),
@@ -148,6 +149,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
+    // Index 1 = /topic/buildings/deleted, the 2nd subscribe() call per the topic-order test above (line 95).
     const buildingDeletedHandler = mockInstances[0].subscribe.mock.calls[1][1];
     buildingDeletedHandler({ body: JSON.stringify({ buildingId: 'b-gone', name: 'Old Library' }) });
   });
@@ -164,6 +166,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
+    // Index 2 = /topic/buildings/:id/consumption, the 3rd subscribe() call per the topic-order test above (line 95).
     const consumptionHandler = mockInstances[0].subscribe.mock.calls[2][1];
     consumptionHandler({
       body: JSON.stringify({
@@ -192,6 +195,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
+    // Index 3 = /topic/buildings/:id/devices, the 4th subscribe() call per the topic-order test above (line 95).
     const deviceAddedHandler = mockInstances[0].subscribe.mock.calls[3][1];
     deviceAddedHandler({
       body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-1', deviceName: 'Roof Panel', deviceType: DeviceType.SOLAR }),
@@ -214,6 +218,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
+    // Index 4 = /topic/buildings/:id/devices/removed, the 5th subscribe() call per the topic-order test above (line 95).
     const deviceRemovedHandler = mockInstances[0].subscribe.mock.calls[4][1];
     deviceRemovedHandler({
       body: JSON.stringify({ buildingId: BUILDING_ID, deviceId: 'd-2', deviceName: 'Backup Battery', deviceType: DeviceType.BATTERY }),
@@ -233,6 +238,7 @@ describe('BuildingWebSocketService', () => {
       done();
     });
 
+    // Index 5 = /topic/buildings/:id/production, the 6th subscribe() call per the topic-order test above (line 95).
     const productionHandler = mockInstances[0].subscribe.mock.calls[5][1];
     productionHandler({
       body: JSON.stringify({
