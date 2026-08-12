@@ -37,7 +37,7 @@ describe('LogoutButtonComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call authApi.logout, then auth.logout and navigate to /login', () => {
+  it('should end the session on the backend, clear the local login state, and return to the login page', () => {
     component.logout();
     expect(authApi.logout).toHaveBeenCalledWith('refresh-uuid');
     expect(auth.logout).toHaveBeenCalled();

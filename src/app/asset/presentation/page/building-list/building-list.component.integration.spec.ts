@@ -192,7 +192,7 @@ describe('BuildingListComponent (integration)', () => {
     discardPeriodicTasks();
   }));
 
-  it('should GET with name/location params after a debounced filter change, and show the filtered empty state', fakeAsync(() => {
+  it('should filter buildings by name/location shortly after typing stops, and show a no-results message when none match', fakeAsync(() => {
     fixture.detectChanges();
     http.expectOne(r => r.url === BASE).flush(pageOf(buildingResponses));
     tick();

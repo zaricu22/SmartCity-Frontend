@@ -36,13 +36,13 @@ describe('BuildingCardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Zone A');
   });
 
-  it('should render a routerLink pointing to /assets/:id', () => {
+  it("should link to the building's detail page at /assets/b-1", () => {
     const anchor = fixture.nativeElement.querySelector('a');
     expect(anchor).not.toBeNull();
     expect(anchor.getAttribute('href')).toBe('/assets/b-1');
   });
 
-  it('should show device summary via computed()', () => {
+  it("should show '0 devices' when the building has no devices", () => {
     expect(fixture.nativeElement.textContent).toContain('0 devices');
   });
 });

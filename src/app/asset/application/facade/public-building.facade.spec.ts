@@ -138,7 +138,7 @@ describe('PublicBuildingFacade', () => {
   });
 
   describe('error handling', () => {
-    it('preserves the domain errorCode when appService throws a DomainException', (done) => {
+    it('shows the domain-specific error code and message (e.g. capacity exceeded) instead of a generic one when a business rule blocks the operation', (done) => {
       appService.delete.mockReturnValue(throwError(() => new DomainException('Capacity exceeded', ErrorCode.TOTAL_CAPACITY_EXCEEDED)));
 
       facade.delete('b-1', 3).subscribe({
@@ -150,7 +150,7 @@ describe('PublicBuildingFacade', () => {
       });
     });
 
-    it('preserves the HTTP errorCode (e.g. CONCURRENT_MODIFICATION) when appService throws an AppHttpError', (done) => {
+    it('shows the server conflict code and retry message when the building was edited by someone else in the meantime', (done) => {
       appService.delete.mockReturnValue(
         throwError(() => new AppHttpError(409, 'CONCURRENT_MODIFICATION', 'The resource was modified by another request. Please retry.')),
       );
@@ -164,7 +164,7 @@ describe('PublicBuildingFacade', () => {
       });
     });
 
-    it('falls back to the operation-specific message when AppHttpError has no userMessage', (done) => {
+    it('falls back to a generic failed-to-delete message when the server error has no user-facing text', (done) => {
       // ?? only falls back on null/undefined, not falsy values like '' — AppHttpError.userMessage
       // is typed as a required string, so this state needs an unsafe cast to construct at all.
       appService.delete.mockReturnValue(

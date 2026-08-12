@@ -56,7 +56,7 @@ describe('LoginComponent', () => {
     expect(authApi.login).not.toHaveBeenCalled();
   });
 
-  it('should call AuthApiService.login with form values and setToken on success', () => {
+  it('should log the user in with the entered username and password and store the session on success', () => {
     component.form.setValue({ username: 'admin', password: 'secret' });
     component.login();
     expect(authApi.login).toHaveBeenCalledWith('admin', 'secret');

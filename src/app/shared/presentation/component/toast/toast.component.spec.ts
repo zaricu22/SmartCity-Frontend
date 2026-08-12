@@ -16,7 +16,7 @@ describe('ToastComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should expose the injected ToastService', () => {
+  it('should share the same toast service used elsewhere, so toasts shown by other parts of the app appear here', () => {
     expect(fixture.componentInstance.toastService).toBe(service);
   });
 

@@ -29,7 +29,7 @@ describe('EnergyDisplayComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('MW');
   });
 
-  it('should return the full circumference if ringOffset is read while percent is unbound', () => {
+  it('should treat a missing percent the same as an empty ring (full circumference offset), not zero or undefined', () => {
     fixture.componentRef.setInput('value', 42);
     fixture.componentRef.setInput('unit', EnergyUnit.kW);
     fixture.detectChanges();

@@ -51,7 +51,7 @@ describe('RegisterComponent', () => {
     expect(authApi.register).not.toHaveBeenCalled();
   });
 
-  it('should report passwordsMismatch when passwords differ', () => {
+  it("should show a form error when password and confirm password don't match", () => {
     component.form.setValue({ email: 'user@example.com', password: 'password1', confirmPassword: 'password2' });
     expect(component.form.errors).toEqual({ passwordsMismatch: true });
   });
@@ -61,7 +61,7 @@ describe('RegisterComponent', () => {
     expect(component.form.errors).toBeNull();
   });
 
-  it('should call register, setToken with the response, and navigate to / on success', () => {
+  it('should register the new account, log the user in, and go to the home page', () => {
     component.form.setValue({ email: 'user@example.com', password: 'password1', confirmPassword: 'password1' });
     component.register();
     expect(authApi.register).toHaveBeenCalledWith('user@example.com', 'password1');

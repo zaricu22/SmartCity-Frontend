@@ -73,7 +73,7 @@ describe('EnergyDevice', () => {
       expect(() => device.changeProduction(new Energy(100, EnergyUnit.kW))).not.toThrow();
     });
 
-    it('should throw DeviceCapacityLimitException when production exceeds capacity', () => {
+    it('rejects production that goes even 1 kW above the rated capacity, unlike production exactly at the limit', () => {
       const device = new EnergyDevice('id-1', 'Roof Panel', DeviceType.SOLAR, capacity);
       expect(() => device.changeProduction(new Energy(101, EnergyUnit.kW)))
         .toThrow(DeviceCapacityLimitException);

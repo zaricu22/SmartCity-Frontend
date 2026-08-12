@@ -52,7 +52,7 @@ describe('PublicBuildingAppService', () => {
       });
     });
 
-    it('should publish BuildingCreatedEvent on the EventBus after save succeeds', (done) => {
+    it('lets other open views learn a new building was created, including its name and location', (done) => {
       repository.save.mockReturnValue(of(void 0));
       const eventBus = TestBed.inject(EventBusService);
 
@@ -78,7 +78,7 @@ describe('PublicBuildingAppService', () => {
       });
     });
 
-    it('should publish BuildingDeletedEvent with the building name on the EventBus after delete succeeds', (done) => {
+    it('lets other open views learn a building was deleted, including its name', (done) => {
       repository.findById.mockReturnValue(of(makeBuilding()));
       repository.delete.mockReturnValue(of(void 0));
       const eventBus = TestBed.inject(EventBusService);
@@ -133,7 +133,7 @@ describe('PublicBuildingAppService', () => {
       });
     });
 
-    it('should publish DeviceRemovedEvent on the EventBus after removal succeeds', (done) => {
+    it('lets other open views learn a device was removed, including its name and type', (done) => {
       const building = makeBuilding();
       building.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(100, EnergyUnit.kW)));
       building.pullEvents();
