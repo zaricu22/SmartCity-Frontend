@@ -50,6 +50,8 @@ describe('PublicBuilding', () => {
       const b = makeBuilding();
       const events = b.pullEvents();
       expect(events.length).toBe(1);
+      // pullEvents() returns the DomainEvent base type, not the specific event subtype, so
+      // reading payload fields needs a cast — used throughout this file for the same reason.
       expect(events[0].type).toBe('BUILDING_CREATED');
       expect((events[0] as any).buildingId).toBe('b-1');
       expect((events[0] as any).name).toBe('City Hall');

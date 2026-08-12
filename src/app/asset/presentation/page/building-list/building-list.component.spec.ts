@@ -79,6 +79,8 @@ describe('BuildingListComponent', () => {
 
   it('should show the create dialog when the button is clicked', () => {
     expect(fixture.nativeElement.querySelector('app-create-building-dialog')).toBeNull();
+    // Unscoped `button` selector is safe only because "New Building" is the sole rendered
+    // <button> in this component's default (no filters, ADMIN) state.
     fixture.nativeElement.querySelector('button').click();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-create-building-dialog')).not.toBeNull();

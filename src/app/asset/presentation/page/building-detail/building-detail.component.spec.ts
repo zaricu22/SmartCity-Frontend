@@ -125,6 +125,9 @@ describe('BuildingDetailComponent', () => {
 
     const result = { name: 'Backup Battery', type: DeviceType.BATTERY, ratedCapacityValue: 50, ratedCapacityUnit: EnergyUnit.kW };
     component.onAddDevice(result);
+    // facade.addDevice is a stub (of(void 0)), so unlike production — where a real save publishes
+    // DEVICE_ADDED — nothing here fires the event that drives the reload. Publish it manually to
+    // simulate that chain.
     eventBus.publish({ type: 'DEVICE_ADDED', buildingId: 'b-1', deviceId: 'd-test', deviceName: 'Backup Battery', deviceType: DeviceType.BATTERY } as any);
 
     expect(facade.addDevice).toHaveBeenCalledWith({ ...result, buildingId: 'b-1', version: 3 });
@@ -139,6 +142,9 @@ describe('BuildingDetailComponent', () => {
     fixture.detectChanges();
 
     component.onChangeConsumption({ consumptionValue: 80, consumptionUnit: EnergyUnit.kW });
+    // Same as the add-device test above: the stubbed facade never publishes CONSUMPTION_CHANGED
+    // itself, so it's published by hand here. oldConsumption/newConsumption are safely null — the
+    // component's subscription only triggers a reload, it never reads those payload fields.
     eventBus.publish({ type: 'CONSUMPTION_CHANGED', buildingId: 'b-1', oldConsumption: null, newConsumption: null } as any);
 
     expect(facade.changeConsumption).toHaveBeenCalledWith('b-1', {
