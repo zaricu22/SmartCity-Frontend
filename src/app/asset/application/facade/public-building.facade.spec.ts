@@ -139,12 +139,12 @@ describe('PublicBuildingFacade', () => {
 
   describe('error handling', () => {
     it('shows the domain-specific error code and message (e.g. capacity exceeded) instead of a generic one when a business rule blocks the operation', (done) => {
-      appService.delete.mockReturnValue(throwError(() => new DomainException('Capacity exceeded', ErrorCode.TOTAL_CAPACITY_EXCEEDED)));
+      appService.delete.mockReturnValue(throwError(() => new DomainException('Capacity exceeded', ErrorCode.PRODUCTION_RATE_EXCEEDED)));
 
       facade.delete('b-1', 3).subscribe({
         error: (err: ApplicationException) => {
           expect(err.message).toBe('Capacity exceeded');
-          expect(err.errorCode).toBe(ErrorCode.TOTAL_CAPACITY_EXCEEDED);
+          expect(err.errorCode).toBe(ErrorCode.PRODUCTION_RATE_EXCEEDED);
           done();
         },
       });

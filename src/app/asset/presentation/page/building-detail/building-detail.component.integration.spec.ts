@@ -38,7 +38,7 @@ describe('BuildingDetailComponent (integration)', () => {
     consumptionUnit: EnergyUnit.kW,
     version: 3,
     devices: [
-      { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 0, productionRateUnit: EnergyUnit.kW },
+      { id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW, productionRateValue: 100, productionRateUnit: EnergyUnit.kW },
     ],
   };
 

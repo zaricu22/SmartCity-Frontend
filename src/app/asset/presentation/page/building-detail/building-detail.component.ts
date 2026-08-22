@@ -72,23 +72,24 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   readonly building = toSignal(this.building$, { initialValue: null });
   readonly hasDevices = computed(() => (this.building()?.devices.length ?? 0) > 0);
 
-  // Sum of all device rated capacities in kW — same total-capacity figure the domain
-  // aggregate itself enforces (PublicBuilding.calculateTotalCapacity(), the check behind
-  // BuildingTotalCapacityExceededException) — so the ring genuinely shows "how close to
+  // Sum of all device production rates in kW — same total-production-rate figure the domain
+  // aggregate itself enforces (PublicBuilding.calculateTotalProductionRate(), the check behind
+  // BuildingProductionRateExceededException) — so the ring genuinely shows "how close to
   // the limit," not an arbitrary number.
-  private readonly totalCapacityKw = computed(() =>
+  private readonly totalProductionRateKw = computed(() =>
     (this.building()?.devices ?? []).reduce(
-      (sum, d) => sum + toKW(d.ratedCapacityUnit, d.ratedCapacityValue),
+      (sum, d) => sum + toKW(d.productionRateUnit, d.productionRateValue),
       0,
     ),
   );
 
-  // Percent of total device capacity currently consumed — feeds EnergyDisplayComponent's
+  // Percent of total device production rate currently consumed — feeds EnergyDisplayComponent's
   // progress ring. Not clamped here; EnergyDisplayComponent clamps for display, since
-  // consumption can exceed capacity if devices are removed after consumption was set.
+  // consumption can exceed the production rate if devices' production is lowered after
+  // consumption was set.
   readonly consumptionPercent = computed(() => {
     const building = this.building();
-    const totalKw = this.totalCapacityKw();
+    const totalKw = this.totalProductionRateKw();
     if (!building || totalKw <= 0) return 0;
     return (toKW(building.consumptionUnit, building.consumptionValue) / totalKw) * 100;
   });

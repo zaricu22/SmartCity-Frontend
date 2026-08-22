@@ -7,12 +7,19 @@ import { ErrorCode } from '../shared/enums/error-code.enum';
 import { ValidationException } from '../exception/validation.exception';
 import { DeviceAlreadyExistsException } from '../exception/device-already-exists.exception';
 import { DeviceNotFoundException } from '../exception/device-not-found.exception';
-import { BuildingTotalCapacityExceededException } from '../exception/building-total-capacity-exceeded.exception';
+import { BuildingProductionRateExceededException } from '../exception/building-production-rate-exceeded.exception';
 
 describe('PublicBuilding', () => {
   const makeBuilding = () => new PublicBuilding('b-1', 'City Hall', 'Zone A - Main St');
   const makeDevice = (id: string, capacityKw: number) =>
     new EnergyDevice(id, 'Test Device', DeviceType.SOLAR, new Energy(capacityKw, EnergyUnit.kW));
+  // Adds a device and immediately sets its production rate to match its capacity — the
+  // "fully producing" fixture shape every changeConsumption() test needs now that the
+  // invariant checks production rate instead of rated capacity.
+  const addProducingDevice = (building: PublicBuilding, id: string, capacityKw: number) => {
+    building.addDevice(makeDevice(id, capacityKw));
+    building.changeDeviceProduction(id, new Energy(capacityKw, EnergyUnit.kW));
+  };
 
   describe('constructor', () => {
     it('should create with valid arguments', () => {
@@ -132,46 +139,47 @@ describe('PublicBuilding', () => {
   });
 
   describe('changeConsumption()', () => {
-    it('should update consumption within total capacity', () => {
+    it('should update consumption within total production rate', () => {
       const b = makeBuilding();
-      b.addDevice(makeDevice('d-1', 100));
+      addProducingDevice(b, 'd-1', 100);
       b.pullEvents();
       b.changeConsumption(new Energy(80, EnergyUnit.kW));
       expect(b.consumption.value).toBe(80);
     });
 
-    it('should allow consumption equal to total capacity', () => {
+    it('should allow consumption equal to total production rate', () => {
       const b = makeBuilding();
-      b.addDevice(makeDevice('d-1', 100));
+      addProducingDevice(b, 'd-1', 100);
       b.pullEvents();
       expect(() => b.changeConsumption(new Energy(100, EnergyUnit.kW))).not.toThrow();
     });
 
-    it('rejects consumption that goes even 1 kW above the total device capacity, unlike consumption exactly at the limit', () => {
+    it('rejects consumption that goes even 1 kW above the total production rate, unlike consumption exactly at the limit', () => {
       const b = makeBuilding();
-      b.addDevice(makeDevice('d-1', 100));
+      addProducingDevice(b, 'd-1', 100);
       b.pullEvents();
-      expect(() => b.changeConsumption(new Energy(101, EnergyUnit.kW))).toThrow(BuildingTotalCapacityExceededException);
+      expect(() => b.changeConsumption(new Energy(101, EnergyUnit.kW))).toThrow(BuildingProductionRateExceededException);
     });
 
-    it('should aggregate capacity across multiple devices', () => {
+    it('should aggregate production rate across multiple devices', () => {
       const b = makeBuilding();
-      b.addDevice(makeDevice('d-1', 100));
-      b.addDevice(makeDevice('d-2', 200));
+      addProducingDevice(b, 'd-1', 100);
+      addProducingDevice(b, 'd-2', 200);
       b.pullEvents();
       expect(() => b.changeConsumption(new Energy(300, EnergyUnit.kW))).not.toThrow();
     });
 
-    it('allows 1000 kW consumption against a single 1 MW device — capacity is unit-converted, not just summed as raw numbers', () => {
+    it('allows 1000 kW consumption against a single 1 MW device — production rate is unit-converted, not just summed as raw numbers', () => {
       const b = makeBuilding();
       b.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(1, EnergyUnit.MW))); // 1000 kW
+      b.changeDeviceProduction('d-1', new Energy(1, EnergyUnit.MW));
       b.pullEvents();
       expect(() => b.changeConsumption(new Energy(1000, EnergyUnit.kW))).not.toThrow();
     });
 
     it('notifies listeners of the new consumption value after it changes', () => {
       const b = makeBuilding();
-      b.addDevice(makeDevice('d-1', 100));
+      addProducingDevice(b, 'd-1', 100);
       b.pullEvents();
       b.changeConsumption(new Energy(50, EnergyUnit.kW));
       const events = b.pullEvents();

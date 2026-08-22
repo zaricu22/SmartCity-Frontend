@@ -19,7 +19,7 @@ describe('BuildingDetailComponent', () => {
 
   const stubDevice: EnergyDeviceDto = {
     id: 'd-1', name: 'Roof Panel', type: DeviceType.SOLAR, ratedCapacityValue: 100, ratedCapacityUnit: EnergyUnit.kW,
-    productionRateValue: 0, productionRateUnit: EnergyUnit.kW,
+    productionRateValue: 100, productionRateUnit: EnergyUnit.kW,
   };
   const stubBuilding: PublicBuildingDto = {
     id: 'b-1', name: 'City Hall', location: 'Zone A',
@@ -75,8 +75,8 @@ describe('BuildingDetailComponent', () => {
   });
 
   describe('consumptionPercent', () => {
-    it('should compute consumption as a percent of total device capacity', () => {
-      // stubBuilding: consumptionValue 50 kW; stubDevice: ratedCapacityValue 100 kW
+    it('should compute consumption as a percent of total production rate', () => {
+      // stubBuilding: consumptionValue 50 kW; stubDevice: productionRateValue 100 kW
       expect(component.consumptionPercent()).toBeCloseTo(50);
     });
 
@@ -85,7 +85,7 @@ describe('BuildingDetailComponent', () => {
         ...stubBuilding,
         consumptionValue: 0.5,
         consumptionUnit: EnergyUnit.MW, // 500 kW
-        devices: [{ ...stubDevice, ratedCapacityValue: 1, ratedCapacityUnit: EnergyUnit.MW }], // 1000 kW
+        devices: [{ ...stubDevice, productionRateValue: 1, productionRateUnit: EnergyUnit.MW }], // 1000 kW
       }));
       component.load();
       fixture.detectChanges();
@@ -93,7 +93,7 @@ describe('BuildingDetailComponent', () => {
       expect(component.consumptionPercent()).toBeCloseTo(50);
     });
 
-    it('should return 0 when the building has no devices (zero total capacity)', () => {
+    it('should return 0 when the building has no devices (zero total production rate)', () => {
       facade.getById.mockReturnValue(of({ ...stubBuilding, devices: [] }));
       component.load();
       fixture.detectChanges();
