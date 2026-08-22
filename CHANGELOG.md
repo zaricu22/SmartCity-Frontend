@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.16.0...v1.16.1) (2026-08-22)
+
+
+### Bug Fixes
+
+* **asset/domain:** validate consumption by production rate, not rated capacity ([#102](https://github.com/zaricu22/SmartCity-Frontend/issues/102)) ([bb4185c](https://github.com/zaricu22/SmartCity-Frontend/commit/bb4185c31f21a029f69678177a8d08140c06b244))
+
 # [1.16.0](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.15.1...v1.16.0) (2026-08-11)
 
 
