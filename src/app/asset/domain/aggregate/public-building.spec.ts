@@ -138,12 +138,24 @@ describe('PublicBuilding', () => {
       expect(b.devices[0].id).toBe('d-2');
     });
 
-    it('rejects removing a device that is actively producing', () => {
+    it('rejects removing a device whose production the current consumption still depends on', () => {
       const b = makeBuilding();
       addProducingDevice(b, 'd-1', 100);
+      b.changeConsumption(new Energy(100, EnergyUnit.kW));
       b.pullEvents();
       expect(() => b.removeDevice('d-1')).toThrow(DeviceInUseException);
       expect(b.devices.length).toBe(1);
+    });
+
+    it('allows removing a producing device when the remaining devices still cover current consumption', () => {
+      const b = makeBuilding();
+      addProducingDevice(b, 'd-1', 100);
+      addProducingDevice(b, 'd-2', 50);
+      b.changeConsumption(new Energy(50, EnergyUnit.kW));
+      b.pullEvents();
+      b.removeDevice('d-1');
+      expect(b.devices.length).toBe(1);
+      expect(b.devices[0].id).toBe('d-2');
     });
   });
 
