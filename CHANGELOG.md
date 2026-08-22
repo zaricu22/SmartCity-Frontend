@@ -1,3 +1,10 @@
+## [1.16.3](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.16.2...v1.16.3) (2026-08-22)
+
+
+### Bug Fixes
+
+* **asset/domain:** block device removal only when remaining devices can't cover consumption ([#106](https://github.com/zaricu22/SmartCity-Frontend/issues/106)) ([9b80d24](https://github.com/zaricu22/SmartCity-Frontend/commit/9b80d24a1df4b1f427928fc807b9692929393074))
+
 ## [1.16.2](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.16.1...v1.16.2) (2026-08-22)
 
 
