@@ -8,6 +8,7 @@ import { ValidationException } from '../exception/validation.exception';
 import { DeviceAlreadyExistsException } from '../exception/device-already-exists.exception';
 import { DeviceNotFoundException } from '../exception/device-not-found.exception';
 import { BuildingProductionRateExceededException } from '../exception/building-production-rate-exceeded.exception';
+import { DeviceInUseException } from '../exception/device-in-use-exception';
 
 describe('PublicBuilding', () => {
   const makeBuilding = () => new PublicBuilding('b-1', 'City Hall', 'Zone A - Main St');
@@ -135,6 +136,14 @@ describe('PublicBuilding', () => {
       b.removeDevice('d-1');
       expect(b.devices.length).toBe(1);
       expect(b.devices[0].id).toBe('d-2');
+    });
+
+    it('rejects removing a device that is actively producing', () => {
+      const b = makeBuilding();
+      addProducingDevice(b, 'd-1', 100);
+      b.pullEvents();
+      expect(() => b.removeDevice('d-1')).toThrow(DeviceInUseException);
+      expect(b.devices.length).toBe(1);
     });
   });
 

@@ -326,6 +326,23 @@ describe('BuildingDetailComponent', () => {
       expect(component.errorMessage()).toBe('Device not found');
     });
 
+    it('should show an error toast when the backend rejects removal of an active device (DeviceInUseException)', () => {
+      // The domain aggregate is the sole enforcer of this rule — the component has no
+      // client-side check, it just surfaces whatever the facade reports.
+      const confirmDialogService = TestBed.inject(ConfirmDialogService);
+      jest.spyOn(confirmDialogService, 'confirm').mockReturnValue(of(true));
+      facade.removeDevice.mockReturnValue(
+        throwError(() => new ApplicationException('Aktivan uredjaj ne moze biti uklonjen!', 'DEVICE_IN_USE')),
+      );
+      const toastService = TestBed.inject(ToastService);
+      const showSpy = jest.spyOn(toastService, 'show');
+
+      component.onRemoveDevice('d-1');
+
+      expect(showSpy).toHaveBeenCalledWith('Aktivan uredjaj ne moze biti uklonjen!', 'error');
+      expect(component.errorMessage()).toBe('Aktivan uredjaj ne moze biti uklonjen!');
+    });
+
     it("should refresh the building when the server confirms this building's device was removed", () => {
       const eventBus = TestBed.inject(EventBusService);
 

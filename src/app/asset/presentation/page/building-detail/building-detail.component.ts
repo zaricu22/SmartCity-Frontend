@@ -167,7 +167,8 @@ export class BuildingDetailComponent implements OnInit, HasUnsavedChanges {
   }
 
   onRemoveDevice(deviceId: string): void {
-    const deviceName = this.building()?.devices.find(d => d.id === deviceId)?.name ?? 'Device';
+    const device = this.building()?.devices.find(d => d.id === deviceId);
+    const deviceName = device?.name ?? 'Device';
     this.confirmDialogService.confirm('Remove this device? This cannot be undone.', { confirmLabel: 'Remove', danger: true })
       .pipe(
         filter(confirmed => confirmed),
