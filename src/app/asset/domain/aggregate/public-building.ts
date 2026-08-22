@@ -11,6 +11,7 @@ import { ValidationException } from '../exception/validation.exception';
 import { ErrorCode } from '../shared/enums/error-code.enum';
 import { EnergyUnit, toKW } from '../shared/enums/energy-unit.enum';
 import { Energy } from '../value-object/energy';
+import { DeviceInUseException } from '../exception/device-in-use-exception';
 
 export class PublicBuilding {
   private readonly _id: string;
@@ -78,6 +79,9 @@ export class PublicBuilding {
   removeDevice(deviceId: string): void {
     const index = this._devices.findIndex(d => d.id === deviceId);
     if (index === -1) throw new DeviceNotFoundException();
+
+    const device = this._devices[index];
+    if (device.productionRate.value > 0) throw new DeviceInUseException();
 
     const [removed] = this._devices.splice(index, 1);
 
