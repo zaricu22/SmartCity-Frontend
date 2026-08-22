@@ -11,11 +11,17 @@ describe('SubsidyEligibilitySpecification', () => {
   const makeBuilding = (location: string) => new PublicBuilding('b-1', 'Hall', location);
   const makeDevice = (id: string) =>
     new EnergyDevice(id, 'Test Device', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW));
+  // Adds a device and immediately sets its production rate to match its capacity — needed
+  // since changeConsumption() checks production rate, not rated capacity.
+  const addProducingDevice = (building: PublicBuilding, id: string) => {
+    building.addDevice(makeDevice(id));
+    building.changeDeviceProduction(id, new Energy(200, EnergyUnit.kW));
+  };
 
   const eligibleBuilding = (): PublicBuilding => {
     const b = makeBuilding('Zone A - Downtown');
-    b.addDevice(makeDevice('d-1'));
-    b.addDevice(makeDevice('d-2'));
+    addProducingDevice(b, 'd-1');
+    addProducingDevice(b, 'd-2');
     b.pullEvents();
     b.changeConsumption(new Energy(51, EnergyUnit.kW));
     b.pullEvents();
@@ -28,7 +34,7 @@ describe('SubsidyEligibilitySpecification', () => {
 
   it('should not be satisfied with fewer than 2 devices', () => {
     const b = makeBuilding('Zone A - Downtown');
-    b.addDevice(makeDevice('d-1'));
+    addProducingDevice(b, 'd-1');
     b.pullEvents();
     b.changeConsumption(new Energy(51, EnergyUnit.kW));
     b.pullEvents();
@@ -37,8 +43,8 @@ describe('SubsidyEligibilitySpecification', () => {
 
   it('should not be satisfied when consumption does not exceed 50 kW', () => {
     const b = makeBuilding('Zone A - Downtown');
-    b.addDevice(makeDevice('d-1'));
-    b.addDevice(makeDevice('d-2'));
+    addProducingDevice(b, 'd-1');
+    addProducingDevice(b, 'd-2');
     b.pullEvents();
     b.changeConsumption(new Energy(50, EnergyUnit.kW)); // exactly 50 — not strictly greater
     b.pullEvents();
@@ -47,8 +53,8 @@ describe('SubsidyEligibilitySpecification', () => {
 
   it('should not be satisfied when location is not Zone A', () => {
     const b = makeBuilding('Zone B - Suburb');
-    b.addDevice(makeDevice('d-1'));
-    b.addDevice(makeDevice('d-2'));
+    addProducingDevice(b, 'd-1');
+    addProducingDevice(b, 'd-2');
     b.pullEvents();
     b.changeConsumption(new Energy(51, EnergyUnit.kW));
     b.pullEvents();

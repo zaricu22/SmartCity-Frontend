@@ -37,6 +37,7 @@ describe('BuildingDtoMapper', () => {
     it('should map current consumption', () => {
       const building = new PublicBuilding('b-1', 'City Hall', 'Zone A');
       building.addDevice(new EnergyDevice('d-1', 'Roof Panel', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
+      building.changeDeviceProduction('d-1', new Energy(200, EnergyUnit.kW));
       building.pullEvents();
       building.changeConsumption(new Energy(50, EnergyUnit.kW));
       building.pullEvents();

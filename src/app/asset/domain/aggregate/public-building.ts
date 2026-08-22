@@ -4,7 +4,7 @@ import { ConsumptionChangedEvent } from '../event/consumption-changed.event';
 import { DeviceAddedEvent } from '../event/device-added.event';
 import { DeviceRemovedEvent } from '../event/device-removed.event';
 import { ProductionChangedEvent } from '../event/production-changed.event';
-import { BuildingTotalCapacityExceededException } from '../exception/building-total-capacity-exceeded.exception';
+import { BuildingProductionRateExceededException } from '../exception/building-production-rate-exceeded.exception';
 import { DeviceAlreadyExistsException } from '../exception/device-already-exists.exception';
 import { DeviceNotFoundException } from '../exception/device-not-found.exception';
 import { ValidationException } from '../exception/validation.exception';
@@ -91,8 +91,8 @@ export class PublicBuilding {
   }
 
   changeConsumption(newConsumptionRate: Energy): void {
-    if (newConsumptionRate.greaterThan(this.calculateTotalCapacity())) {
-      throw new BuildingTotalCapacityExceededException();
+    if (newConsumptionRate.greaterThan(this.calculateTotalProductionRate())) {
+      throw new BuildingProductionRateExceededException();
     }
 
     const old = this._consumption;
@@ -122,9 +122,9 @@ export class PublicBuilding {
     } satisfies ProductionChangedEvent);
   }
 
-  private calculateTotalCapacity(): Energy {
+  private calculateTotalProductionRate(): Energy {
     const totalKw = this._devices
-      .map(d => toKW(d.deviceRatedCapacity.unit, d.deviceRatedCapacity.value))
+      .map(d => toKW(d.productionRate.unit, d.productionRate.value))
       .reduce((sum, kw) => sum + kw, 0);
 
     return new Energy(totalKw, EnergyUnit.kW);

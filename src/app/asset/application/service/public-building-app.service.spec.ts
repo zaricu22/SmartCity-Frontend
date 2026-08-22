@@ -158,6 +158,7 @@ describe('PublicBuildingAppService', () => {
     it('should fetch building, update consumption, and persist via repository', (done) => {
       const building = makeBuilding();
       building.addDevice(new EnergyDevice('d-1', 'Test Device', DeviceType.SOLAR, new Energy(200, EnergyUnit.kW)));
+      building.changeDeviceProduction('d-1', new Energy(200, EnergyUnit.kW));
       building.pullEvents();
 
       repository.findById.mockReturnValue(of(building));
