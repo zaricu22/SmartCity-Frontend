@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.16.1...v1.16.2) (2026-08-22)
+
+
+### Bug Fixes
+
+* **asset/domain:** reject removing a device while it is still producing ([#104](https://github.com/zaricu22/SmartCity-Frontend/issues/104)) ([80ef21b](https://github.com/zaricu22/SmartCity-Frontend/commit/80ef21bb263d977bfeea4d9d8c9ebc6953fadd7b))
+
 ## [1.16.1](https://github.com/zaricu22/SmartCity-Frontend/compare/v1.16.0...v1.16.1) (2026-08-22)
 
 
