@@ -81,7 +81,9 @@ export class PublicBuilding {
     if (index === -1) throw new DeviceNotFoundException();
 
     const device = this._devices[index];
-    if (device.productionRate.value > 0) throw new DeviceInUseException();
+    const totalProductionAfterRemoval = this.calculateTotalProductionRate().value - toKW(device.productionRate.unit, device.productionRate.value);
+    if (totalProductionAfterRemoval - toKW(this._consumption.unit, this._consumption.value) < 0) 
+      throw new DeviceInUseException();
 
     const [removed] = this._devices.splice(index, 1);
 
